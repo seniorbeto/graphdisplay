@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from graphdisplay import GraphGUI
 
 class AdjacentVertex:
     """ This class allows us to represent a tuple
@@ -124,8 +125,6 @@ if __name__ == '__main__':
     g.add_edge('B', 'D')  # B:1,  D:4
     g.add_edge('B', 'E')  # C:2,  B:1
     # g.add_edge('A', 'H', 8)
-
-    GraphGUI(g)
     print(g)
     for c in g._vertices:
         print("adjacent vertices of {} : {} ".format(c, str(g.get_adjacents(c))))
@@ -145,6 +144,7 @@ if __name__ == '__main__':
     g.add_edge('C', 'B', 20)  # C->(20)B
     g.add_edge('C', 'D', 32)  # C->(32)D
     g.add_edge('E', 'A', 7)   # E->(7)A
+    GraphGUI(g)
 
     print(g)
     print(g.contain_edge('C', 'B'))
