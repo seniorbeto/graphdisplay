@@ -68,17 +68,21 @@ class GraphGUI:
             i += 1
 
         # Display the edges
-        for edge in self.edges:
-            edge_start_node = edge.start_node
-            edge_end_node = edge.end_node
-            found = False
-            for i in edge_start_node.asociated_edges_IN:
-                if i.start_node == edge_end_node:
-                    found = True
-                    edge.overlaped = True
+        if self.graph._directed:
+            for edge in self.edges:
+                edge_start_node = edge.start_node
+                edge_end_node = edge.end_node
+                found = False
+                for i in edge_start_node.asociated_edges_IN:
+                    if i.start_node == edge_end_node:
+                        found = True
+                        edge.overlaped = True
+                        edge.show()
+                        break
+                if not found:
                     edge.show()
-                    break
-            if not found:
+        else:
+            for edge in self.edges:
                 edge.show()
 
         self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
