@@ -22,6 +22,7 @@ class GraphGUI:
             raise ValueError("The parameters scr_width and scr_height must be values greater than 200")
         if scr_width > 1000 or scr_height > 1000:
             raise ValueError("The parameters scr_width and scr_height must be values less than 1000")
+
         self.graph = graph
         # create the main window and start the GUI
         root = tk.Tk()
@@ -54,17 +55,31 @@ class GraphGUI:
             i += 1
             angle += arch_angle
 
-        # Display the edges
+        # Create the edges
         i = 0
         self.edges = []
         for vertex in self.graph._vertices:
             for adj in self.graph._vertices[vertex]:
                 for node in self.nodes:
                     if node.id == str(adj.vertex):
-                        self.edges.append(Edge(self.canvas, self.nodes[i], node, adj.weight, overlaped=True))
+                        self.edges.append(Edge(self.canvas, self.nodes[i], node, adj.weight))
                         node.asociated_edges_IN.append(self.edges[-1])
                         self.nodes[i].asociated_edges_OUT.append(self.edges[-1])
             i += 1
+
+        # Display the edges
+        for edge in self.edges:
+            edge_start_node = edge.start_node
+            edge_end_node = edge.end_node
+            found = False
+            for i in edge_start_node.asociated_edges_IN:
+                if i.start_node == edge_end_node:
+                    found = True
+                    edge.overlaped = True
+                    edge.show()
+                    break
+            if not found:
+                edge.show()
 
         self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
         self.canvas.tag_bind("movil", "<Button1-Motion>", self.move)
@@ -97,6 +112,7 @@ class GraphGUI:
                     self.canvas.delete(edge.window)
                     del edge
                     edge = Edge(self.canvas, edge_start, i, weight, overlaped=overlaped)
+                    edge.show()
                     i.asociated_edges_IN.append(edge)
                 for adj in self.graph._vertices[i.id]:
                     for nd in self.nodes:
@@ -111,6 +127,7 @@ class GraphGUI:
                                     self.canvas.delete(edge.window)
                                     del edge
                                     edge = Edge(self.canvas, i, edge_end, weight, overlaped=overlaped)
+                                    edge.show()
                                     nd.asociated_edges_IN.append(edge)
 
 
@@ -131,19 +148,23 @@ class Node:
 
 class Edge:
     def __init__(self, canvas: tk.Canvas, start: Node, end: Node, weight: int = 1, overlaped: bool = False):
+        self.canvas = canvas
         self.overlaped = overlaped
         self.start_node = start
         self.end_node = end
         self.weight = weight
         self.start = self.__calculate_start(start, end)
         self.end = self.__calculate_end(start, end)
-        self.line = canvas.create_line(self.start[0], self.start[1], self.end[0], self.end[1], arrow=tk.LAST, width=1.5)
+
+    def show(self):
+        self.line = self.canvas.create_line(self.start[0], self.start[1], self.end[0], self.end[1], arrow=tk.LAST, width=1.5)
         if not self.overlaped:
-            self.window = canvas.create_window((self.start[0] + self.end[0])//2, (self.start[1] + self.end[1])//2,
-                                               window=tk.Label(canvas, text=str(weight)))
+            self.window = self.canvas.create_window((self.start[0] + self.end[0]) // 2, (self.start[1] + self.end[1]) // 2,
+                                               window=tk.Label(self.canvas, text=str(self.weight)))
         else:
-            self.window = canvas.create_window((self.start[0]*0.2 + self.end[0]*0.8), (self.start[1]*0.2 + self.end[1]*0.8),
-                                               window=tk.Label(canvas, text=str(weight)))
+            self.window = self.canvas.create_window((self.start[0] * 0.2 + self.end[0] * 0.8),
+                                               (self.start[1] * 0.2 + self.end[1] * 0.8),
+                                               window=tk.Label(self.canvas, text=str(self.weight)))
 
     def __calculate_start(self, start: Node, end: Node) -> tuple:
         """
