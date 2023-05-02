@@ -61,7 +61,7 @@ class GraphGUI:
             for adj in self.graph._vertices[vertex]:
                 for node in self.nodes:
                     if node.id == str(adj.vertex):
-                        self.edges.append(Edge(self.canvas, self.nodes[i], node, adj.weight))
+                        self.edges.append(Edge(self.canvas, self.nodes[i], node, adj.weight, overlaped=True))
                         node.asociated_edges_IN.append(self.edges[-1])
                         self.nodes[i].asociated_edges_OUT.append(self.edges[-1])
             i += 1
@@ -69,6 +69,9 @@ class GraphGUI:
         self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
         self.canvas.tag_bind("movil", "<Button1-Motion>", self.move)
         self.selected_node = None
+
+        """label =  tk.Label(self.canvas, text="Ventana de prueba", background="Red")
+        self.window = self.canvas.create_window(10,10, window=label)"""
 
         root.mainloop()
 
@@ -88,11 +91,12 @@ class GraphGUI:
                 for edge in i.asociated_edges_IN:
                     edge_start = edge.start_node
                     weight = edge.weight
+                    overlaped = edge.overlaped
                     i.asociated_edges_IN.remove(edge)
                     self.canvas.delete(edge.line)
                     self.canvas.delete(edge.window)
                     del edge
-                    edge = Edge(self.canvas, edge_start, i, weight)
+                    edge = Edge(self.canvas, edge_start, i, weight, overlaped=overlaped)
                     i.asociated_edges_IN.append(edge)
                 for adj in self.graph._vertices[i.id]:
                     for nd in self.nodes:
@@ -101,11 +105,12 @@ class GraphGUI:
                                 if edge.start_node == i:
                                     edge_end = edge.end_node
                                     weight = edge.weight
+                                    overlaped = edge.overlaped
                                     nd.asociated_edges_IN.remove(edge)
                                     self.canvas.delete(edge.line)
                                     self.canvas.delete(edge.window)
                                     del edge
-                                    edge = Edge(self.canvas, i, edge_end, weight)
+                                    edge = Edge(self.canvas, i, edge_end, weight, overlaped=overlaped)
                                     nd.asociated_edges_IN.append(edge)
 
 
@@ -125,14 +130,20 @@ class Node:
         canvas.addtag_enclosed("movil", self.pos_x - 3, self.pos_y - 3, self.pos_x + self.radius * 2 + 3, self.pos_y + self.radius * 2 + 3)
 
 class Edge:
-    def __init__(self, canvas: tk.Canvas, start: Node, end: Node, weight: int =1):
+    def __init__(self, canvas: tk.Canvas, start: Node, end: Node, weight: int = 1, overlaped: bool = False):
+        self.overlaped = overlaped
         self.start_node = start
         self.end_node = end
         self.weight = weight
         self.start = self.__calculate_start(start, end)
         self.end = self.__calculate_end(start, end)
         self.line = canvas.create_line(self.start[0], self.start[1], self.end[0], self.end[1], arrow=tk.LAST, width=1.5)
-        self.window = canvas.create_window((self.start[0] + self.end[0])//2, (self.start[1] + self.end[1])//2, window=tk.Label(canvas, text=str(weight)))
+        if not self.overlaped:
+            self.window = canvas.create_window((self.start[0] + self.end[0])//2, (self.start[1] + self.end[1])//2,
+                                               window=tk.Label(canvas, text=str(weight)))
+        else:
+            self.window = canvas.create_window((self.start[0]*0.2 + self.end[0]*0.8), (self.start[1]*0.2 + self.end[1]*0.8),
+                                               window=tk.Label(canvas, text=str(weight)))
 
     def __calculate_start(self, start: Node, end: Node) -> tuple:
         """
