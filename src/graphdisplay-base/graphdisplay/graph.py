@@ -114,25 +114,6 @@ class Graph:
 
 
 if __name__ == '__main__':
-    # We use the class to represent an undirected graph without weights :
-    # <img src='https://computersciencesource.files.wordpress.com/2010/05/dfs_1.png' width='35%'/>
-
-    labels = ['A', 'B', 'C', 'D', 'E']
-    g = Graph(labels, False)
-    g.add_edge('A', 'B')  # A:0,  B:1
-    g.add_edge('A', 'C')  # A:0,  C:2
-    g.add_edge('A', 'E')  # A:0,  E:5
-    g.add_edge('B', 'D')  # B:1,  D:4
-    g.add_edge('B', 'E')  # C:2,  B:1
-    # g.add_edge('A', 'H', 8)
-    print(g)
-    for c in g._vertices:
-        print("adjacent vertices of {} : {} ".format(c, str(g.get_adjacents(c))))
-        print("origins for {} : {} ".format(c, str(g.get_origins(c))))
-        print()
-
-    # Now,  we use the implementation to represent this graph:
-    # <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/CPT-Graphs-directed-weighted-ex1.svg/722px-CPT-Graphs-directed-weighted-ex1.svg.png' width='25%'/>
 
     labels = ['A', 'B', 'C', 'D', 'E']
     g = Graph(labels)
@@ -144,16 +125,6 @@ if __name__ == '__main__':
     g.add_edge('C', 'B', 20)  # C->(20)B
     g.add_edge('C', 'D', 32)  # C->(32)D
     g.add_edge('E', 'A', 7)   # E->(7)A
-    GraphGUI(g)
+    g.add_edge('A', 'E', 50)
 
-    print(g)
-    print(g.contain_edge('C', 'B'))
-    print(g.contain_edge('B', 'C'))
-    g.remove_edge('C', 'B')
-    print(g)
-    g.remove_edge('A', 'D')
-    print(g)
-    for c in g._vertices:
-        print("adjacent vertices of {} : {} ".format(c, str(g.get_adjacents(c))))
-        print("origins for {} : {} ".format(c, str(g.get_origins(c))))
-        print()
+    GraphGUI(g)
