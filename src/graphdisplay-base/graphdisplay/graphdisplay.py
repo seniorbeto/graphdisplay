@@ -1,4 +1,5 @@
 import tkinter as tk
+import json
 import math
 
 class GraphGUI:
@@ -25,12 +26,16 @@ class GraphGUI:
 
         self.graph = graph
         # create the main window and start the GUI
-        root = tk.Tk()
-        root.title('GraphGUI')
-        root.resizable(False, False)
+        self.root = tk.Tk()
+        self.root.title('GraphGUI')
+        self.root.resizable(False, False)
+
+        self.root.protocol("WM_DELETE_WINDOW", self.__on_closing)
+
+        self.data = self.__get_data()
 
         # Create the canvas
-        self.canvas = tk.Canvas(root, width=scr_width, height=scr_height)
+        self.canvas = tk.Canvas(self.root, width=scr_width, height=scr_height)
         self.canvas.pack(padx=10, pady=10)
 
         # Preparation for the nodes display
@@ -45,12 +50,18 @@ class GraphGUI:
         angle = 0
         for vertex in self.graph._vertices:
             if i == 0:
-                self.nodes.append(Node(self.canvas, node_radius, first_node_pos[0], first_node_pos[1], text=str(vertex)))
+                if self.data and vertex in self.data:
+                    self.nodes.append(Node(self.canvas, node_radius, self.data[vertex][0], self.data[vertex][1], text=str(vertex)))
+                else:
+                    self.nodes.append(Node(self.canvas, node_radius, first_node_pos[0], first_node_pos[1], text=str(vertex)))
             else:
-                self.nodes.append(Node(self.canvas,
+                if self.data and vertex in self.data:
+                    self.nodes.append(Node(self.canvas, node_radius, self.data[vertex][0], self.data[vertex][1], text=str(vertex)))
+                else:
+                    self.nodes.append(Node(self.canvas,
                                        node_radius,
-                                       scr_center[0] - node_radius - display_radius*math.sin(math.radians(angle)),
-                                       scr_center[1] - node_radius - display_radius*math.cos(math.radians(angle)),
+                                       int(scr_center[0] - node_radius - display_radius*math.sin(math.radians(angle))),
+                                       int(scr_center[1] - node_radius - display_radius*math.cos(math.radians(angle))),
                                        text=str(vertex)))
             i += 1
             angle += arch_angle
@@ -92,7 +103,23 @@ class GraphGUI:
         """label =  tk.Label(self.canvas, text="Ventana de prueba", background="Red")
         self.window = self.canvas.create_window(10,10, window=label)"""
 
-        root.mainloop()
+        self.root.mainloop()
+
+    def __on_closing(self):
+        data = {}
+        for node in self.nodes:
+            data[node.id] = (node.pos_x, node.pos_y)
+        with open("save.json", "w", encoding="utf-8", newline="") as file:
+            json.dump(data, file, indent=2)
+        self.root.destroy()
+
+    def __get_data(self):
+        try:
+            with open("save.json", "r", encoding="utf-8", newline="") as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            data = None
+        return data
 
     def on_press(self, event):
         node = self.canvas.find_withtag(tk.CURRENT)
