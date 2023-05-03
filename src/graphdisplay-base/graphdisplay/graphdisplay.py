@@ -24,53 +24,90 @@ class GraphGUI:
         if scr_width > 1000 or scr_height > 1000:
             raise ValueError("The parameters scr_width and scr_height must be values less than 1000")
 
-        self.graph = graph
+        self.__graph = graph
+        self.__node_radius = node_radius
+        self.__scr_width = scr_width
+        self.__scr_height = scr_height
+        self.nodes = []
+        self.edges = []
+
         # create the main window and start the GUI
         self.root = tk.Tk()
         self.root.title('GraphGUI')
         self.root.resizable(False, False)
 
+        # Closing protocol
         self.root.protocol("WM_DELETE_WINDOW", self.__on_closing)
 
-        self.data = self.__get_data()
+        # Data recovery
+        data = self.__get_data()
 
         # Create the canvas
         self.canvas = tk.Canvas(self.root, width=scr_width, height=scr_height)
         self.canvas.pack(padx=10, pady=10)
 
+        # Reset button
+        self.reset_button = tk.Button(self.root, text="Reset", bg="#ede4cc", command=self.__display_reset)
+        self.reset_button.pack()
+
+        # Main display
+        self.__display(data)
+
+        self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
+        self.canvas.tag_bind("movil", "<Button1-Motion>", self.move)
+        self.selected_node = None
+
+        self.root.mainloop()
+
+    def __display_reset(self):
+        for node in self.nodes:
+            node.terminate()
+            print("terminado!")
+        for edge in self.edges:
+            edge.terminate()
+        self.__display()
+
+    def __display(self, data: dict = None):
         # Preparation for the nodes display
-        scr_center = (scr_width//2, scr_height//2)
-        display_radius = min(scr_width, scr_height)//2 - node_radius - 10
-        arch_angle = 360/len(graph._vertices)
-        first_node_pos = (scr_center[0] - node_radius, scr_center[1] - node_radius)
+        scr_center = (self.__scr_width // 2, self.__scr_height // 2)
+        display_radius = min(self.__scr_width, self.__scr_height) // 2 - self.__node_radius - 10
+        arch_angle = 360 / len(self.__graph._vertices)
+        first_node_pos = (scr_center[0] - self.__node_radius, scr_center[1] - self.__node_radius)
 
         # Display the nodes
-        self.nodes =[]
+        self.nodes = []
         i = 0
         angle = 0
-        for vertex in self.graph._vertices:
+        for vertex in self.__graph._vertices:
             if i == 0:
-                if self.data and vertex in self.data:
-                    self.nodes.append(Node(self.canvas, node_radius, self.data[vertex][0], self.data[vertex][1], text=str(vertex)))
+                if data and vertex in data and data[vertex][0] < self.__scr_width and data[vertex][
+                    1] < self.__scr_height:
+                    self.nodes.append(
+                        Node(self.canvas, self.__node_radius, data[vertex][0], data[vertex][1], text=str(vertex)))
                 else:
-                    self.nodes.append(Node(self.canvas, node_radius, first_node_pos[0], first_node_pos[1], text=str(vertex)))
+                    self.nodes.append(
+                        Node(self.canvas, self.__node_radius, first_node_pos[0], first_node_pos[1], text=str(vertex)))
             else:
-                if self.data and vertex in self.data:
-                    self.nodes.append(Node(self.canvas, node_radius, self.data[vertex][0], self.data[vertex][1], text=str(vertex)))
+                if data and vertex in data and data[vertex][0] < self.__scr_width and data[vertex][
+                    1] < self.__scr_height:
+                    self.nodes.append(
+                        Node(self.canvas, self.__node_radius, data[vertex][0], data[vertex][1], text=str(vertex)))
                 else:
                     self.nodes.append(Node(self.canvas,
-                                       node_radius,
-                                       int(scr_center[0] - node_radius - display_radius*math.sin(math.radians(angle))),
-                                       int(scr_center[1] - node_radius - display_radius*math.cos(math.radians(angle))),
-                                       text=str(vertex)))
+                                           self.__node_radius,
+                                           int(scr_center[0] - self.__node_radius - display_radius * math.sin(
+                                               math.radians(angle))),
+                                           int(scr_center[1] - self.__node_radius - display_radius * math.cos(
+                                               math.radians(angle))),
+                                           text=str(vertex)))
             i += 1
             angle += arch_angle
 
         # Create the edges
         i = 0
         self.edges = []
-        for vertex in self.graph._vertices:
-            for adj in self.graph._vertices[vertex]:
+        for vertex in self.__graph._vertices:
+            for adj in self.__graph._vertices[vertex]:
                 for node in self.nodes:
                     if node.id == str(adj.vertex):
                         self.edges.append(Edge(self.canvas, self.nodes[i], node, adj.weight))
@@ -79,7 +116,7 @@ class GraphGUI:
             i += 1
 
         # Display the edges
-        if self.graph._directed:
+        if self.__graph._directed:
             for edge in self.edges:
                 edge_start_node = edge.start_node
                 edge_end_node = edge.end_node
@@ -96,14 +133,9 @@ class GraphGUI:
             for edge in self.edges:
                 edge.show()
 
-        self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
-        self.canvas.tag_bind("movil", "<Button1-Motion>", self.move)
-        self.selected_node = None
-
-        """label =  tk.Label(self.canvas, text="Ventana de prueba", background="Red")
-        self.window = self.canvas.create_window(10,10, window=label)"""
-
-        self.root.mainloop()
+        # Display author
+        self.canvas.create_text(self.__scr_width - 60, 10, text="by @seniorbeto", fill="#695210",
+                                font=("Courier", 10))
 
     def __on_closing(self):
         data = {}
@@ -145,7 +177,7 @@ class GraphGUI:
                     edge = Edge(self.canvas, edge_start, i, weight, overlaped=overlaped)
                     edge.show()
                     i.asociated_edges_IN.append(edge)
-                for adj in self.graph._vertices[i.id]:
+                for adj in self.__graph._vertices[i.id]:
                     for nd in self.nodes:
                         if nd.id == str(adj.vertex):
                             for edge in nd.asociated_edges_IN:
@@ -177,6 +209,14 @@ class Node:
         self.text = canvas.create_text(self.pos_x + self.radius, self.pos_y + self.radius, text=text)
         canvas.addtag_enclosed("movil", self.pos_x - 3, self.pos_y - 3, self.pos_x + self.radius * 2 + 3, self.pos_y + self.radius * 2 + 3)
 
+    def terminate(self):
+        for edge in self.asociated_edges_IN:
+            edge.terminate()
+        for edge in self.asociated_edges_OUT:
+            edge.terminate()
+        self.canvas.delete(self.circle)
+        self.canvas.delete(self.text)
+
 class Edge:
     def __init__(self, canvas: tk.Canvas, start: Node, end: Node, weight: int = 1, overlaped: bool = False):
         self.canvas = canvas
@@ -186,6 +226,10 @@ class Edge:
         self.weight = weight
         self.start = self.__calculate_start(start, end)
         self.end = self.__calculate_end(start, end)
+
+    def terminate(self):
+        self.canvas.delete(self.line)
+        self.canvas.delete(self.window)
 
     def show(self):
         self.line = self.canvas.create_line(self.start[0], self.start[1], self.end[0], self.end[1], arrow=tk.LAST, width=1.5)

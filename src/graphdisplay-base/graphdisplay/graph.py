@@ -126,6 +126,7 @@ if __name__ == '__main__':
     g.add_edge('C', 'D', 32)  # C->(32)D
     g.add_edge('E', 'A', 7)   # E->(7)A
     g.add_edge('A', 'E', 50)
+    #GraphGUI(g)
 
     my_gragph = Graph(
         ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M'])
@@ -155,4 +156,4 @@ if __name__ == '__main__':
     my_gragph.add_edge('H', 'A', 20)
     my_gragph.add_edge('K', 'B', 7)
 
-    GraphGUI(my_gragph, 20, 1000, 1000)
+    GraphGUI(my_gragph, 20, 800, 800)
