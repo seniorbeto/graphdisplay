@@ -1,6 +1,7 @@
 import tkinter as tk
 import json
 import math
+import os
 
 class GraphGUI:
     def __init__(self, graph, node_radius: int = 40, scr_width: int = 600, scr_height: int = 600):
@@ -24,6 +25,7 @@ class GraphGUI:
         if scr_width > 1000 or scr_height > 1000:
             raise ValueError("The parameters scr_width and scr_height must be values less than 1000")
 
+        self.__JSON_SAVE_DIR = os.path.join(os.path.dirname(__file__), 'save.json')
         self.__graph = graph
         self.__node_radius = node_radius
         self.__scr_width = scr_width
@@ -62,7 +64,6 @@ class GraphGUI:
     def __display_reset(self):
         for node in self.nodes:
             node.terminate()
-            print("terminado!")
         for edge in self.edges:
             edge.terminate()
         self.__display()
@@ -141,13 +142,13 @@ class GraphGUI:
         data = {}
         for node in self.nodes:
             data[node.id] = (node.pos_x, node.pos_y)
-        with open("save.json", "w", encoding="utf-8", newline="") as file:
+        with open(self.__JSON_SAVE_DIR, "w", encoding="utf-8", newline="") as file:
             json.dump(data, file, indent=2)
         self.root.destroy()
 
     def __get_data(self):
         try:
-            with open("save.json", "r", encoding="utf-8", newline="") as file:
+            with open(self.__JSON_SAVE_DIR, "r", encoding="utf-8", newline="") as file:
                 data = json.load(file)
         except FileNotFoundError:
             data = None
