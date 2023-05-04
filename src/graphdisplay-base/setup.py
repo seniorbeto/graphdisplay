@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.2.0' #Muy importante, deberéis ir cambiando la versión de vuestra librería según incluyáis nuevas funcionalidades
+VERSION = '0.2.2' #Muy importante, deberéis ir cambiando la versión de vuestra librería según incluyáis nuevas funcionalidades
 PACKAGE_NAME = 'graphdisplay' #Debe coincidir con el nombre de la carpeta
 AUTHOR = 'Alberto Penas Díaz' #Modificar con vuestros datos
 AUTHOR_EMAIL = 'albertopenasdiaz@gmail.com' #Modificar con vuestros datos
