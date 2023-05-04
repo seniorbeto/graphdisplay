@@ -45,8 +45,8 @@ class GraphGUI:
         data = self.__get_data()
 
         # Create the canvas
-        self.canvas = tk.Canvas(self.root, width=scr_width, height=scr_height)
-        self.canvas.pack(padx=10, pady=10)
+        self.canvas = tk.Canvas(self.root, width=scr_width, height=scr_height, bg="#c7b9a5")
+        self.canvas.pack()
 
         # Reset button
         self.reset_button = tk.Button(self.root, text="Reset", bg="#ede4cc", command=self.__display_reset)
@@ -206,7 +206,7 @@ class Node:
         self.radius = radius
         self.pos_x = posx
         self.pos_y = posy
-        self.circle = canvas.create_oval(self.pos_x, self.pos_y, self.pos_x + self.radius*2, self.pos_y + self.radius*2, fill=bg, width=2)
+        self.circle = canvas.create_oval(self.pos_x, self.pos_y, self.pos_x + self.radius*2, self.pos_y + self.radius*2, fill="#e3d7c5", width=2,)
         self.text = canvas.create_text(self.pos_x + self.radius, self.pos_y + self.radius, text=text)
         canvas.addtag_enclosed("movil", self.pos_x - 3, self.pos_y - 3, self.pos_x + self.radius * 2 + 3, self.pos_y + self.radius * 2 + 3)
 
@@ -236,11 +236,11 @@ class Edge:
         self.line = self.canvas.create_line(self.start[0], self.start[1], self.end[0], self.end[1], arrow=tk.LAST, width=1.5)
         if not self.overlaped:
             self.window = self.canvas.create_window((self.start[0] + self.end[0]) // 2, (self.start[1] + self.end[1]) // 2,
-                                               window=tk.Label(self.canvas, text=str(self.weight)))
+                                               window=tk.Label(self.canvas,bg="#c7b9a5" ,text=str(self.weight)))
         else:
             self.window = self.canvas.create_window((self.start[0] * 0.2 + self.end[0] * 0.8),
                                                (self.start[1] * 0.2 + self.end[1] * 0.8),
-                                               window=tk.Label(self.canvas, text=str(self.weight)))
+                                               window=tk.Label(self.canvas, bg="#c7b9a5", text=str(self.weight)))
 
     def __calculate_start(self, start: Node, end: Node) -> tuple:
         """
