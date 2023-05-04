@@ -13,3 +13,36 @@ tkinter y math (que muchas veces vienen instaladas por defecto en python).
 Una vez instalado, se debe importar el paquete desde donde se esté trabajando con: `from graphdisplay import GraphGUI`. Una vez hecho esto, se debe instanciar un grafo de tipo diccionario
 para finalmente introducirlo como argumento al instanciar un objeto de tipo GraphGUI, el cual mostrará en una ventana el grafo y ofrecerá la posibildad de mover los vértices con el ratón 
 para una mejor visualización. 
+
+Además, también es posible generar este tipo de grafos a través de la librería. Importándolo con `from graphdisplay import Graph`, se puede instanciar un objeto de tipo Graph, pasándole como
+argumento una lista de los vértices del grafo para después, añadirle las aristas con el método `add_edge`, con los vértices que conecta la arista además del valor/coste de la arista.
+
+## Ejemplo de uso
+
+Para instanciar un grafo de tipo diccionario, se debe hacer de la siguiente manera: 
+
+```python
+labels = ['A', 'B', 'C', 'D', 'E']
+    g = Graph(labels)
+
+    # Now, we add the edges
+    g.add_edge('A', 'C', 12)  # A->(12)C
+    g.add_edge('A', 'D', 60)  # A->(60)D
+    g.add_edge('B', 'A', 10)  # B->(10)A
+    g.add_edge('C', 'B', 20)  # C->(20)B
+    g.add_edge('C', 'D', 32)  # C->(32)D
+    g.add_edge('E', 'A', 7)   # E->(7)A
+    g.add_edge('A', 'E', 50)  # A->(50)E
+```
+
+Si queremos mostrar la pantalla, basta con instanciar un objeto de tipo GraphGUI, pasándole como argumento el grafo que queremos mostrar: 
+
+```python
+    GraphGUI(g)
+```
+Y nos mostrará la ventana:
+
+![img_1.png](img_1.png)
+
+A la cual, reorganizando los vértices, podemos llegar a la siguiente imagen (mucho más legible):
+![img.png](img.png)
