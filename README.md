@@ -42,7 +42,7 @@ Si queremos mostrar la pantalla, basta con instanciar un objeto de tipo GraphGUI
 ```
 Y nos mostrará la ventana:
 
-![img_1.png](img_1.png)
+![image](https://user-images.githubusercontent.com/94072018/236173093-6d07ad94-0c74-4f00-ac2f-13fb797a2837.png)
 
 A la cual, reorganizando los vértices, podemos llegar a la siguiente imagen (mucho más legible):
-![img.png](img.png)
+![image](https://user-images.githubusercontent.com/94072018/236172922-ae836f24-1131-4e83-baa8-cdda8e333989.png)
