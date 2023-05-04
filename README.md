@@ -5,6 +5,11 @@
 graphdisplay es un paquete de python elaborado e ideado por Alberto Penas Díaz, cuya finalidad es facilitar la visualización de grafos a los alumnos de Estructuras de Datos y Algoritmos. 
 Actualmente solo soporta la visualización de grafos implementados a través de un diccionario, tal y como se aportan como código base en la asignatura. 
 
+## ¿Quieres contribuir?
+
+Este es un proyecto de código abierto hecho por y para estudiantes así que cualquier ayuda, comentario o sugerencia es bienvenido. La mejor manera de contribuir es añadir los bugs que os encontréis 
+en el apartado de Issues pero también estoy completamente abierto a responder cualquier duda o ayuda desde mi correo personal (disponible en mi perfil de github). ¡Muchas gracias de antemano!
+
 ## Método de uso 
 
 Para instalar la librería, basta con escribir el siguiente comando en la terminal: `pip install graphdisplay`, con esta, se instalarán también otras dependencias, ya sean las librerías 
@@ -12,8 +17,8 @@ tkinter y math (que muchas veces vienen instaladas por defecto en python).
 
 Una vez instalado, se debe importar el paquete desde donde se esté trabajando con: `from graphdisplay import GraphGUI`. Una vez hecho esto, se debe instanciar un grafo de tipo diccionario
 para finalmente introducirlo como argumento al instanciar un objeto de tipo GraphGUI, el cual mostrará en una ventana el grafo y ofrecerá la posibildad de mover los vértices con el ratón 
-para una mejor visualización. Al desplazar los vértices por la pantalla y fijar su posición, si se cierra la ventana y se vuelve a abrir, el grafo seguirá con la forma con la que se ha movido
-antes.
+para una mejor visualización. **Al desplazar los vértices por la pantalla y fijar su posición, si se cierra la ventana y se vuelve a abrir, el grafo seguirá con la forma con la que se ha movido
+antes.**
 
 Además, también es posible generar este tipo de grafos a través de la librería. Importándolo con `from graphdisplay import Graph`, se puede instanciar un objeto de tipo Graph, pasándole como
 argumento una lista de los vértices del grafo para después, añadirle las aristas con el método `add_edge`, con los vértices que conecta la arista además del valor/coste de la arista.
