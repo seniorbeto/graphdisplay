@@ -256,7 +256,20 @@ if __name__ == '__main__':
     g.add_edge('C', 'D', 32)  # C->(32)D
     g.add_edge('E', 'A', 7)   # E->(7)A
     g.add_edge('A', 'E', 50)
-    #GraphGUI(g)
+
+    g2 = Graph(labels)
+
+    # Now, we add the edges
+    g2.add_edge('A', 'C', 12)  # A->(12)C
+    g2.add_edge('A', 'D', 60)  # A->(60)D
+    g2.add_edge('B', 'A', 10)  # B->(10)A
+    g2.add_edge('C', 'B', 20)  # C->(20)B
+    g2.add_edge('C', 'D', 32)  # C->(32)D
+    g2.add_edge('E', 'A', 7)  # E->(7)A
+    g2.add_edge('A', 'E', 50)
+
+    GraphGUI(g)
+
 
     my_gragph = Graph(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'Z', 'N', 'O', 'P', 'Q'])
     my_gragph.add_edge('A', 'B', 4)
