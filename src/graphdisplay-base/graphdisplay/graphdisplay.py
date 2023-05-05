@@ -45,6 +45,8 @@ class GraphGUI:
             self.__node_radius = node_radius
             self.__scr_width = scr_width
             self.__scr_height = scr_height
+            self.__XMARGIN = 7
+            self.__YMARGIN = 7
             self.nodes = []
             self.edges = []
 
@@ -52,7 +54,7 @@ class GraphGUI:
             self.root = tk.Tk()
             self.root.title('GraphGUI')
             self.root.resizable(False, False)
-            self.root.configure(bg="#87715f", border=0)
+            self.root.configure(bg="#87715f", border=0, width=self.__scr_width, height=self.__scr_height)
 
             # Closing protocol
             self.root.protocol("WM_DELETE_WINDOW", self.__on_closing)
@@ -61,12 +63,28 @@ class GraphGUI:
             data = self.__get_data()
 
             # Create the canvas
-            self.canvas = tk.Canvas(self.root, width=scr_width, height=scr_height, bg="#c7b9a5")
-            self.canvas.pack(fill=tk.BOTH, expand=True, padx=7, pady=7)
+            #self.canvas = tk.Canvas(self.root, width=scr_width, height=scr_height, bg="#c7b9a5")
+            #self.canvas.pack(fill=tk.BOTH, expand=True, padx=7, pady=7)
+
+            self.canvas = tk.Canvas(self.root, bg="#c7b9a5")
+            self.canvas.place(x=self.__XMARGIN,
+                              y=self.__YMARGIN,
+                              width=self.__scr_width - self.__XMARGIN * 2,
+                              height=self.__scr_height - self.__YMARGIN * 2 - 30)
 
             # Reset button
             self.reset_button = tk.Button(self.root, text="Reset", bg="#ede4cc", command=self.__display_reset)
-            self.reset_button.pack()
+            self.reset_button.place(x=self.__XMARGIN, y=self.__scr_height-self.__YMARGIN//2-30, width=60, height=30)
+
+            # Config button
+            self.reset_button = tk.Button(self.root, text="Load", bg="#ede4cc")
+            self.reset_button.place(x=self.__XMARGIN + 60 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
+                                    height=30)
+
+            # Save button
+            self.reset_button = tk.Button(self.root, text="Save", bg="#ede4cc")
+            self.reset_button.place(x=self.__XMARGIN + 60 + 60 + 7 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
+                                    height=30)
 
             # Main display
             self.__display(data)
@@ -98,7 +116,7 @@ class GraphGUI:
             for vertex in self.__graph._vertices:
                 if i == 0:
                     if data and vertex in data and data[vertex][0] < self.__scr_width and data[vertex][
-                        1] < self.__scr_height:
+                        1] < self.__scr_height - 30:
                         self.nodes.append(
                             Node(self.canvas, self.__node_radius, data[vertex][0], data[vertex][1], text=str(vertex)))
                     else:
@@ -106,7 +124,7 @@ class GraphGUI:
                             Node(self.canvas, self.__node_radius, first_node_pos[0], first_node_pos[1], text=str(vertex)))
                 else:
                     if data and vertex in data and data[vertex][0] < self.__scr_width and data[vertex][
-                        1] < self.__scr_height:
+                        1] < self.__scr_height - 30:
                         self.nodes.append(
                             Node(self.canvas, self.__node_radius, data[vertex][0], data[vertex][1], text=str(vertex)))
                     else:
@@ -151,7 +169,7 @@ class GraphGUI:
                     edge.show()
 
             # Display author
-            self.canvas.create_text(self.__scr_width - 60, 10, text="by @seniorbeto", fill="#695210",
+            self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto", fill="#695210",
                                     font=("Courier", 10))
 
         def __on_closing(self):
