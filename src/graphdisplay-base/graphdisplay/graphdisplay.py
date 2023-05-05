@@ -76,15 +76,21 @@ class GraphGUI:
             self.reset_button = tk.Button(self.root, text="Reset", bg="#ede4cc", command=self.__display_reset)
             self.reset_button.place(x=self.__XMARGIN, y=self.__scr_height-self.__YMARGIN//2-30, width=60, height=30)
 
-            # Config button
-            self.reset_button = tk.Button(self.root, text="Load", bg="#ede4cc")
-            self.reset_button.place(x=self.__XMARGIN + 60 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
+            """options = ["Dijkstra", "Prim", "Kruskal"]
+            self.__selection = tk.StringVar(self.root)
+            self.__selection.set(options[0])
+
+            # Load button
+            self.load_button = tk.Button(self.root, text="Load", bg="#ede4cc")
+            self.load_button.place(x=self.__XMARGIN + 60 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
                                     height=30)
+            self.load_button_options = tk.OptionMenu(self.root, self.__selection, *options)
 
             # Save button
-            self.reset_button = tk.Button(self.root, text="Save", bg="#ede4cc")
-            self.reset_button.place(x=self.__XMARGIN + 60 + 60 + 7 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
+            self.save_button = tk.Button(self.root, text="Save", bg="#ede4cc")
+            self.save_button.place(x=self.__XMARGIN + 60 + 60 + 7 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
                                     height=30)
+            self.save_button_options = tk.OptionMenu(self.root, self.__selection, *options)"""
 
             # Main display
             self.__display(data)
@@ -115,18 +121,24 @@ class GraphGUI:
             angle = 0
             for vertex in self.__graph._vertices:
                 if i == 0:
-                    if data and vertex in data and data[vertex][0] < self.__scr_width and data[vertex][
-                        1] < self.__scr_height - 30:
+                    if data and str(vertex) in data and \
+                            data[str(vertex)][0] < self.__scr_width and \
+                            data[str(vertex)][1] < self.__scr_height - 30 and \
+                            data[str(vertex)][0] + self.__node_radius*2 > 0 and \
+                            data[str(vertex)][1] + self.__node_radius*2 > 0:
                         self.nodes.append(
-                            Node(self.canvas, self.__node_radius, data[vertex][0], data[vertex][1], text=str(vertex)))
+                            Node(self.canvas, self.__node_radius, data[str(vertex)][0], data[str(vertex)][1], text=vertex))
                     else:
                         self.nodes.append(
-                            Node(self.canvas, self.__node_radius, first_node_pos[0], first_node_pos[1], text=str(vertex)))
+                            Node(self.canvas, self.__node_radius, first_node_pos[0], first_node_pos[1], text=vertex))
                 else:
-                    if data and vertex in data and data[vertex][0] < self.__scr_width and data[vertex][
-                        1] < self.__scr_height - 30:
+                    if data and str(vertex) in data and \
+                            data[str(vertex)][0] < self.__scr_width and \
+                            data[str(vertex)][1] < self.__scr_height - 30 and \
+                            data[str(vertex)][0] + self.__node_radius*2 > 0 and \
+                            data[str(vertex)][1] + self.__node_radius*2 > 0:
                         self.nodes.append(
-                            Node(self.canvas, self.__node_radius, data[vertex][0], data[vertex][1], text=str(vertex)))
+                            Node(self.canvas, self.__node_radius, data[str(vertex)][0], data[str(vertex)][1], text=vertex))
                     else:
                         self.nodes.append(Node(self.canvas,
                                                self.__node_radius,
@@ -134,7 +146,7 @@ class GraphGUI:
                                                    math.radians(angle))),
                                                int(scr_center[1] - self.__node_radius - display_radius * math.cos(
                                                    math.radians(angle))),
-                                               text=str(vertex)))
+                                               text=vertex))
                 i += 1
                 angle += arch_angle
 
@@ -144,7 +156,7 @@ class GraphGUI:
             for vertex in self.__graph._vertices:
                 for adj in self.__graph._vertices[vertex]:
                     for node in self.nodes:
-                        if node.id == str(adj.vertex):
+                        if node.id == adj.vertex:
                             self.edges.append(Edge(self.canvas, self.nodes[i], node, adj.weight))
                             node.asociated_edges_IN.append(self.edges[-1])
                             self.nodes[i].asociated_edges_OUT.append(self.edges[-1])
@@ -214,7 +226,7 @@ class GraphGUI:
                         i.asociated_edges_IN.append(edge)
                     for adj in self.__graph._vertices[i.id]:
                         for nd in self.nodes:
-                            if nd.id == str(adj.vertex):
+                            if nd.id == adj.vertex:
                                 for edge in nd.asociated_edges_IN:
                                     if edge.start_node == i:
                                         edge_end = edge.end_node
@@ -232,7 +244,7 @@ class GraphGUI:
             self.selected_node = (node, x, y)
 
 class Node:
-    def __init__(self, canvas: tk.Canvas, radius:int, posx: int, posy: int, text: str, bg: str = "White"):
+    def __init__(self, canvas: tk.Canvas, radius:int, posx: int, posy: int, text: str, bg: str = "#e3d7c5"):
         self.asociated_edges_IN = []
         self.asociated_edges_OUT = []
         self.canvas = canvas
@@ -240,7 +252,7 @@ class Node:
         self.radius = radius
         self.pos_x = posx
         self.pos_y = posy
-        self.circle = canvas.create_oval(self.pos_x, self.pos_y, self.pos_x + self.radius*2, self.pos_y + self.radius*2, fill="#e3d7c5", width=2,)
+        self.circle = canvas.create_oval(self.pos_x, self.pos_y, self.pos_x + self.radius*2, self.pos_y + self.radius*2, fill=bg, width=2,)
         self.text = canvas.create_text(self.pos_x + self.radius, self.pos_y + self.radius, text=text)
         canvas.addtag_enclosed("movil", self.pos_x - 3, self.pos_y - 3, self.pos_x + self.radius * 2 + 3, self.pos_y + self.radius * 2 + 3)
 
