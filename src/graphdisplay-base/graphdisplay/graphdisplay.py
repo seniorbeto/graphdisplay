@@ -1,7 +1,9 @@
 import tkinter as tk
 import json
 import math
-import os
+from tkinter import messagebox
+from json_manager import JsonManager
+from general_config import *
 
 class GraphGUI:
 
@@ -40,7 +42,6 @@ class GraphGUI:
                 raise ValueError("The parameters scr_width and scr_height must be values less than 1000")
 
             self.__ACTUAL_INSTANCE = instance
-            self.__JSON_SAVE_DIR = os.path.join(os.path.dirname(__file__), 'save'+str(self.__ACTUAL_INSTANCE)+'.json')
             self.__graph = graph
             self.__node_radius = node_radius
             self.__scr_width = scr_width
@@ -54,45 +55,35 @@ class GraphGUI:
             self.root = tk.Tk()
             self.root.title('GraphGUI')
             self.root.resizable(False, False)
-            self.root.configure(bg="#87715f", border=0, width=self.__scr_width, height=self.__scr_height)
+            self.root.configure(bg=FRAME_COLOR, border=0, width=self.__scr_width, height=self.__scr_height)
+
+            self.json_manager = JsonManager(self.root, self)
 
             # Closing protocol
             self.root.protocol("WM_DELETE_WINDOW", self.__on_closing)
 
-            # Data recovery
-            data = self.__get_data()
-
-            # Create the canvas
-            #self.canvas = tk.Canvas(self.root, width=scr_width, height=scr_height, bg="#c7b9a5")
-            #self.canvas.pack(fill=tk.BOTH, expand=True, padx=7, pady=7)
-
-            self.canvas = tk.Canvas(self.root, bg="#c7b9a5")
+            self.canvas = tk.Canvas(self.root, bg=BACKGROUND_CANVAS_COLOR)
             self.canvas.place(x=self.__XMARGIN,
                               y=self.__YMARGIN,
                               width=self.__scr_width - self.__XMARGIN * 2,
                               height=self.__scr_height - self.__YMARGIN * 2 - 30)
 
             # Reset button
-            self.reset_button = tk.Button(self.root, text="Reset", bg="#ede4cc", command=self.__display_reset)
+            self.reset_button = tk.Button(self.root, text="Reset", bg=BUTTON_COLOR, command=self.display_reset)
             self.reset_button.place(x=self.__XMARGIN, y=self.__scr_height-self.__YMARGIN//2-30, width=60, height=30)
 
-            """options = ["Dijkstra", "Prim", "Kruskal"]
-            self.__selection = tk.StringVar(self.root)
-            self.__selection.set(options[0])
-
             # Load button
-            self.load_button = tk.Button(self.root, text="Load", bg="#ede4cc")
+            self.load_button = tk.Button(self.root, text="Load", bg=BUTTON_COLOR, command=self.__call_manager_load)
             self.load_button.place(x=self.__XMARGIN + 60 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
                                     height=30)
-            self.load_button_options = tk.OptionMenu(self.root, self.__selection, *options)
 
             # Save button
-            self.save_button = tk.Button(self.root, text="Save", bg="#ede4cc")
+            self.save_button = tk.Button(self.root, text="Save", bg=BUTTON_COLOR, command=self.__call_manager_save)
             self.save_button.place(x=self.__XMARGIN + 60 + 60 + 7 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
                                     height=30)
-            self.save_button_options = tk.OptionMenu(self.root, self.__selection, *options)"""
 
             # Main display
+            data = self.json_manager.get_data('save'+str(self.__ACTUAL_INSTANCE))
             self.__display(data)
 
             self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
@@ -101,12 +92,23 @@ class GraphGUI:
 
             self.root.mainloop()
 
-        def __display_reset(self):
+        def __call_manager_load(self):
+            new_position = self.json_manager.generate_load_window()
+            if new_position:
+                self.display_reset(new_position)
+
+        def __call_manager_save(self):
+            curr_pos = {}
+            for node in self.nodes:
+                curr_pos[node.id] = (node.pos_x, node.pos_y)
+            self.json_manager.generate_save_window(curr_pos)
+
+        def display_reset(self, new_data: dict = None):
             for node in self.nodes:
                 node.terminate()
             for edge in self.edges:
                 edge.terminate()
-            self.__display()
+            self.__display(new_data)
 
         def __display(self, data: dict = None):
             # Preparation for the nodes display
@@ -156,8 +158,8 @@ class GraphGUI:
             for vertex in self.__graph._vertices:
                 for adj in self.__graph._vertices[vertex]:
                     for node in self.nodes:
-                        if node.id == adj.vertex:
-                            self.edges.append(Edge(self.canvas, self.nodes[i], node, adj.weight))
+                        if node.id == adj._vertex:
+                            self.edges.append(Edge(self.canvas, self.nodes[i], node, adj._weight if adj._weight else 1))
                             node.asociated_edges_IN.append(self.edges[-1])
                             self.nodes[i].asociated_edges_OUT.append(self.edges[-1])
                 i += 1
@@ -181,24 +183,15 @@ class GraphGUI:
                     edge.show()
 
             # Display author
-            self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto", fill="#695210",
+            self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto", fill=FRAME_COLOR,
                                     font=("Courier", 10))
 
         def __on_closing(self):
             data = {}
             for node in self.nodes:
                 data[node.id] = (node.pos_x, node.pos_y)
-            with open(self.__JSON_SAVE_DIR, "w", encoding="utf-8", newline="") as file:
-                json.dump(data, file, indent=2)
+            self.json_manager.save_data('save'+str(self.__ACTUAL_INSTANCE), data)
             self.root.destroy()
-
-        def __get_data(self):
-            try:
-                with open(self.__JSON_SAVE_DIR, "r", encoding="utf-8", newline="") as file:
-                    data = json.load(file)
-            except FileNotFoundError:
-                data = None
-            return data
 
         def on_press(self, event):
             node = self.canvas.find_withtag(tk.CURRENT)
@@ -226,7 +219,7 @@ class GraphGUI:
                         i.asociated_edges_IN.append(edge)
                     for adj in self.__graph._vertices[i.id]:
                         for nd in self.nodes:
-                            if nd.id == adj.vertex:
+                            if nd.id == adj._vertex:
                                 for edge in nd.asociated_edges_IN:
                                     if edge.start_node == i:
                                         edge_end = edge.end_node
@@ -244,7 +237,7 @@ class GraphGUI:
             self.selected_node = (node, x, y)
 
 class Node:
-    def __init__(self, canvas: tk.Canvas, radius:int, posx: int, posy: int, text: str, bg: str = "#e3d7c5"):
+    def __init__(self, canvas: tk.Canvas, radius:int, posx: int, posy: int, text: str, bg: str = VERTEX_COLOR):
         self.asociated_edges_IN = []
         self.asociated_edges_OUT = []
         self.canvas = canvas
@@ -282,11 +275,11 @@ class Edge:
         self.line = self.canvas.create_line(self.start[0], self.start[1], self.end[0], self.end[1], arrow=tk.LAST, width=1.5)
         if not self.overlaped:
             self.window = self.canvas.create_window((self.start[0] + self.end[0]) // 2, (self.start[1] + self.end[1]) // 2,
-                                               window=tk.Label(self.canvas,bg="#c7b9a5" ,text=str(self.weight)))
+                                               window=tk.Label(self.canvas,bg=BACKGROUND_CANVAS_COLOR ,text=str(self.weight)))
         else:
             self.window = self.canvas.create_window((self.start[0] * 0.2 + self.end[0] * 0.8),
                                                (self.start[1] * 0.2 + self.end[1] * 0.8),
-                                               window=tk.Label(self.canvas, bg="#c7b9a5", text=str(self.weight)))
+                                               window=tk.Label(self.canvas, bg=BACKGROUND_CANVAS_COLOR, text=str(self.weight)))
 
     def __calculate_start(self, start: Node, end: Node) -> tuple:
         """
