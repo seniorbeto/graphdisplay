@@ -20,7 +20,9 @@ para finalmente introducirlo como argumento al instanciar un objeto de tipo Grap
 para una mejor visualización. **Al desplazar los vértices por la pantalla y fijar su posición, si se cierra la ventana y se vuelve a abrir, el grafo seguirá con la forma con la que se ha movido
 antes.**. Cabe destacar que, únicamente es necesario especificar como argumento el grafo que se quiere representar pero además hay otros ajustes que pueden ser útiles a la hora de mostrar 
 grafos grandes y complejos:
-+ graph: es el objeto de tipo grafo que se va a representar 
++ graph: es el objeto de tipo grafo que se va a representar **ES MUY IMPORTANTE** que el grafo que se introduce como argumento sea el implementado en base al código base de la asignatura. Si alguno
+de los atributos cambiase de nombre, el programa no funcionaría correctamente. Para más información, consultar el [respositorio oficial de la asignatura](https://github.com/isegura/EDA) o utilizar la 
+implementación de grafos que viene por defecto con el paquete.
 + node_radius: el radio de cada vértice del grafo, por defecto es 40 y puede tomar cualquier valor entero entre 10 y 100
 + scr_width: el tamaño en píxeles del ancho de la ventana, por defecto es 600 y puede tomar cualquier valor entero entre 200 y 1000
 + scr_width: el tamaño en píxeles de la altura de la ventana, por defecto es 600 y puede tomar cualquier valor entero entre 200 y 1000
@@ -28,8 +30,8 @@ grafos grandes y complejos:
 Dicho esto, algunos ejemplos de uso podrían ser los siguientes:
 ```python
 g = Graph([1, 2, 3])
-g.add_edge(1, 2)
-g.add_edge(2, 3)
+g.addEdge(1, 2)
+g.addEdge(2, 3)
 
 # Para representar el grafo con todos los valores por defecto
 GraphGUI(g)
@@ -53,13 +55,13 @@ labels = ['A', 'B', 'C', 'D', 'E']
 g = Graph(labels)
 
 # Now, we add the edges
-g.add_edge('A', 'C', 12)  # A->(12)C
-g.add_edge('A', 'D', 60)  # A->(60)D
-g.add_edge('B', 'A', 10)  # B->(10)A
-g.add_edge('C', 'B', 20)  # C->(20)B
-g.add_edge('C', 'D', 32)  # C->(32)D
-g.add_edge('E', 'A', 7)   # E->(7)A
-g.add_edge('A', 'E', 50)  # A->(50)E
+g.addEdge('A', 'C', 12)  # A->(12)C
+g.addEdge('A', 'D', 60)  # A->(60)D
+g.addEdge('B', 'A', 10)  # B->(10)A
+g.addEdge('C', 'B', 20)  # C->(20)B
+g.addEdge('C', 'D', 32)  # C->(32)D
+g.addEdge('E', 'A', 7)   # E->(7)A
+g.addEdge('A', 'E', 50)  # A->(50)E
 ```
 
 Si queremos mostrar la pantalla, basta con instanciar un objeto de tipo GraphGUI, pasándole como argumento el grafo que queremos mostrar: 
