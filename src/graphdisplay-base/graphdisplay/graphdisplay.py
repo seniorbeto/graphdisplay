@@ -1,9 +1,7 @@
 import tkinter as tk
-import json
 import math
-from tkinter import messagebox
-from json_manager import JsonManager
-from general_config import *
+from .json_manager import JsonManager
+from .general_config import *
 
 class GraphGUI:
 

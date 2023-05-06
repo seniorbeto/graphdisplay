@@ -10,7 +10,7 @@ Original file is located at
 
 This implementation allows to represent any kind of graphs.
 """
-from graphdisplay import GraphGUI
+from .graphdisplay import GraphGUI
 
 class AdjacentVertex:
     """This class allows us to represent a tuple with an adjacent vertex
@@ -96,38 +96,3 @@ class Graph():
                 result += str(adj) + "  "
         return result
 
-
-
-if __name__ == '__main__':
-    labels = ['A', 'B', 'C', 'D', 'E']
-    g = Graph(labels, False)
-    g.addEdge('A', 'B')  # A:0, B:1
-    g.addEdge('A', 'C')  # A:0, C:2
-    g.addEdge('A', 'E')  # A:0, E:5
-    g.addEdge('B', 'D')  # B:1, D:4
-    g.addEdge('B', 'E')  # C:2, B:1
-
-    """Now, we use the implementation to represent this graph: 
-
-    <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/CPT-Graphs-directed-weighted-ex1.svg/722px-CPT-Graphs-directed-weighted-ex1.svg.png' width='25%'/>
-    """
-
-    labels = ['A', 'B', 'C', 'D', 'E']
-
-    g = Graph(labels)
-
-    # Now, we add the edges
-    g.addEdge('A', 'C', 12)  # A->(12)C
-    g.addEdge('A', 'D', 60)  # A->(60)D
-    g.addEdge('B', 'A', 10)  # B->(10)A
-    g.addEdge('C', 'B', 20)  # C->(20)B
-    g.addEdge('C', 'D', 32)  # C->(32)D
-    g.addEdge('E', 'A', 7)  # E->(7)A
-
-    GraphGUI(g)
-
-    g = Graph([1, 2, 3], False)
-    g.addEdge(1, 2)
-    g.addEdge(1, 3)
-    g.addEdge(2, 3)
-    GraphGUI(g)

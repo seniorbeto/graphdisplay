@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.2.6'
+VERSION = '0.3.2'
 PACKAGE_NAME = 'graphdisplay'
 AUTHOR = 'Alberto Penas Díaz'
 AUTHOR_EMAIL = 'albertopenasdiaz@gmail.com'
