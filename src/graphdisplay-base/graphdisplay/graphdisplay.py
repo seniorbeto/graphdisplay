@@ -1,5 +1,6 @@
 import tkinter as tk
 import math
+import multiprocessing
 from .json_manager import JsonManager
 from .general_config import *
 
@@ -9,7 +10,10 @@ class GraphGUI:
 
     def __new__(cls, graph, node_radius: int = 40, scr_width: int = 600, scr_height: int = 600, theme: str = 'BROWN'):
         GraphGUI.instance += 1
-        return GraphGUI.__GraphGUI(graph, GraphGUI.instance, node_radius, scr_width, scr_height, theme)
+        if GraphGUI.instance > 5:
+            raise Exception("For safety reasons, only five instances of GraphGUI can be created")
+        multiprocessing.Process(target=GraphGUI.__GraphGUI, args=(graph, GraphGUI.instance, node_radius, scr_width, scr_height, theme)).start()
+        return 0
 
     def __getattr__(self, name):
         return getattr(self.instance, name)
@@ -69,36 +73,39 @@ class GraphGUI:
             # Closing protocol
             self.root.protocol("WM_DELETE_WINDOW", self.__on_closing)
 
-            self.canvas = tk.Canvas(self.root, bg=self._BACKGROUND_CANVAS_COLOR)
+            self.canvas = tk.Canvas(self.root, bg=self._BACKGROUND_CANVAS_COLOR, bd=0)
             self.canvas.place(x=self.__XMARGIN,
                               y=self.__YMARGIN,
                               width=self.__scr_width - self.__XMARGIN * 2,
                               height=self.__scr_height - self.__YMARGIN * 2 - 30)
 
             # Reset button
-            self.reset_button = tk.Button(self.root, text="Reset", bg=self._BUTTON_COLOR, command=self.display_reset)
+            self.reset_button = tk.Button(self.root, text="Reset", bg=self._BUTTON_COLOR, command=self.display_reset,
+                                          bd=0)
             self.reset_button.place(x=self.__XMARGIN, y=self.__scr_height-self.__YMARGIN//2-30, width=60, height=30)
 
             # Load button
-            self.load_button = tk.Button(self.root, text="Load", bg=self._BUTTON_COLOR, command=self.__call_manager_load)
+            self.load_button = tk.Button(self.root, text="Load", bg=self._BUTTON_COLOR, command=self.__call_manager_load,
+                                         bd=0)
             self.load_button.place(x=self.__XMARGIN + 60 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
                                     height=30)
 
             # Save button
-            self.save_button = tk.Button(self.root, text="Save", bg=self._BUTTON_COLOR, command=self.__call_manager_save)
+            self.save_button = tk.Button(self.root, text="Save", bg=self._BUTTON_COLOR, command=self.__call_manager_save,
+                                         bd=0)
             self.save_button.place(x=self.__XMARGIN + 60 + 60 + 7 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
                                     height=30)
 
             # Delete button
             self.save_button = tk.Button(self.root, text="Delete", bg=self._BUTTON_COLOR,
-                                         command=self.__call_manager_delete)
+                                         command=self.__call_manager_delete, bd=0)
             self.save_button.place(x=self.__XMARGIN + 60 + 60 + 60 + 7 + 7 + 7,
                                    y=self.__scr_height - self.__YMARGIN // 2 - 30,
                                    width=60,
                                    height=30)
 
             # Main display
-            data = self.json_manager.get_data('save'+str(self.__ACTUAL_INSTANCE))
+            data = self.json_manager.get_data('__last_store_'+str(self.__ACTUAL_INSTANCE))
             self.__display(data)
 
             self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
@@ -205,7 +212,7 @@ class GraphGUI:
             data = {}
             for node in self.nodes:
                 data[node.id] = (node.pos_x, node.pos_y)
-            self.json_manager.save_data('save'+str(self.__ACTUAL_INSTANCE), data)
+            self.json_manager.save_data('__last_store_'+str(self.__ACTUAL_INSTANCE), data)
             self.root.destroy()
 
         def on_press(self, event):

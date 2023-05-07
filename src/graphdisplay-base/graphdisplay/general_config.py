@@ -50,7 +50,7 @@ THEMES = {
     },
     "UBUNTU":{
         "BUTTON_COLOR": "#b35625",
-        "VERTEX_COLOR": "#b35625",
+        "VERTEX_COLOR": "#94471e",
         "BACKGROUND_CANVAS_COLOR": "#404040",
         "FRAME_COLOR": "#303030",
         "AUTHOR_NAME_COLOR": "#FFFFFF"

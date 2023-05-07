@@ -2,9 +2,7 @@ import os
 import json
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import ttk
 from datetime import datetime
-from .general_config import *
 
 class JsonManager:
     def __init__(self, parent, graphgui):
