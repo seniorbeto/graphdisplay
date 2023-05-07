@@ -89,6 +89,14 @@ class GraphGUI:
             self.save_button.place(x=self.__XMARGIN + 60 + 60 + 7 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
                                     height=30)
 
+            # Delete button
+            self.save_button = tk.Button(self.root, text="Delete", bg=self._BUTTON_COLOR,
+                                         command=self.__call_manager_delete)
+            self.save_button.place(x=self.__XMARGIN + 60 + 60 + 60 + 7 + 7 + 7,
+                                   y=self.__scr_height - self.__YMARGIN // 2 - 30,
+                                   width=60,
+                                   height=30)
+
             # Main display
             data = self.json_manager.get_data('save'+str(self.__ACTUAL_INSTANCE))
             self.__display(data)
@@ -98,6 +106,9 @@ class GraphGUI:
             self.selected_node = None
 
             self.root.mainloop()
+
+        def __call_manager_delete(self):
+            self.json_manager.generate_delete_window()
 
         def __call_manager_load(self):
             new_position = self.json_manager.generate_load_window()
@@ -111,10 +122,7 @@ class GraphGUI:
             self.json_manager.generate_save_window(curr_pos)
 
         def display_reset(self, new_data: dict = None):
-            for node in self.nodes:
-                node.terminate()
-            for edge in self.edges:
-                edge.terminate()
+            self.canvas.delete("all")
             self.__display(new_data)
 
         def __display(self, data: dict = None):
@@ -190,8 +198,8 @@ class GraphGUI:
                     edge.show()
 
             # Display author
-            self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto", fill=self._AUTHOR_NAME_COLOR,
-                                    font=("Courier", 10))
+            self.__autor = self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto",
+                                                   fill=self._AUTHOR_NAME_COLOR, font=("Courier", 10))
 
         def __on_closing(self):
             data = {}

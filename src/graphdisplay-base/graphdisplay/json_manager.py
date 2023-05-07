@@ -25,6 +25,11 @@ class JsonManager:
         with open(self.__JSON_SAVE_DIR + '../permanent.json', "w", encoding="utf-8", newline="") as file:
             json.dump(self.__permanent, file, indent=4)
 
+    def delete_permanent(self, name: str):
+        del self.__permanent[name]
+        os.remove(self.__JSON_SAVE_DIR + name + '.json')
+        self.update_permanent()
+
     def add_permanent(self, name: str):
         self.__permanent[name] = str(datetime.now())
         self.update_permanent()
@@ -49,6 +54,46 @@ class JsonManager:
     def generate_load_window(self):
         LoadWindow(self.__parent, self)
 
+    def generate_delete_window(self):
+        DeleteWindow(self.__parent, self)
+
+class DeleteWindow(tk.Toplevel):
+    def __init__(self, root, json_manager: JsonManager):
+        super().__init__(root)
+        self.title("Delete save")
+        self.geometry("200x100")
+        self.resizable(False, False)
+        self.__manager = json_manager
+        self.configure(background=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR)
+
+        self.__label = tk.Label(self, text="Select save:", bg=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR)
+        self.__label.pack(side=tk.TOP)
+
+        options = list(self.__manager._JsonManager__permanent.keys())
+        if len(options) > 0:
+            self.__selecion = tk.StringVar(self)
+            self.__selecion.set(options[0])
+            self.__option_menu = tk.OptionMenu(self, self.__selecion, *options)
+            self.__option_menu.config(bg=self.__manager.graphgui._BUTTON_COLOR)
+            self.__option_menu.pack(side=tk.TOP)
+
+            self.__button = tk.Button(self, text="Delete", command=self.__on_delete, bg=self.__manager.graphgui._BUTTON_COLOR)
+            self.__button.place(x=0+7, y=100-7-30, width=60, height=30)
+
+            self.__button2 = tk.Button(self, text="Cancel", command=self.__on_cancel, bg=self.__manager.graphgui._BUTTON_COLOR)
+            self.__button2.place(x=200-7-60, y=100-7-30, width=60, height=30)
+
+    def __on_delete(self):
+        selection = self.__selecion.get()
+        if selection not in self.__manager._JsonManager__permanent:
+            messagebox.showerror("Error", "The selected save does not exist")
+            self.destroy()
+        self.__manager.delete_permanent(selection)
+        messagebox.showinfo("Confirm", f"Removed : {selection}")
+        self.destroy()
+
+    def __on_cancel(self):
+        self.destroy()
 
 class LoadWindow(tk.Toplevel):
     def __init__(self, root, json_manager: JsonManager):
