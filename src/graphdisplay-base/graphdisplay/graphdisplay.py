@@ -46,14 +46,15 @@ class GraphGUI:
             self.__scr_height = scr_height
             self.__XMARGIN = 7
             self.__YMARGIN = 7
+            self._theme = theme.upper()
             self.nodes = []
             self.edges = []
             try:
-                self.__BACKGROUND_CANVAS_COLOR = THEMES[theme.upper()]['BACKGROUND_CANVAS_COLOR']
-                self.__BUTTON_COLOR = THEMES[theme.upper()]['BUTTON_COLOR']
-                self.__FRAME_COLOR = THEMES[theme.upper()]['FRAME_COLOR']
-                self.__VERTEX_COLOR = THEMES[theme.upper()]['VERTEX_COLOR']
-                self.__AUTHOR_NAME_COLOR = THEMES[theme.upper()]['AUTHOR_NAME_COLOR']
+                self._BACKGROUND_CANVAS_COLOR = THEMES[theme.upper()]['BACKGROUND_CANVAS_COLOR']
+                self._BUTTON_COLOR = THEMES[theme.upper()]['BUTTON_COLOR']
+                self._FRAME_COLOR = THEMES[theme.upper()]['FRAME_COLOR']
+                self._VERTEX_COLOR = THEMES[theme.upper()]['VERTEX_COLOR']
+                self._AUTHOR_NAME_COLOR = THEMES[theme.upper()]['AUTHOR_NAME_COLOR']
             except KeyError:
                 raise ValueError("The theme must be one of the following: " + str(list(THEMES.keys())))
 
@@ -61,30 +62,30 @@ class GraphGUI:
             self.root = tk.Tk()
             self.root.title('GraphGUI')
             self.root.resizable(False, False)
-            self.root.configure(bg=self.__FRAME_COLOR, border=0, width=self.__scr_width, height=self.__scr_height)
+            self.root.configure(bg=self._FRAME_COLOR, border=0, width=self.__scr_width, height=self.__scr_height)
 
             self.json_manager = JsonManager(self.root, self)
 
             # Closing protocol
             self.root.protocol("WM_DELETE_WINDOW", self.__on_closing)
 
-            self.canvas = tk.Canvas(self.root, bg=self.__BACKGROUND_CANVAS_COLOR)
+            self.canvas = tk.Canvas(self.root, bg=self._BACKGROUND_CANVAS_COLOR)
             self.canvas.place(x=self.__XMARGIN,
                               y=self.__YMARGIN,
                               width=self.__scr_width - self.__XMARGIN * 2,
                               height=self.__scr_height - self.__YMARGIN * 2 - 30)
 
             # Reset button
-            self.reset_button = tk.Button(self.root, text="Reset", bg=self.__BUTTON_COLOR, command=self.display_reset)
+            self.reset_button = tk.Button(self.root, text="Reset", bg=self._BUTTON_COLOR, command=self.display_reset)
             self.reset_button.place(x=self.__XMARGIN, y=self.__scr_height-self.__YMARGIN//2-30, width=60, height=30)
 
             # Load button
-            self.load_button = tk.Button(self.root, text="Load", bg=self.__BUTTON_COLOR, command=self.__call_manager_load)
+            self.load_button = tk.Button(self.root, text="Load", bg=self._BUTTON_COLOR, command=self.__call_manager_load)
             self.load_button.place(x=self.__XMARGIN + 60 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
                                     height=30)
 
             # Save button
-            self.save_button = tk.Button(self.root, text="Save", bg=self.__BUTTON_COLOR, command=self.__call_manager_save)
+            self.save_button = tk.Button(self.root, text="Save", bg=self._BUTTON_COLOR, command=self.__call_manager_save)
             self.save_button.place(x=self.__XMARGIN + 60 + 60 + 7 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
                                     height=30)
 
@@ -135,10 +136,10 @@ class GraphGUI:
                             data[str(vertex)][0] + self.__node_radius*2 > 0 and \
                             data[str(vertex)][1] + self.__node_radius*2 > 0:
                         self.nodes.append(
-                            Node(self.canvas, self.__node_radius, data[str(vertex)][0], data[str(vertex)][1], text=vertex, bg=self.__VERTEX_COLOR))
+                            Node(self.canvas, self.__node_radius, data[str(vertex)][0], data[str(vertex)][1], text=vertex, bg=self._VERTEX_COLOR))
                     else:
                         self.nodes.append(
-                            Node(self.canvas, self.__node_radius, first_node_pos[0], first_node_pos[1], text=vertex, bg=self.__VERTEX_COLOR))
+                            Node(self.canvas, self.__node_radius, first_node_pos[0], first_node_pos[1], text=vertex, bg=self._VERTEX_COLOR))
                 else:
                     if data and str(vertex) in data and \
                             data[str(vertex)][0] < self.__scr_width and \
@@ -146,7 +147,7 @@ class GraphGUI:
                             data[str(vertex)][0] + self.__node_radius*2 > 0 and \
                             data[str(vertex)][1] + self.__node_radius*2 > 0:
                         self.nodes.append(
-                            Node(self.canvas, self.__node_radius, data[str(vertex)][0], data[str(vertex)][1], text=vertex, bg=self.__VERTEX_COLOR))
+                            Node(self.canvas, self.__node_radius, data[str(vertex)][0], data[str(vertex)][1], text=vertex, bg=self._VERTEX_COLOR))
                     else:
                         self.nodes.append(Node(self.canvas,
                                                self.__node_radius,
@@ -154,7 +155,7 @@ class GraphGUI:
                                                    math.radians(angle))),
                                                int(scr_center[1] - self.__node_radius - display_radius * math.cos(
                                                    math.radians(angle))),
-                                               text=vertex, bg=self.__VERTEX_COLOR))
+                                               text=vertex, bg=self._VERTEX_COLOR))
                 i += 1
                 angle += arch_angle
 
@@ -165,7 +166,7 @@ class GraphGUI:
                 for adj in self.__graph._vertices[vertex]:
                     for node in self.nodes:
                         if node.id == adj._vertex:
-                            self.edges.append(Edge(self.canvas, self.nodes[i], node, adj._weight if adj._weight else 1, window_color=self.__BACKGROUND_CANVAS_COLOR))
+                            self.edges.append(Edge(self.canvas, self.nodes[i], node, adj._weight if adj._weight else 1, window_color=self._BACKGROUND_CANVAS_COLOR))
                             node.asociated_edges_IN.append(self.edges[-1])
                             self.nodes[i].asociated_edges_OUT.append(self.edges[-1])
                 i += 1
@@ -189,7 +190,7 @@ class GraphGUI:
                     edge.show()
 
             # Display author
-            self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto", fill=self.__AUTHOR_NAME_COLOR,
+            self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto", fill=self._AUTHOR_NAME_COLOR,
                                     font=("Courier", 10))
 
         def __on_closing(self):

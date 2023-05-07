@@ -56,10 +56,10 @@ class LoadWindow(tk.Toplevel):
         self.title("Load")
         self.geometry("200x100")
         self.resizable(False, False)
-        self.configure(background=BACKGROUND_CANVAS_COLOR)
         self.__manager = json_manager
+        self.configure(background=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR)
 
-        self.__label = tk.Label(self, text="Select save:", bg=BACKGROUND_CANVAS_COLOR)
+        self.__label = tk.Label(self, text="Select save:", bg=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR)
         self.__label.pack(side=tk.TOP)
 
         options = list(self.__manager._JsonManager__permanent.keys())
@@ -67,13 +67,13 @@ class LoadWindow(tk.Toplevel):
             self.__selecion = tk.StringVar(self)
             self.__selecion.set(options[0])
             self.__option_menu = tk.OptionMenu(self, self.__selecion, *options)
-            self.__option_menu.config(bg=BUTTON_COLOR)
+            self.__option_menu.config(bg=self.__manager.graphgui._BUTTON_COLOR)
             self.__option_menu.pack(side=tk.TOP)
 
-            self.__button = tk.Button(self, text="Load", command=self.__on_load, bg=BUTTON_COLOR)
+            self.__button = tk.Button(self, text="Load", command=self.__on_load, bg=self.__manager.graphgui._BUTTON_COLOR)
             self.__button.place(x=0+7, y=100-7-30, width=60, height=30)
 
-            self.__button2 = tk.Button(self, text="Cancel", command=self.__on_cancel, bg=BUTTON_COLOR)
+            self.__button2 = tk.Button(self, text="Cancel", command=self.__on_cancel, bg=self.__manager.graphgui._BUTTON_COLOR)
             self.__button2.place(x=200-7-60, y=100-7-30, width=60, height=30)
 
     def __on_load(self):
@@ -93,21 +93,21 @@ class SaveWindow(tk.Toplevel):
         self.title("Save")
         self.geometry("200x100")
         self.resizable(False, False)
-        self.configure(bg=BACKGROUND_CANVAS_COLOR)
         self.__current_position = graph_position
         self.__manager = json_manager
+        self.configure(bg=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR)
         self.__root = root
 
-        self.__label = tk.Label(self, text="Save as:", bg=BACKGROUND_CANVAS_COLOR)
+        self.__label = tk.Label(self, text="Save as:", bg=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR)
         self.__label.pack(side=tk.TOP)
 
         self.__entry = tk.Entry(self)
         self.__entry.pack(side=tk.TOP)
 
-        self.__button = tk.Button(self, text="Save", command=self.__on_save, bg=BUTTON_COLOR)
+        self.__button = tk.Button(self, text="Save", command=self.__on_save, bg=self.__manager.graphgui._BUTTON_COLOR)
         self.__button.place(x=0+7, y=100-7-30, width=60, height=30)
 
-        self.__button2 = tk.Button(self, text="Cancel", command=self.__on_cancel, bg=BUTTON_COLOR)
+        self.__button2 = tk.Button(self, text="Cancel", command=self.__on_cancel, bg=self.__manager.graphgui._BUTTON_COLOR)
         self.__button2.place(x=200-7-60, y=100-7-30, width=60, height=30)
 
     def __on_save(self):
