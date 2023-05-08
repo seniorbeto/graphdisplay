@@ -14,14 +14,17 @@ class GraphGUI:
         if GraphGUI.instance > 5:
             raise Exception("For safety reasons, only five instances of GraphGUI can be created")
         if platform.system() == "Linux":
-            mp.Process(target=cls.__generate, args=(graph,
+            mp.Process(target=cls._generate, args=(graph,
                                                     GraphGUI.instance,
                                                     node_radius,
                                                     scr_width,
                                                     scr_height,
                                                     theme)).start()
         else:
-            return cls.__GraphGUI(graph, GraphGUI.instance, node_radius, scr_width, scr_height, theme)
+            try:
+                p = mp.Process(target=cls._generate, args=(graph, GraphGUI.instance, node_radius, scr_width, scr_height, theme)).start()
+            except RuntimeError:
+                return cls._generate(graph, GraphGUI.instance, node_radius, scr_width, scr_height, theme)
 
     def __getattr__(self, name):
         return getattr(self.instance, name)
@@ -29,8 +32,9 @@ class GraphGUI:
     def __setattr__(self, name, value):
         return setattr(self.instance, name, value)
 
-    def __generate(*args):
-        GraphGUI.__GraphGUI(args)
+    @staticmethod
+    def _generate(graph, instance, node_radius, scr_width, scr_height, theme):
+        GraphGUI.__GraphGUI(graph, instance, node_radius, scr_width, scr_height, theme)
 
     class __GraphGUI:
         def __init__(self, graph, instance, node_radius: int = 40, scr_width: int = 600, scr_height: int = 600, theme: str = 'BROWN'):
