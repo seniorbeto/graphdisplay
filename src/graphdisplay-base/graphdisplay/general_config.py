@@ -90,11 +90,46 @@ THEMES = {
         "FRAME_COLOR": "#867070",
         "AUTHOR_NAME_COLOR": "#000000"
     },
-    "I DONT KNOW": {
+    "TURQUOISE": {
         "BUTTON_COLOR": "#0E8388",
         "VERTEX_COLOR": "#83918e",
         "BACKGROUND_CANVAS_COLOR": "#2E4F4F",
         "FRAME_COLOR": "#2C3333",
         "AUTHOR_NAME_COLOR": "#CBE4DE"
+    },
+    "DEEP PURPLE":{
+        "BUTTON_COLOR": "#bdb8ac",
+        "VERTEX_COLOR": "#bdb8ac",
+        "BACKGROUND_CANVAS_COLOR": "#6D5D6E",
+        "FRAME_COLOR": "#4F4557",
+        "AUTHOR_NAME_COLOR": "#F4EEE0"
+    },
+    "THIS ONE IS UGLY":{
+        "BUTTON_COLOR": "#F67280",
+        "VERTEX_COLOR": "#C06C84",
+        "BACKGROUND_CANVAS_COLOR": "#6C5B7B",
+        "FRAME_COLOR": "#355C7D",
+        "AUTHOR_NAME_COLOR": "#F67280"
+    },
+    "FROST": {
+        "BUTTON_COLOR": "#00ADB5",
+        "VERTEX_COLOR": "#00ADB5",
+        "BACKGROUND_CANVAS_COLOR": "#393E46",
+        "FRAME_COLOR": "#222831",
+        "AUTHOR_NAME_COLOR": "#EEEEEE"
+    },
+    "NEKOS": {
+        "BUTTON_COLOR": "#DEFCF9",
+        "VERTEX_COLOR": "#CADEFC",
+        "BACKGROUND_CANVAS_COLOR": "#C3BEF0",
+        "FRAME_COLOR": "#CCA8E9",
+        "AUTHOR_NAME_COLOR": "#DEFCF9"
+    },
+    "VAMPIRE": {
+        "BUTTON_COLOR": "#FF0000",
+        "VERTEX_COLOR": "#FF0000",
+        "BACKGROUND_CANVAS_COLOR": "#950101",
+        "FRAME_COLOR": "#3D0000",
+        "AUTHOR_NAME_COLOR": "#FF0000"
     }
 }
