@@ -50,7 +50,7 @@ THEMES = {
     },
     "UBUNTU":{
         "BUTTON_COLOR": "#b35625",
-        "VERTEX_COLOR": "#94471e",
+        "VERTEX_COLOR": "#d45102",
         "BACKGROUND_CANVAS_COLOR": "#404040",
         "FRAME_COLOR": "#303030",
         "AUTHOR_NAME_COLOR": "#FFFFFF"
@@ -75,5 +75,26 @@ THEMES = {
         "BACKGROUND_CANVAS_COLOR": "#394867",
         "FRAME_COLOR": "#212A3E",
         "AUTHOR_NAME_COLOR": "#83764F"
+    },
+    "BREAKING BAD":{
+        "BUTTON_COLOR": "#F7E1AE",
+        "VERTEX_COLOR": "#F7E1AE",
+        "BACKGROUND_CANVAS_COLOR": "#617A55",
+        "FRAME_COLOR": "#3d4d36",
+        "AUTHOR_NAME_COLOR": "#F7E1AE"
+    },
+    "SOFT":{
+        "BUTTON_COLOR": "#E4D0D0",
+        "VERTEX_COLOR": "#E4D0D0",
+        "BACKGROUND_CANVAS_COLOR": "#D5B4B4",
+        "FRAME_COLOR": "#867070",
+        "AUTHOR_NAME_COLOR": "#000000"
+    },
+    "I DONT KNOW": {
+        "BUTTON_COLOR": "#0E8388",
+        "VERTEX_COLOR": "#83918e",
+        "BACKGROUND_CANVAS_COLOR": "#2E4F4F",
+        "FRAME_COLOR": "#2C3333",
+        "AUTHOR_NAME_COLOR": "#CBE4DE"
     }
 }
