@@ -22,9 +22,11 @@ class GraphGUI:
                                                     theme)).start()
         else:
             try:
-                p = mp.Process(target=cls._generate, args=(graph, GraphGUI.instance, node_radius, scr_width, scr_height, theme)).start()
+                pid = mp.Process(target=cls._generate, args=(graph, GraphGUI.instance, node_radius, scr_width, scr_height, theme))
+                pid.start()
             except RuntimeError:
-                return cls._generate(graph, GraphGUI.instance, node_radius, scr_width, scr_height, theme)
+                pass
+                #return GraphGUI.__GraphGUI(graph, GraphGUI.instance, node_radius, scr_width, scr_height, theme)
 
     def __getattr__(self, name):
         return getattr(self.instance, name)
