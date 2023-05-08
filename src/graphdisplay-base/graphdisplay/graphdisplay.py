@@ -1,6 +1,7 @@
 import tkinter as tk
 import math
-import multiprocessing
+import platform
+import multiprocessing as mp
 from .json_manager import JsonManager
 from .general_config import *
 
@@ -12,14 +13,24 @@ class GraphGUI:
         GraphGUI.instance += 1
         if GraphGUI.instance > 5:
             raise Exception("For safety reasons, only five instances of GraphGUI can be created")
-        multiprocessing.Process(target=GraphGUI.__GraphGUI, args=(graph, GraphGUI.instance, node_radius, scr_width, scr_height, theme)).start()
-        return 0
+        if platform.system() == "Linux":
+            mp.Process(target=cls.__generate, args=(graph,
+                                                    GraphGUI.instance,
+                                                    node_radius,
+                                                    scr_width,
+                                                    scr_height,
+                                                    theme)).start()
+        else:
+            return cls.__GraphGUI(graph, GraphGUI.instance, node_radius, scr_width, scr_height, theme)
 
     def __getattr__(self, name):
         return getattr(self.instance, name)
 
     def __setattr__(self, name, value):
         return setattr(self.instance, name, value)
+
+    def __generate(*args):
+        GraphGUI.__GraphGUI(args)
 
     class __GraphGUI:
         def __init__(self, graph, instance, node_radius: int = 40, scr_width: int = 600, scr_height: int = 600, theme: str = 'BROWN'):
@@ -349,3 +360,6 @@ class Edge:
         x = math.cos(math.radians(edge_angle)) * end.radius
         y = math.sin(math.radians(edge_angle)) * end.radius
         return  (center_end[0] - int(x), center_end[1] - int(y))
+
+if __name__ == "__main__":
+    pass
