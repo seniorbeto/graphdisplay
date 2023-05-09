@@ -88,7 +88,6 @@ class DeleteWindow(tk.Toplevel):
             self.destroy()
         self.__manager.delete_permanent(selection)
         messagebox.showinfo("Confirm", f"Removed : {selection}")
-        self.destroy()
 
     def __on_cancel(self):
         self.destroy()
@@ -140,6 +139,7 @@ class SaveWindow(tk.Toplevel):
         self.__manager = json_manager
         self.configure(bg=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR)
         self.__root = root
+        self.bind("<Return>", self.__on_save)
 
         self.__label = tk.Label(self, text="Save as:", bg=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR)
         self.__label.pack(side=tk.TOP)
@@ -153,7 +153,7 @@ class SaveWindow(tk.Toplevel):
         self.__button2 = tk.Button(self, text="Cancel", command=self.__on_cancel, bg=self.__manager.graphgui._BUTTON_COLOR)
         self.__button2.place(x=200-7-60, y=100-7-30, width=60, height=30)
 
-    def __on_save(self):
+    def __on_save(self, event = None):
         word = self.__entry.get()
         word = word.strip()
         word = word.replace(" ", "_")

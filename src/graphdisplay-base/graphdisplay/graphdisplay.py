@@ -151,8 +151,8 @@ class GraphGUI:
 
         def __display(self, data: dict = None):
             # Preparation for the nodes display
-            scr_center = (self.__scr_width // 2, self.__scr_height // 2)
-            display_radius = min(self.__scr_width, self.__scr_height) // 2 - self.__node_radius - 10
+            scr_center = ((self.__scr_width - 14) // 2, (self.__scr_height - 30) // 2)
+            display_radius = min(self.__scr_width - 30 - self.__node_radius, self.__scr_height - 14 - self.__node_radius) // 2 - self.__node_radius - 10
             arch_angle = 360 / len(self.__graph._vertices)
             first_node_pos = (scr_center[0] - self.__node_radius, scr_center[1] - self.__node_radius)
 
