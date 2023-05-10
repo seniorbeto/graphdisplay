@@ -9,7 +9,7 @@ class GraphGUI:
 
     instance = 0
 
-    def __new__(cls, graph, node_radius: int = 40, scr_width: int = 600, scr_height: int = 600, theme: str = 'BROWN'):
+    def __new__(cls, graph, node_radius: int = 30, scr_width: int = 600, scr_height: int = 600, theme: str = 'BROWN'):
         GraphGUI.instance += 1
         if GraphGUI.instance > 5:
             raise Exception("For safety reasons, only five instances of GraphGUI can be created")
