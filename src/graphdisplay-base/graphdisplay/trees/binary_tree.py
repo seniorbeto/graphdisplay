@@ -19,7 +19,7 @@ class BinaryNode:
 
 class BinaryTree:
     def __init__(self) -> None:
-        """creates an empty binary tree
+        """creates an empty binary trees
         I only has an attribute: _root"""
         self._root = None
 
@@ -39,7 +39,7 @@ class BinaryTree:
             return 1 + self._size(node.left) + self._size(node.right)
 
     def height(self) -> int:
-        """Returns the height of the tree"""
+        """Returns the height of the trees"""
         return self._height(self._root)
 
     def _height(self, node: BinaryNode) -> int:
@@ -50,7 +50,7 @@ class BinaryTree:
             return 1 + max(self._height(node.left), self._height(node.right))
 
     def preorder(self) -> None:
-        """prints the preorder (root, left, right) traversal of the tree"""
+        """prints the preorder (root, left, right) traversal of the trees"""
         # self.draw()
         print('Preorder traversal: ', end=' ')  # end=' ' avoid the newline
         self._preorder(self._root)
@@ -79,7 +79,7 @@ class BinaryTree:
             self._preorder_list(node.right, pre_list)
 
     def postorder(self) -> None:
-        """prints the postorder (left, right, root)  traversal of the tree"""
+        """prints the postorder (left, right, root)  traversal of the trees"""
         # self.draw()
         print('Postorder traversal: ', end=' ')  # end=' ' avoid the newline
         self._postorder(self._root)
@@ -94,7 +94,7 @@ class BinaryTree:
             print(node.elem, end=' ')  # end=' ' avoid new line
 
     def postorder_list(self) -> list:
-        """returns a list with the postorder traversal of the tree"""
+        """returns a list with the postorder traversal of the trees"""
         # self.draw()
         result = []
         self._postorder_list(self._root, result)
@@ -108,7 +108,7 @@ class BinaryTree:
             post_list.append(node.elem)
 
     def inorder(self) -> None:
-        """prints the inorder (left, root, right)  traversal of the tree"""
+        """prints the inorder (left, root, right)  traversal of the trees"""
         # self.draw()
         print('Inorder traversal: ', end=' ')  # end=' ' avoid the newline
         self._inorder(self._root)
@@ -123,7 +123,7 @@ class BinaryTree:
             self._inorder(node.right)
 
     def inorder_list(self) -> list:
-        """returns a list with the inorder traversal of the tree"""
+        """returns a list with the inorder traversal of the trees"""
         # self.draw()
         result = []
         self._inorder_list(self._root, result)
@@ -139,11 +139,11 @@ class BinaryTree:
 
 
     def draw(self) -> None:
-        """function to draw a tree. """
+        """function to draw a trees. """
         if self._root:
             self._draw('', self._root, False)
         else:
-            print('tree is empty')
+            print('trees is empty')
         print('\n\n')
 
     def _draw(self, prefix: str, node: BinaryNode, is_left: bool) -> None:
