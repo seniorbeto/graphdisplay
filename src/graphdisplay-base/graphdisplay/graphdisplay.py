@@ -229,19 +229,18 @@ class GraphGUI:
                     for edge in self.edges:
                         edge.show()
 
-                # Display author
-                self.__autor = self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto",
-                                                       fill=self._AUTHOR_NAME_COLOR, font=("Courier", 10))
-
             elif self.__is_tree:
                 self.nodes = []
-                root_position = ((self.__scr_width - self.__node_radius//2) // 2, self.__YMARGIN + 33)
+                root_position = ((self.__scr_width - self.__node_radius*2) // 2, self.__YMARGIN + 33)
                 self.nodes.append(Node(self.canvas,
                                        self.__node_radius,
                                        root_position[0],
                                        root_position[1],
                                        text=self.__graph._root.elem,
                                        bg=self._VERTEX_COLOR))
+            # Display author
+            self.__autor = self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto",
+                                                   fill=self._AUTHOR_NAME_COLOR, font=("Courier", 10))
 
         def __on_closing(self):
             data = {}
@@ -269,28 +268,30 @@ class GraphGUI:
                         color = edge.window_color
                         overlaped = edge.overlaped
                         i.asociated_edges_IN.remove(edge)
-                        self.canvas.delete(edge.line)
-                        self.canvas.delete(edge.window)
-                        del edge
-                        edge = Edge(self.canvas, edge_start, i, weight, overlaped=overlaped, window_color=color)
-                        edge.show()
-                        i.asociated_edges_IN.append(edge)
-                    for adj in self.__graph._vertices[i.id]:
+                        edge.terminate()
+                        new_edge = Edge(self.canvas, edge_start, i, weight, overlaped=overlaped, window_color=color)
+                        new_edge.show()
+                        i.asociated_edges_IN.append(new_edge)
                         for nd in self.nodes:
-                            if nd.id == adj._vertex:
-                                for edge in nd.asociated_edges_IN:
-                                    if edge.start_node == i:
-                                        edge_end = edge.end_node
-                                        color = edge.window_color
-                                        weight = edge.weight
-                                        overlaped = edge.overlaped
-                                        nd.asociated_edges_IN.remove(edge)
-                                        self.canvas.delete(edge.line)
-                                        self.canvas.delete(edge.window)
-                                        del edge
-                                        edge = Edge(self.canvas, i, edge_end, weight, overlaped=overlaped, window_color=color)
-                                        edge.show()
-                                        nd.asociated_edges_IN.append(edge)
+                            if edge in nd.asociated_edges_OUT:
+                                nd.asociated_edges_OUT.remove(edge)
+                                nd.asociated_edges_OUT.append(new_edge)
+                                break
+                    for edge in i.asociated_edges_OUT:
+                        edge_end = edge.end_node
+                        weight = edge.weight
+                        color = edge.window_color
+                        overlaped = edge.overlaped
+                        i.asociated_edges_OUT.remove(edge)
+                        edge.terminate()
+                        new_edge = Edge(self.canvas, i, edge_end, weight, overlaped=overlaped, window_color=color)
+                        new_edge.show()
+                        i.asociated_edges_OUT.append(new_edge)
+                        for nd in self.nodes:
+                            if edge in nd.asociated_edges_IN:
+                                nd.asociated_edges_IN.remove(edge)
+                                nd.asociated_edges_IN.append(new_edge)
+                                break
 
 
             self.selected_node = (node, x, y)
