@@ -79,6 +79,13 @@ class GraphGUI:
             except KeyError:
                 raise ValueError("The theme must be one of the following: " + str(list(THEMES.keys())))
 
+            try:
+                self.__tree_root = graph._root
+                self.__is_tree = True
+                print(self.__is_tree)
+            except AttributeError:
+                self.__is_tree = False
+
             # create the main window and start the GUI
             self.root = tk.Tk()
             self.root.title('GraphGUI')
@@ -150,80 +157,91 @@ class GraphGUI:
             self.__display(new_data)
 
         def __display(self, data: dict = None):
-            # Preparation for the nodes display
-            scr_center = ((self.__scr_width - 14) // 2, (self.__scr_height - 30) // 2)
-            display_radius = min(self.__scr_width - 30 - self.__node_radius, self.__scr_height - 14 - self.__node_radius) // 2 - self.__node_radius - 10
-            arch_angle = 360 / len(self.__graph._vertices)
-            first_node_pos = (scr_center[0] - self.__node_radius, scr_center[1] - self.__node_radius)
+            if not self.__is_tree:
+                # Preparation for the nodes display
+                scr_center = ((self.__scr_width - 14) // 2, (self.__scr_height - 30) // 2)
+                display_radius = min(self.__scr_width - 30 - self.__node_radius, self.__scr_height - 14 - self.__node_radius) // 2 - self.__node_radius - 10
+                arch_angle = 360 / len(self.__graph._vertices)
+                first_node_pos = (scr_center[0] - self.__node_radius, scr_center[1] - self.__node_radius)
 
-            # Display the nodes
-            self.nodes = []
-            i = 0
-            angle = 0
-            for vertex in self.__graph._vertices:
-                if i == 0:
-                    if data and str(vertex) in data and \
-                            data[str(vertex)][0] < self.__scr_width and \
-                            data[str(vertex)][1] < self.__scr_height - 30 and \
-                            data[str(vertex)][0] + self.__node_radius*2 > 0 and \
-                            data[str(vertex)][1] + self.__node_radius*2 > 0:
-                        self.nodes.append(
-                            Node(self.canvas, self.__node_radius, data[str(vertex)][0], data[str(vertex)][1], text=vertex, bg=self._VERTEX_COLOR))
+                # Display the nodes
+                self.nodes = []
+                i = 0
+                angle = 0
+                for vertex in self.__graph._vertices:
+                    if i == 0:
+                        if data and str(vertex) in data and \
+                                data[str(vertex)][0] < self.__scr_width and \
+                                data[str(vertex)][1] < self.__scr_height - 30 and \
+                                data[str(vertex)][0] + self.__node_radius*2 > 0 and \
+                                data[str(vertex)][1] + self.__node_radius*2 > 0:
+                            self.nodes.append(
+                                Node(self.canvas, self.__node_radius, data[str(vertex)][0], data[str(vertex)][1], text=vertex, bg=self._VERTEX_COLOR))
+                        else:
+                            self.nodes.append(
+                                Node(self.canvas, self.__node_radius, first_node_pos[0], first_node_pos[1], text=vertex, bg=self._VERTEX_COLOR))
                     else:
-                        self.nodes.append(
-                            Node(self.canvas, self.__node_radius, first_node_pos[0], first_node_pos[1], text=vertex, bg=self._VERTEX_COLOR))
-                else:
-                    if data and str(vertex) in data and \
-                            data[str(vertex)][0] < self.__scr_width and \
-                            data[str(vertex)][1] < self.__scr_height - 30 and \
-                            data[str(vertex)][0] + self.__node_radius*2 > 0 and \
-                            data[str(vertex)][1] + self.__node_radius*2 > 0:
-                        self.nodes.append(
-                            Node(self.canvas, self.__node_radius, data[str(vertex)][0], data[str(vertex)][1], text=vertex, bg=self._VERTEX_COLOR))
-                    else:
-                        self.nodes.append(Node(self.canvas,
-                                               self.__node_radius,
-                                               int(scr_center[0] - self.__node_radius - display_radius * math.sin(
-                                                   math.radians(angle))),
-                                               int(scr_center[1] - self.__node_radius - display_radius * math.cos(
-                                                   math.radians(angle))),
-                                               text=vertex, bg=self._VERTEX_COLOR))
-                i += 1
-                angle += arch_angle
+                        if data and str(vertex) in data and \
+                                data[str(vertex)][0] < self.__scr_width and \
+                                data[str(vertex)][1] < self.__scr_height - 30 and \
+                                data[str(vertex)][0] + self.__node_radius*2 > 0 and \
+                                data[str(vertex)][1] + self.__node_radius*2 > 0:
+                            self.nodes.append(
+                                Node(self.canvas, self.__node_radius, data[str(vertex)][0], data[str(vertex)][1], text=vertex, bg=self._VERTEX_COLOR))
+                        else:
+                            self.nodes.append(Node(self.canvas,
+                                                   self.__node_radius,
+                                                   int(scr_center[0] - self.__node_radius - display_radius * math.sin(
+                                                       math.radians(angle))),
+                                                   int(scr_center[1] - self.__node_radius - display_radius * math.cos(
+                                                       math.radians(angle))),
+                                                   text=vertex, bg=self._VERTEX_COLOR))
+                    i += 1
+                    angle += arch_angle
 
-            # Create the edges
-            i = 0
-            self.edges = []
-            for vertex in self.__graph._vertices:
-                for adj in self.__graph._vertices[vertex]:
-                    for node in self.nodes:
-                        if node.id == adj._vertex:
-                            self.edges.append(Edge(self.canvas, self.nodes[i], node, adj._weight if adj._weight else 1, window_color=self._BACKGROUND_CANVAS_COLOR))
-                            node.asociated_edges_IN.append(self.edges[-1])
-                            self.nodes[i].asociated_edges_OUT.append(self.edges[-1])
-                i += 1
+                # Create the edges
+                i = 0
+                self.edges = []
+                for vertex in self.__graph._vertices:
+                    for adj in self.__graph._vertices[vertex]:
+                        for node in self.nodes:
+                            if node.id == adj._vertex:
+                                self.edges.append(Edge(self.canvas, self.nodes[i], node, adj._weight if adj._weight else 1, window_color=self._BACKGROUND_CANVAS_COLOR))
+                                node.asociated_edges_IN.append(self.edges[-1])
+                                self.nodes[i].asociated_edges_OUT.append(self.edges[-1])
+                    i += 1
 
-            # Display the edges
-            if self.__graph._directed:
-                for edge in self.edges:
-                    edge_start_node = edge.start_node
-                    edge_end_node = edge.end_node
-                    found = False
-                    for i in edge_start_node.asociated_edges_IN:
-                        if i.start_node == edge_end_node:
-                            found = True
-                            edge.overlaped = True
+                # Display the edges
+                if self.__graph._directed:
+                    for edge in self.edges:
+                        edge_start_node = edge.start_node
+                        edge_end_node = edge.end_node
+                        found = False
+                        for i in edge_start_node.asociated_edges_IN:
+                            if i.start_node == edge_end_node:
+                                found = True
+                                edge.overlaped = True
+                                edge.show()
+                                break
+                        if not found:
                             edge.show()
-                            break
-                    if not found:
+                else:
+                    for edge in self.edges:
                         edge.show()
-            else:
-                for edge in self.edges:
-                    edge.show()
 
-            # Display author
-            self.__autor = self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto",
-                                                   fill=self._AUTHOR_NAME_COLOR, font=("Courier", 10))
+                # Display author
+                self.__autor = self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto",
+                                                       fill=self._AUTHOR_NAME_COLOR, font=("Courier", 10))
+
+            elif self.__is_tree:
+                self.nodes = []
+                root_position = ((self.__scr_width - self.__node_radius//2) // 2, self.__YMARGIN + 33)
+                self.nodes.append(Node(self.canvas,
+                                       self.__node_radius,
+                                       root_position[0],
+                                       root_position[1],
+                                       text=self.__graph._root.elem,
+                                       bg=self._VERTEX_COLOR))
 
         def __on_closing(self):
             data = {}
