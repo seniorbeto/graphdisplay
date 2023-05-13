@@ -1,5 +1,6 @@
 import tkinter as tk
 import math
+import queue
 import platform
 import multiprocessing as mp
 from .json_manager import JsonManager
@@ -82,7 +83,6 @@ class GraphGUI:
             try:
                 self.__tree_root = graph._root
                 self.__is_tree = True
-                print(self.__is_tree)
             except AttributeError:
                 self.__is_tree = False
 
@@ -238,9 +238,94 @@ class GraphGUI:
                                        root_position[1],
                                        text=self.__graph._root.elem,
                                        bg=self._VERTEX_COLOR))
+
+                # We display the rest of the nodes in a tree-like structure by
+                # dividing the screen in levels and displaying the nodes in each level
+                level_order = self.__levelorder(self.__graph._root)
+                levels = max(level_order.values()) + 1
+                level_height = (self.__scr_height - self.__YMARGIN - 30) // levels
+                height_tree = self.__height(self.__graph._root)
+                print(level_order)
+
+                """q = queue.Queue()
+                q.put(self.__graph._root)  # enqueue: we save the root
+                last_right = root_position[0]
+                last_left = root_position[0]
+
+                while q.empty() == False:
+                    current = q.get()  # dequeue
+                    if current.left != None:
+                        q.put(current.left)
+                        self.nodes.append(Node(self.canvas,
+                                               self.__node_radius,
+                                               last_left,
+                                               root_position[1] + level_height*(level_order[current.left.elem]),
+                                               text=current.left.elem,
+                                               bg=self._VERTEX_COLOR))
+                        last_left -= self.__node_radius*2 + 10
+                    if current.right != None:
+                        q.put(current.right)
+                        self.nodes.append(Node(self.canvas,
+                                               self.__node_radius,
+                                               last_right,
+                                               root_position[1] + level_height*(level_order[current.right.elem]),
+                                               text=current.right.elem,
+                                               bg=self._VERTEX_COLOR))
+                        last_right += self.__node_radius*2 + 10"""
+
+                print(levels)
+                for i in range(levels - 1):
+                    # First, we have to know how mane nodes are in this level
+                    nodes_in_level = 0
+                    for node in level_order:
+                        if level_order[node] == i + 1:
+                            nodes_in_level += 1
+
+                    # Now, we divide the x_axis in nodes_in_level parts
+                    # and we display the nodes in the level
+                    x_axis = self.__scr_width // nodes_in_level
+                    x_axis_counter = 0
+                    for node in level_order:
+                        if level_order[node] == i + 1:
+                            self.nodes.append(Node(self.canvas,
+                                                   self.__node_radius,
+                                                   (x_axis_counter + x_axis // 2) - self.__node_radius,
+                                                   root_position[1] + level_height*(level_order[node]),
+                                                   text=node,
+                                                   bg=self._VERTEX_COLOR))
+                            x_axis_counter += x_axis
+
             # Display author
             self.__autor = self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto",
                                                    fill=self._AUTHOR_NAME_COLOR, font=("Courier", 10))
+
+        def __levelorder(self, node) -> dict:
+            """
+            returns a dictionary with the level order of the tree and the height of each node
+            """
+            register = {}
+            q = queue.Queue()
+            q.put(node)  # enqueue: we save the root
+            register[node.elem] = 0
+
+            while q.empty() == False:
+                current = q.get()  # dequeue
+                value = register[current.elem]
+                if current.left != None:
+                    q.put(current.left)
+                    register[current.left.elem] = value + 1
+                if current.right != None:
+                    q.put(current.right)
+                    register[current.right.elem] = value + 1
+
+            return register
+
+        def __height(self, node):
+            """return the height of node"""
+            if node == None:
+                return -1
+
+            return 1 + max(self.__height(node.left), self.__height(node.right))
 
         def __on_closing(self):
             data = {}
