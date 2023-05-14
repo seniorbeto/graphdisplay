@@ -112,13 +112,13 @@ class GraphGUI:
             self.load_button = tk.Button(self.root, text="Load", bg=self._BUTTON_COLOR, command=self.__call_manager_load,
                                          bd=0)
             self.load_button.place(x=self.__XMARGIN + 60 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
-                                    height=30)
+                                   height=30)
 
             # Save button
             self.save_button = tk.Button(self.root, text="Save", bg=self._BUTTON_COLOR, command=self.__call_manager_save,
                                          bd=0)
             self.save_button.place(x=self.__XMARGIN + 60 + 60 + 7 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
-                                    height=30)
+                                   height=30)
 
             # Delete button
             self.save_button = tk.Button(self.root, text="Delete", bg=self._BUTTON_COLOR,
@@ -139,18 +139,27 @@ class GraphGUI:
             self.root.mainloop()
 
         def __call_manager_delete(self):
-            self.json_manager.generate_delete_window()
+            if not self.__is_tree:
+                self.json_manager.generate_delete_window()
+            else:
+                tk.messagebox.showerror("Error", "This function is not yet available for trees")
 
         def __call_manager_load(self):
-            new_position = self.json_manager.generate_load_window()
-            if new_position:
-                self.display_reset(new_position)
+            if not self.__is_tree:
+                new_position = self.json_manager.generate_load_window()
+                if new_position:
+                    self.display_reset(new_position)
+            else:
+                tk.messagebox.showerror("Error", "This function is not yet available for trees")
 
         def __call_manager_save(self):
-            curr_pos = {}
-            for node in self.nodes:
-                curr_pos[node.id] = (node.pos_x, node.pos_y)
-            self.json_manager.generate_save_window(curr_pos)
+            if not self.__is_tree:
+                curr_pos = {}
+                for node in self.nodes:
+                    curr_pos[node.id] = (node.pos_x, node.pos_y)
+                self.json_manager.generate_save_window(curr_pos)
+            else:
+                tk.messagebox.showerror("Error", "This function is not yet available for trees")
 
         def display_reset(self, new_data: dict = None):
             self.canvas.delete("all")
@@ -244,7 +253,7 @@ class GraphGUI:
                 # dividing the screen in levels and displaying the nodes in each level
                 level_order = self.__levelorder(self.__graph._root)
                 levels = max(level_order.values()) + 1
-                level_height = (self.__scr_height - self.__YMARGIN - 30) // levels
+                level_height = (self.__scr_height - self.__YMARGIN - 60) // levels
 
                 # We determine how many nodes are in each level
                 last_nodes = [self.__graph._root.elem]
@@ -278,17 +287,17 @@ class GraphGUI:
                             if final_position_x <= self.__XMARGIN + 5:
                                 final_position_x = self.__XMARGIN + 5
                             new_node = Node(self.canvas,
-                                                   self.__node_radius,
-                                                   final_position_x,
-                                                   root_position[1] + level_height*(level_order[children_left]),
-                                                   text=children_left,
-                                                   bg=self._VERTEX_COLOR)
+                                            self.__node_radius,
+                                            final_position_x,
+                                            root_position[1] + level_height*(level_order[children_left]),
+                                            text=children_left,
+                                            bg=self._VERTEX_COLOR)
                             self.nodes.append(new_node)
                             new_edge = Edge(self.canvas,
-                                                   father_node,
-                                                   new_node,
-                                                   None,
-                                                   window_color=self._BACKGROUND_CANVAS_COLOR)
+                                            father_node,
+                                            new_node,
+                                            None,
+                                            window_color=self._BACKGROUND_CANVAS_COLOR)
                             new_edge.show()
                             self.edges.append(new_edge)
                             new_node.asociated_edges_IN.append(new_edge)
@@ -300,17 +309,17 @@ class GraphGUI:
                                 final_position_x = self.__scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2) - 5
 
                             new_node = Node(self.canvas,
-                                                   self.__node_radius,
-                                                   final_position_x,
-                                                   root_position[1] + level_height*(level_order[children_right]),
-                                                   text=children_right,
-                                                   bg=self._VERTEX_COLOR)
+                                            self.__node_radius,
+                                            final_position_x,
+                                            root_position[1] + level_height*(level_order[children_right]),
+                                            text=children_right,
+                                            bg=self._VERTEX_COLOR)
                             self.nodes.append(new_node)
                             new_edge = Edge(self.canvas,
-                                                   father_node,
-                                                   new_node,
-                                                   None,
-                                                   window_color=self._BACKGROUND_CANVAS_COLOR)
+                                            father_node,
+                                            new_node,
+                                            None,
+                                            window_color=self._BACKGROUND_CANVAS_COLOR)
                             new_edge.show()
                             self.edges.append(new_edge)
                             new_node.asociated_edges_IN.append(new_edge)
@@ -359,13 +368,6 @@ class GraphGUI:
                     register[current.right.elem] = value + 1
 
             return register
-
-        def __height(self, node):
-            """return the height of node"""
-            if node == None:
-                return -1
-
-            return 1 + max(self.__height(node.left), self.__height(node.right))
 
         def __on_closing(self):
             data = {}
