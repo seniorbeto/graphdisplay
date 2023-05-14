@@ -1,3 +1,8 @@
+"""
+graphdisplay module created by Alberto Penas Díaz (https://github.com/seniorbeto).
+
+WARNING: modifying this file may cause the program to stop working or work incorrectly.
+"""
 import tkinter as tk
 import math
 import queue
