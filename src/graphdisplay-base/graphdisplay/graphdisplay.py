@@ -244,49 +244,25 @@ class GraphGUI:
                 level_order = self.__levelorder(self.__graph._root)
                 levels = max(level_order.values()) + 1
                 level_height = (self.__scr_height - self.__YMARGIN - 30) // levels
-                height_tree = self.__height(self.__graph._root)
-                print(level_order)
 
-                """q = queue.Queue()
-                q.put(self.__graph._root)  # enqueue: we save the root
-                last_right = root_position[0]
-                last_left = root_position[0]
-
-                while q.empty() == False:
-                    current = q.get()  # dequeue
-                    if current.left != None:
-                        q.put(current.left)
-                        self.nodes.append(Node(self.canvas,
-                                               self.__node_radius,
-                                               last_left,
-                                               root_position[1] + level_height*(level_order[current.left.elem]),
-                                               text=current.left.elem,
-                                               bg=self._VERTEX_COLOR))
-                        last_left -= self.__node_radius*2 + 10
-                    if current.right != None:
-                        q.put(current.right)
-                        self.nodes.append(Node(self.canvas,
-                                               self.__node_radius,
-                                               last_right,
-                                               root_position[1] + level_height*(level_order[current.right.elem]),
-                                               text=current.right.elem,
-                                               bg=self._VERTEX_COLOR))
-                        last_right += self.__node_radius*2 + 10"""
-
-                print(levels)
+                # We determine how many nodes are in each level
+                last_nodes = [self.__graph._root.elem]
                 for i in range(levels - 1):
-                    # First, we have to know how mane nodes are in this level
-                    nodes_in_level = 0
+                    if i != 0:
+                        last_nodes = nodes_in_level
+                    nodes_in_level = []
                     for node in level_order:
                         if level_order[node] == i + 1:
-                            nodes_in_level += 1
+                            nodes_in_level.append(node)
 
-                    # Now, we divide the x_axis in nodes_in_level parts
-                    # and we display the nodes in the level
-                    x_axis = self.__scr_width // nodes_in_level
+                    level_grid = 2**(i + 1)
+
+                    # We determine the x_axis of each node in the level
+                    x_axis = (self.__scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2)) // level_grid
                     x_axis_counter = 0
-                    for node in level_order:
-                        if level_order[node] == i + 1:
+
+                    if level_grid == len(nodes_in_level):
+                        for node in nodes_in_level:
                             self.nodes.append(Node(self.canvas,
                                                    self.__node_radius,
                                                    (x_axis_counter + x_axis // 2) - self.__node_radius,
@@ -294,10 +270,61 @@ class GraphGUI:
                                                    text=node,
                                                    bg=self._VERTEX_COLOR))
                             x_axis_counter += x_axis
+                    else:
+                        final_nodes = nodes_in_level + last_nodes
+                        final_nodes.sort()
+                        for node in last_nodes:
+                            # We look for the position x of the father
+                            for aux in self.nodes:
+                                if node == aux.id:
+                                    position_x = aux.pos_x
+                                    break
+                            relative = last_nodes.index(node) + 1
+                            children_left, children_right = self.__get_children(node)
+                            if children_left or children_left == 0:
+                                final_position_x = position_x - x_axis // 2
+                                if final_position_x <= self.__XMARGIN + 5:
+                                    final_position_x = self.__XMARGIN + 5
+                                self.nodes.append(Node(self.canvas,
+                                                       self.__node_radius,
+                                                       final_position_x,
+                                                       root_position[1] + level_height*(level_order[children_left]),
+                                                       text=children_left,
+                                                       bg=self._VERTEX_COLOR))
+                            if children_right or children_right == 0:
+                                final_position_x = position_x + x_axis // 2
+                                if final_position_x >= self.__scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2) - 5:
+                                    final_position_x = self.__scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2) - 5
+
+                                self.nodes.append(Node(self.canvas,
+                                                       self.__node_radius,
+                                                       final_position_x,
+                                                       root_position[1] + level_height*(level_order[children_right]),
+                                                       text=children_right,
+                                                       bg=self._VERTEX_COLOR))
+
 
             # Display author
             self.__autor = self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto",
                                                    fill=self._AUTHOR_NAME_COLOR, font=("Courier", 10))
+
+        def __get_children(self, elem) -> tuple:
+            """returns a tuple with the children of node"""
+            node = self.__search_node(elem)
+            return node.left.elem if node.left else None, node.right.elem if node.right else None
+
+        def __search_node(self, elem):
+            """returns the node with the given element"""
+            return self.__search_node_aux(self.__graph._root, elem)
+
+        def __search_node_aux(self, node, elem):
+            """returns the node with the given element"""
+            if node == None:
+                return None
+            if node.elem == elem:
+                return node
+            else:
+                return self.__search_node_aux(node.left, elem) or self.__search_node_aux(node.right, elem)
 
         def __levelorder(self, node) -> dict:
             """
@@ -415,17 +442,19 @@ class Edge:
 
     def terminate(self):
         self.canvas.delete(self.line)
-        self.canvas.delete(self.window)
+        if self.weight:
+            self.canvas.delete(self.window)
 
     def show(self):
         self.line = self.canvas.create_line(self.start[0], self.start[1], self.end[0], self.end[1], arrow=tk.LAST, width=1.5)
-        if not self.overlaped:
-            self.window = self.canvas.create_window((self.start[0] + self.end[0]) // 2, (self.start[1] + self.end[1]) // 2,
-                                               window=tk.Label(self.canvas,bg=self.window_color ,text=str(self.weight)))
-        else:
-            self.window = self.canvas.create_window((self.start[0] * 0.2 + self.end[0] * 0.8),
-                                               (self.start[1] * 0.2 + self.end[1] * 0.8),
-                                               window=tk.Label(self.canvas, bg=self.window_color, text=str(self.weight)))
+        if self.weight:
+            if not self.overlaped:
+                self.window = self.canvas.create_window((self.start[0] + self.end[0]) // 2, (self.start[1] + self.end[1]) // 2,
+                                                   window=tk.Label(self.canvas,bg=self.window_color ,text=str(self.weight)))
+            else:
+                self.window = self.canvas.create_window((self.start[0] * 0.2 + self.end[0] * 0.8),
+                                                   (self.start[1] * 0.2 + self.end[1] * 0.8),
+                                                   window=tk.Label(self.canvas, bg=self.window_color, text=str(self.weight)))
 
     def __calculate_start(self, start: Node, end: Node) -> tuple:
         """
