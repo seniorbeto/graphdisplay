@@ -1,2 +1,3 @@
-from .graphdisplay import GraphGUI
-from .graph import Graph
+from .main import GraphGUI
+from .graphs import Graph
+from .trees import AVLTree, BinarySearchTree
