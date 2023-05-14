@@ -231,6 +231,7 @@ class GraphGUI:
 
             elif self.__is_tree:
                 self.nodes = []
+                self.edges = []
                 root_position = ((self.__scr_width - self.__node_radius*2) // 2, self.__YMARGIN + 33)
                 self.nodes.append(Node(self.canvas,
                                        self.__node_radius,
@@ -261,47 +262,59 @@ class GraphGUI:
                     x_axis = (self.__scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2)) // level_grid
                     x_axis_counter = 0
 
-                    if level_grid == len(nodes_in_level):
-                        for node in nodes_in_level:
-                            self.nodes.append(Node(self.canvas,
+                    final_nodes = nodes_in_level + last_nodes
+                    final_nodes.sort()
+                    for node in last_nodes:
+                        # We look for the position x of the father
+                        for aux in self.nodes:
+                            if node == aux.id:
+                                position_x = aux.pos_x
+                                father_node = aux
+                                break
+                        relative = last_nodes.index(node) + 1
+                        children_left, children_right = self.__get_children(node)
+                        if children_left or children_left == 0:
+                            final_position_x = position_x - x_axis // 2
+                            if final_position_x <= self.__XMARGIN + 5:
+                                final_position_x = self.__XMARGIN + 5
+                            new_node = Node(self.canvas,
                                                    self.__node_radius,
-                                                   (x_axis_counter + x_axis // 2) - self.__node_radius,
-                                                   root_position[1] + level_height*(level_order[node]),
-                                                   text=node,
-                                                   bg=self._VERTEX_COLOR))
-                            x_axis_counter += x_axis
-                    else:
-                        final_nodes = nodes_in_level + last_nodes
-                        final_nodes.sort()
-                        for node in last_nodes:
-                            # We look for the position x of the father
-                            for aux in self.nodes:
-                                if node == aux.id:
-                                    position_x = aux.pos_x
-                                    break
-                            relative = last_nodes.index(node) + 1
-                            children_left, children_right = self.__get_children(node)
-                            if children_left or children_left == 0:
-                                final_position_x = position_x - x_axis // 2
-                                if final_position_x <= self.__XMARGIN + 5:
-                                    final_position_x = self.__XMARGIN + 5
-                                self.nodes.append(Node(self.canvas,
-                                                       self.__node_radius,
-                                                       final_position_x,
-                                                       root_position[1] + level_height*(level_order[children_left]),
-                                                       text=children_left,
-                                                       bg=self._VERTEX_COLOR))
-                            if children_right or children_right == 0:
-                                final_position_x = position_x + x_axis // 2
-                                if final_position_x >= self.__scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2) - 5:
-                                    final_position_x = self.__scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2) - 5
+                                                   final_position_x,
+                                                   root_position[1] + level_height*(level_order[children_left]),
+                                                   text=children_left,
+                                                   bg=self._VERTEX_COLOR)
+                            self.nodes.append(new_node)
+                            new_edge = Edge(self.canvas,
+                                                   father_node,
+                                                   new_node,
+                                                   None,
+                                                   window_color=self._BACKGROUND_CANVAS_COLOR)
+                            new_edge.show()
+                            self.edges.append(new_edge)
+                            new_node.asociated_edges_IN.append(new_edge)
+                            father_node.asociated_edges_OUT.append(new_edge)
 
-                                self.nodes.append(Node(self.canvas,
-                                                       self.__node_radius,
-                                                       final_position_x,
-                                                       root_position[1] + level_height*(level_order[children_right]),
-                                                       text=children_right,
-                                                       bg=self._VERTEX_COLOR))
+                        if children_right or children_right == 0:
+                            final_position_x = position_x + x_axis // 2
+                            if final_position_x >= self.__scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2) - 5:
+                                final_position_x = self.__scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2) - 5
+
+                            new_node = Node(self.canvas,
+                                                   self.__node_radius,
+                                                   final_position_x,
+                                                   root_position[1] + level_height*(level_order[children_right]),
+                                                   text=children_right,
+                                                   bg=self._VERTEX_COLOR)
+                            self.nodes.append(new_node)
+                            new_edge = Edge(self.canvas,
+                                                   father_node,
+                                                   new_node,
+                                                   None,
+                                                   window_color=self._BACKGROUND_CANVAS_COLOR)
+                            new_edge.show()
+                            self.edges.append(new_edge)
+                            new_node.asociated_edges_IN.append(new_edge)
+                            father_node.asociated_edges_OUT.append(new_edge)
 
 
             # Display author
