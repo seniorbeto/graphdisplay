@@ -160,7 +160,7 @@ class GraphGUI:
             self.root.mainloop()
 
         def __call_about_window(self):
-            AboutWindow(self.root)
+            AboutWindow(self.root, self)
 
         def __call_manager_delete(self):
             if not self.__is_tree:
