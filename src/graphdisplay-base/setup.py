@@ -1,9 +1,10 @@
 import pathlib
 from setuptools import find_packages, setup
+from graphdisplay.general_config import *
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.3.6'
+VERSION = VERSION
 PACKAGE_NAME = 'graphdisplay'
 AUTHOR = 'Alberto Penas Díaz'
 AUTHOR_EMAIL = 'albertopenasdiaz@gmail.com'
