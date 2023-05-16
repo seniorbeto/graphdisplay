@@ -9,6 +9,7 @@ import queue
 import platform
 import multiprocessing as mp
 from .json_manager import JsonManager
+from .about_win_manager import AboutWindow
 from .general_config import *
 
 class GraphGUI:
@@ -63,16 +64,16 @@ class GraphGUI:
                 raise ValueError("The parameter node_radius must be a value between 10 and 100")
             if scr_width < 200 or scr_height < 200:
                 raise ValueError("The parameters scr_width and scr_height must be values greater than 200")
-            if scr_width > 1000 or scr_height > 1000:
-                raise ValueError("The parameters scr_width and scr_height must be values less than 1000")
+            if scr_width > 2000 or scr_height > 2000:
+                raise ValueError("The parameters scr_width and scr_height must be values less than 2000")
 
             self.__ACTUAL_INSTANCE = instance
             self.__graph = graph
             self.__node_radius = node_radius
             self.__scr_width = scr_width
             self.__scr_height = scr_height
-            self.__XMARGIN = 7
-            self.__YMARGIN = 7
+            self.__XMARGIN = XMARGEN
+            self.__YMARGIN = YMARGEN
             self._theme = theme.upper()
             self.nodes = []
             self.edges = []
@@ -106,32 +107,47 @@ class GraphGUI:
             self.canvas.place(x=self.__XMARGIN,
                               y=self.__YMARGIN,
                               width=self.__scr_width - self.__XMARGIN * 2,
-                              height=self.__scr_height - self.__YMARGIN * 2 - 30)
+                              height=self.__scr_height - self.__YMARGIN * 2 - BUTTON_HEIGHT)
 
             # Reset button
             self.reset_button = tk.Button(self.root, text="Reset", bg=self._BUTTON_COLOR, command=self.display_reset,
                                           bd=0)
-            self.reset_button.place(x=self.__XMARGIN, y=self.__scr_height-self.__YMARGIN//2-30, width=60, height=30)
+            self.reset_button.place(x=self.__XMARGIN,
+                                    y=self.__scr_height-self.__YMARGIN//2-BUTTON_HEIGHT,
+                                    width=BUTTON_WIDTH,
+                                    height=BUTTON_HEIGHT)
 
             # Load button
             self.load_button = tk.Button(self.root, text="Load", bg=self._BUTTON_COLOR, command=self.__call_manager_load,
                                          bd=0)
-            self.load_button.place(x=self.__XMARGIN + 60 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
-                                   height=30)
+            self.load_button.place(x=self.__XMARGIN + BUTTON_WIDTH + self.__XMARGIN,
+                                   y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
+                                   width=BUTTON_WIDTH,
+                                   height=BUTTON_HEIGHT)
 
             # Save button
             self.save_button = tk.Button(self.root, text="Save", bg=self._BUTTON_COLOR, command=self.__call_manager_save,
                                          bd=0)
-            self.save_button.place(x=self.__XMARGIN + 60 + 60 + 7 + 7, y=self.__scr_height - self.__YMARGIN // 2 - 30, width=60,
-                                   height=30)
+            self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN)*2,
+                                   y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
+                                   width=BUTTON_WIDTH,
+                                   height=BUTTON_HEIGHT)
 
             # Delete button
             self.save_button = tk.Button(self.root, text="Delete", bg=self._BUTTON_COLOR,
                                          command=self.__call_manager_delete, bd=0)
-            self.save_button.place(x=self.__XMARGIN + 60 + 60 + 60 + 7 + 7 + 7,
-                                   y=self.__scr_height - self.__YMARGIN // 2 - 30,
-                                   width=60,
-                                   height=30)
+            self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN)*3,
+                                   y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
+                                   width=BUTTON_WIDTH,
+                                   height=BUTTON_HEIGHT)
+
+            # About button
+            self.save_button = tk.Button(self.root, text="About", bg=self._BUTTON_COLOR,
+                                         command=self.__call_about_window, bd=0)
+            self.save_button.place(x=self.__scr_width - self.__XMARGIN - BUTTON_WIDTH,
+                                   y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
+                                   width=BUTTON_WIDTH,
+                                   height=BUTTON_HEIGHT)
 
             # Main display
             data = self.json_manager.get_data('__last_store_'+str(self.__ACTUAL_INSTANCE))
@@ -142,6 +158,9 @@ class GraphGUI:
             self.selected_node = None
 
             self.root.mainloop()
+
+        def __call_about_window(self):
+            AboutWindow(self.root)
 
         def __call_manager_delete(self):
             if not self.__is_tree:

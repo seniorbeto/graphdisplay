@@ -1,3 +1,7 @@
+BUTTON_HEIGHT = 30
+BUTTON_WIDTH = 60
+XMARGEN = 7
+YMARGEN = 7
 THEMES = {
     "BROWN":{
         "BUTTON_COLOR": "#ede4cc",
