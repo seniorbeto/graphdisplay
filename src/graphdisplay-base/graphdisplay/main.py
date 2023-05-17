@@ -6,6 +6,7 @@ WARNING: modifying this file may cause the program to stop working or work incor
 import tkinter as tk
 import math
 import queue
+import ctypes
 import platform
 import multiprocessing as mp
 from .json_manager import JsonManager
