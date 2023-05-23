@@ -80,7 +80,7 @@ class GraphGUI:
                 raise ValueError("The parameters scr_width and scr_height must be values less than 2000")
 
             self.__ACTUAL_INSTANCE = instance
-            self.__graph = graph
+            self._graph = graph
             self.__node_radius = node_radius
             self.__scr_width = scr_width
             self.__scr_height = scr_height
@@ -107,12 +107,12 @@ class GraphGUI:
 
                 vertices = list(self.__levelorder(self.__tree_root).keys())
                 if type(graph) == AVLTree:
-                    self.__graph = AVLTree()
+                    self._graph = AVLTree()
                 else:
-                    self.__graph = BinarySearchTree()
+                    self._graph = BinarySearchTree()
 
                 for i in vertices:
-                    self.__graph.insert(i)
+                    self._graph.insert(i)
 
             except AttributeError:
                 self._is_tree = False
@@ -121,11 +121,11 @@ class GraphGUI:
                 # to implement
 
                 vertices = list(graph._vertices.keys())
-                self.__graph = Graph(vertices)
+                self._graph = Graph(vertices)
 
                 for vertex in graph._vertices:
                     for adj in graph._vertices[vertex]:
-                        self.__graph.addEdge(vertex, adj._vertex, adj._weight)
+                        self._graph.addEdge(vertex, adj._vertex, adj._weight)
 
             # create the main window and start the GUI
             self.root = tk.Tk()
@@ -208,7 +208,8 @@ class GraphGUI:
                                    height=BUTTON_HEIGHT)
 
         def __call_tools_window(self):
-            ToolWindow(self.root, self)
+            if not self._is_tree:
+                ToolWindow(self.root, self)
 
         def __call_about_window(self):
             AboutWindow(self.root, self)
@@ -245,14 +246,14 @@ class GraphGUI:
                 # Preparation for the nodes display
                 scr_center = ((self.__scr_width - 14) // 2, (self.__scr_height - 30) // 2)
                 display_radius = min(self.__scr_width - 30 - self.__node_radius, self.__scr_height - 14 - self.__node_radius) // 2 - self.__node_radius - 10
-                arch_angle = 360 / len(self.__graph._vertices)
+                arch_angle = 360 / len(self._graph._vertices)
                 first_node_pos = (scr_center[0] - self.__node_radius, scr_center[1] - self.__node_radius)
 
                 # Display the nodes
                 self.nodes = []
                 i = 0
                 angle = 0
-                for vertex in self.__graph._vertices:
+                for vertex in self._graph._vertices:
                     if i == 0:
                         if data and str(vertex) in data and \
                                 data[str(vertex)][0] < self.__scr_width and \
@@ -301,8 +302,8 @@ class GraphGUI:
                 # Create the edges
                 i = 0
                 self.edges = []
-                for vertex in self.__graph._vertices:
-                    for adj in self.__graph._vertices[vertex]:
+                for vertex in self._graph._vertices:
+                    for adj in self._graph._vertices[vertex]:
                         for node in self.nodes:
                             if node.id == adj._vertex:
                                 self.edges.append(Edge(self.canvas,
@@ -315,7 +316,7 @@ class GraphGUI:
                     i += 1
 
                 # Display the edges
-                if self.__graph._directed:
+                if self._graph._directed:
                     for edge in self.edges:
                         edge_start_node = edge.start_node
                         edge_end_node = edge.end_node
@@ -340,17 +341,17 @@ class GraphGUI:
                                        self.__node_radius,
                                        root_position[0],
                                        root_position[1],
-                                       text=self.__graph._root.elem,
+                                       text=self._graph._root.elem,
                                        bg=self._VERTEX_COLOR))
 
                 # We display the rest of the nodes in a tree-like structure by
                 # dividing the screen in levels and displaying the nodes in each level
-                level_order = self.__levelorder(self.__graph._root)
+                level_order = self.__levelorder(self._graph._root)
                 levels = max(level_order.values()) + 1
                 level_height = (self.__scr_height - self.__YMARGIN - 60) // levels
 
                 # We determine how many nodes are in each level
-                last_nodes = [self.__graph._root.elem]
+                last_nodes = [self._graph._root.elem]
                 for i in range(levels - 1):
                     if i != 0:
                         last_nodes = nodes_in_level
@@ -431,7 +432,7 @@ class GraphGUI:
 
         def __search_node(self, elem):
             """returns the node with the given element"""
-            return self.__search_node_aux(self.__graph._root, elem)
+            return self.__search_node_aux(self._graph._root, elem)
 
         def __search_node_aux(self, node, elem):
             """returns the node with the given element"""
