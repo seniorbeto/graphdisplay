@@ -3,16 +3,21 @@ graphdisplay module created by Alberto Penas Díaz (https://github.com/seniorbet
 
 WARNING: modifying this file may cause the program to stop working or work incorrectly.
 """
+# Libraries
 import tkinter as tk
 import math
 import queue
 import ctypes
 import platform
 import multiprocessing as mp
+
+# Modules
 from .json_manager import JsonManager
 from .about_win_manager import AboutWindow
 from .tools_win_manager import ToolWindow
+from .graphs import Graph
 from .general_config import *
+
 
 class GraphGUI:
 
@@ -40,7 +45,6 @@ class GraphGUI:
                 pid.start()
             except RuntimeError:
                 pass
-                #return GraphGUI.__GraphGUI(graph, GraphGUI.instance, node_radius, scr_width, scr_height, theme)
 
     def __getattr__(self, name):
         return getattr(self.instance, name)
@@ -99,13 +103,21 @@ class GraphGUI:
             except AttributeError:
                 self._is_tree = False
 
+                # We will transform the graph into our own prototype, so that future changes are easier
+                # to implement
+
+                vertices = list(graph._vertices.keys())
+                self.__graph = Graph(vertices)
+
+                for vertex in graph._vertices:
+                    for adj in graph._vertices[vertex]:
+                        self.__graph.addEdge(vertex, adj._vertex, adj._weight)
+
             # create the main window and start the GUI
             self.root = tk.Tk()
             self.root.title('GraphGUI')
             self.root.resizable(False, False)
             self.root.configure(bg=self._FRAME_COLOR, border=0, width=self.__scr_width, height=self.__scr_height)
-
-            self.json_manager = JsonManager(self.root, self)
 
             # Closing protocol
             self.root.protocol("WM_DELETE_WINDOW", self.__on_closing)
@@ -116,9 +128,11 @@ class GraphGUI:
                               width=self.__scr_width - self.__XMARGIN * 2,
                               height=self.__scr_height - self.__YMARGIN * 2 - BUTTON_HEIGHT)
 
+            # Buttons display
             self.__display_buttons()
 
             # Main display
+            self.json_manager = JsonManager(self.root, self)
             data = self.json_manager.get_data('__last_store_'+str(self.__ACTUAL_INSTANCE))
             self.__display(data)
 
