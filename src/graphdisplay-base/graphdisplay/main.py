@@ -16,6 +16,7 @@ from .json_manager import JsonManager
 from .about_win_manager import AboutWindow
 from .tools_win_manager import ToolWindow
 from .graphs import Graph
+from .trees import AVLTree, BinarySearchTree
 from .general_config import *
 
 
@@ -100,6 +101,19 @@ class GraphGUI:
             try:
                 self.__tree_root = graph._root
                 self._is_tree = True
+
+                # We will transform the tree into our own prototype, so that future changes are easier
+                # to implement
+
+                vertices = list(self.__levelorder(self.__tree_root).keys())
+                if type(graph) == AVLTree:
+                    self.__graph = AVLTree()
+                else:
+                    self.__graph = BinarySearchTree()
+
+                for i in vertices:
+                    self.__graph.insert(i)
+
             except AttributeError:
                 self._is_tree = False
 
@@ -246,10 +260,20 @@ class GraphGUI:
                                 data[str(vertex)][0] + self.__node_radius*2 > 0 and \
                                 data[str(vertex)][1] + self.__node_radius*2 > 0:
                             self.nodes.append(
-                                Node(self.canvas, self.__node_radius, data[str(vertex)][0], data[str(vertex)][1], text=vertex, bg=self._VERTEX_COLOR))
+                                Node(self.canvas,
+                                     self.__node_radius,
+                                     data[str(vertex)][0],
+                                     data[str(vertex)][1],
+                                     text=vertex,
+                                     bg=self._VERTEX_COLOR))
                         else:
                             self.nodes.append(
-                                Node(self.canvas, self.__node_radius, first_node_pos[0], first_node_pos[1], text=vertex, bg=self._VERTEX_COLOR))
+                                Node(self.canvas,
+                                     self.__node_radius,
+                                     first_node_pos[0],
+                                     first_node_pos[1],
+                                     text=vertex,
+                                     bg=self._VERTEX_COLOR))
                     else:
                         if data and str(vertex) in data and \
                                 data[str(vertex)][0] < self.__scr_width and \
@@ -257,7 +281,12 @@ class GraphGUI:
                                 data[str(vertex)][0] + self.__node_radius*2 > 0 and \
                                 data[str(vertex)][1] + self.__node_radius*2 > 0:
                             self.nodes.append(
-                                Node(self.canvas, self.__node_radius, data[str(vertex)][0], data[str(vertex)][1], text=vertex, bg=self._VERTEX_COLOR))
+                                Node(self.canvas,
+                                     self.__node_radius,
+                                     data[str(vertex)][0],
+                                     data[str(vertex)][1],
+                                     text=vertex,
+                                     bg=self._VERTEX_COLOR))
                         else:
                             self.nodes.append(Node(self.canvas,
                                                    self.__node_radius,
@@ -276,7 +305,11 @@ class GraphGUI:
                     for adj in self.__graph._vertices[vertex]:
                         for node in self.nodes:
                             if node.id == adj._vertex:
-                                self.edges.append(Edge(self.canvas, self.nodes[i], node, adj._weight if adj._weight else 1, window_color=self._BACKGROUND_CANVAS_COLOR))
+                                self.edges.append(Edge(self.canvas,
+                                                       self.nodes[i],
+                                                       node,
+                                                       adj._weight if adj._weight else 1,
+                                                       window_color=self._BACKGROUND_CANVAS_COLOR))
                                 node.asociated_edges_IN.append(self.edges[-1])
                                 self.nodes[i].asociated_edges_OUT.append(self.edges[-1])
                     i += 1
