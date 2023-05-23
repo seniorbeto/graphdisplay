@@ -11,6 +11,7 @@ import platform
 import multiprocessing as mp
 from .json_manager import JsonManager
 from .about_win_manager import AboutWindow
+from .tools_win_manager import ToolWindow
 from .general_config import *
 
 class GraphGUI:
@@ -30,7 +31,12 @@ class GraphGUI:
                                                     theme)).start()
         else:
             try:
-                pid = mp.Process(target=cls._generate, args=(graph, GraphGUI.instance, node_radius, scr_width, scr_height, theme))
+                pid = mp.Process(target=cls._generate, args=(graph,
+                                                             GraphGUI.instance,
+                                                             node_radius,
+                                                             scr_width,
+                                                             scr_height,
+                                                             theme))
                 pid.start()
             except RuntimeError:
                 pass
@@ -89,9 +95,9 @@ class GraphGUI:
 
             try:
                 self.__tree_root = graph._root
-                self.__is_tree = True
+                self._is_tree = True
             except AttributeError:
-                self.__is_tree = False
+                self._is_tree = False
 
             # create the main window and start the GUI
             self.root = tk.Tk()
@@ -110,16 +116,30 @@ class GraphGUI:
                               width=self.__scr_width - self.__XMARGIN * 2,
                               height=self.__scr_height - self.__YMARGIN * 2 - BUTTON_HEIGHT)
 
+            self.__display_buttons()
+
+            # Main display
+            data = self.json_manager.get_data('__last_store_'+str(self.__ACTUAL_INSTANCE))
+            self.__display(data)
+
+            self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
+            self.canvas.tag_bind("movil", "<Button1-Motion>", self.move)
+            self.selected_node = None
+
+            self.root.mainloop()
+
+        def __display_buttons(self):
             # Reset button
             self.reset_button = tk.Button(self.root, text="Reset", bg=self._BUTTON_COLOR, command=self.display_reset,
                                           bd=0)
             self.reset_button.place(x=self.__XMARGIN,
-                                    y=self.__scr_height-self.__YMARGIN//2-BUTTON_HEIGHT,
+                                    y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
                                     width=BUTTON_WIDTH,
                                     height=BUTTON_HEIGHT)
 
             # Load button
-            self.load_button = tk.Button(self.root, text="Load", bg=self._BUTTON_COLOR, command=self.__call_manager_load,
+            self.load_button = tk.Button(self.root, text="Load", bg=self._BUTTON_COLOR,
+                                         command=self.__call_manager_load,
                                          bd=0)
             self.load_button.place(x=self.__XMARGIN + BUTTON_WIDTH + self.__XMARGIN,
                                    y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
@@ -127,9 +147,10 @@ class GraphGUI:
                                    height=BUTTON_HEIGHT)
 
             # Save button
-            self.save_button = tk.Button(self.root, text="Save", bg=self._BUTTON_COLOR, command=self.__call_manager_save,
+            self.save_button = tk.Button(self.root, text="Save", bg=self._BUTTON_COLOR,
+                                         command=self.__call_manager_save,
                                          bd=0)
-            self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN)*2,
+            self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 2,
                                    y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
                                    width=BUTTON_WIDTH,
                                    height=BUTTON_HEIGHT)
@@ -137,7 +158,7 @@ class GraphGUI:
             # Delete button
             self.save_button = tk.Button(self.root, text="Delete", bg=self._BUTTON_COLOR,
                                          command=self.__call_manager_delete, bd=0)
-            self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN)*3,
+            self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 3,
                                    y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
                                    width=BUTTON_WIDTH,
                                    height=BUTTON_HEIGHT)
@@ -150,27 +171,28 @@ class GraphGUI:
                                    width=BUTTON_WIDTH,
                                    height=BUTTON_HEIGHT)
 
-            # Main display
-            data = self.json_manager.get_data('__last_store_'+str(self.__ACTUAL_INSTANCE))
-            self.__display(data)
+            # Tools button
+            self.save_button = tk.Button(self.root, text="Tools", bg=self._BUTTON_COLOR,
+                                         command=self.__call_tools_window, bd=0)
+            self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 4,
+                                   y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
+                                   width=BUTTON_WIDTH,
+                                   height=BUTTON_HEIGHT)
 
-            self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
-            self.canvas.tag_bind("movil", "<Button1-Motion>", self.move)
-            self.selected_node = None
-
-            self.root.mainloop()
+        def __call_tools_window(self):
+            ToolWindow(self.root, self)
 
         def __call_about_window(self):
             AboutWindow(self.root, self)
 
         def __call_manager_delete(self):
-            if not self.__is_tree:
+            if not self._is_tree:
                 self.json_manager.generate_delete_window()
             else:
                 tk.messagebox.showerror("Error", "This function is not yet available for trees")
 
         def __call_manager_load(self):
-            if not self.__is_tree:
+            if not self._is_tree:
                 new_position = self.json_manager.generate_load_window()
                 if new_position:
                     self.display_reset(new_position)
@@ -178,7 +200,7 @@ class GraphGUI:
                 tk.messagebox.showerror("Error", "This function is not yet available for trees")
 
         def __call_manager_save(self):
-            if not self.__is_tree:
+            if not self._is_tree:
                 curr_pos = {}
                 for node in self.nodes:
                     curr_pos[node.id] = (node.pos_x, node.pos_y)
@@ -191,7 +213,7 @@ class GraphGUI:
             self.__display(new_data)
 
         def __display(self, data: dict = None):
-            if not self.__is_tree:
+            if not self._is_tree:
                 # Preparation for the nodes display
                 scr_center = ((self.__scr_width - 14) // 2, (self.__scr_height - 30) // 2)
                 display_radius = min(self.__scr_width - 30 - self.__node_radius, self.__scr_height - 14 - self.__node_radius) // 2 - self.__node_radius - 10
@@ -263,7 +285,7 @@ class GraphGUI:
                     for edge in self.edges:
                         edge.show()
 
-            elif self.__is_tree:
+            elif self._is_tree:
                 self.nodes = []
                 self.edges = []
                 root_position = ((self.__scr_width - self.__node_radius*2) // 2, self.__YMARGIN + 33)
