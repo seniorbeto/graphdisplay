@@ -349,7 +349,7 @@ class Graph():
                     previous[i] = u
 
         # Finally, we print the minimum path from origin to the other vertices
-        self.print_solution(distances, previous, origin)
+        #self.print_solution(distances, previous, origin)
 
         return distances, previous
 
