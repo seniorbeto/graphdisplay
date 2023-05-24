@@ -1,4 +1,10 @@
-# -*- coding: utf-8 -*-
+"""
+Ofitial graph implementation for Data Structures and Algorithms subject at Carlos III university of Madrid
+
+    - min_number_edges function implemented by Raúl Aguilar Arroyo (https://github.com/Ragarr)
+    - transpose and is_strongly_connected functions implemented by Alberto Penas Díaz (https://github.com/seniorbeto)
+      and Natalia Rodriguez Navarro (https://github.com/NataaNK)
+"""
 import math
 
 class AdjacentVertex:
@@ -432,3 +438,100 @@ class Graph():
             prev = previous[prev]
 
         return result, distances[end]
+
+    def min_number_edges(self, start: str, end: str) -> int:
+        """returns the minimum number of edges from start to end, kind of dijskstra without weights"""
+        visited = {}
+        distances = {}
+        for v in self._vertices.keys():
+            visited[v] = False
+            distances[v] = math.inf
+        distances[start] = 0
+
+        for n in range(len(self._vertices)):
+            current = self.__closer_vertex(visited, distances)
+            visited[current] = True
+
+            for adjV in self._vertices[current]:
+                v = adjV._vertex
+                if visited[v] == False and distances[v] > distances[current] + 1:
+                    distances[v] = distances[current] + 1
+
+        return distances[end] if distances[end] != math.inf else 0
+
+    def __closer_vertex(self, visited, distances):
+        """This function is used by the min_number_edges function."""
+        min = math.inf
+        for vertex in self._vertices.keys():
+            if distances[vertex] <= min and visited[vertex] == False:
+                min = distances[vertex]
+                min_vertex = vertex
+        return min_vertex
+
+    def transpose(self):
+        """ returns a new graph that is the transpose graph of self"""
+        if self._directed and self._vertices != []:
+            nuevos_vertices = []
+            for v in self._vertices:
+                nuevos_vertices.append(v)
+            transpose = Graph(nuevos_vertices)
+            for v in self._vertices:
+                for edge in self._vertices[v]:
+                    transpose.addEdge(edge._vertex, v, edge._weight)
+        else:
+            transpose = self
+
+        return transpose
+
+    def is_strongly_connected(self) -> bool:
+        """ This function checks if the graph is strongly connected.
+        A directed graph is strongly connected when for any pair of vertices
+        u and v, there is always a path from u to v. If the graph is undirected,
+        the function returns True if the graph is connected, that is, there is
+        a path from any vertex to any other vertex in the graph.
+        """
+        if len(self._vertices) == 0:
+            print('ERROR: empty graph')
+            return
+        if len(self._vertices) > 1:
+            for key in list(self._vertices):
+                visitados = [key]
+                running = [key]
+                while len(running) >= 1:
+                    key = running.pop(0)
+                    for edge in self._vertices[key]:
+                        if edge._vertex not in visitados:
+                            visitados.append(edge._vertex)
+                            running.append(edge._vertex)
+                if len(visitados) != len(self._vertices):
+                    return False
+        return True
+
+if __name__ == "__main__":
+
+    g = Graph(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'Z', 'N', 'O', 'P', 'Q'])
+    g.addEdge('A', 'B', 4)
+    g.addEdge('B', 'C', 8)
+    g.addEdge('C', 'A', 100)
+    g.addEdge('D', 'E', 7)
+    g.addEdge('E', 'F', 10)
+    g.addEdge('F', 'G', 5)
+    g.addEdge('G', 'Z', 6)
+    g.addEdge('A', 'H', 2)
+    g.addEdge('B', 'I', 3)
+    g.addEdge('C', 'J', 4)
+    g.addEdge('D', 'K', 5)
+    g.addEdge('E', 'L', 6)
+    g.addEdge('F', 'D', 3)
+    g.addEdge('G', 'H', 9)
+    g.addEdge('H', 'Z', 2)
+    g.addEdge('I', 'J', 1)
+    g.addEdge('J', 'A', 6)
+    g.addEdge('K', 'L', 5)
+    g.addEdge('L', 'M', 4)
+    g.addEdge('M', 'H', 3)
+    g.addEdge('N', 'O', 2)
+    g.addEdge('O', 'P', 1)
+    g.addEdge('P', 'Q', 7)
+    g.addEdge('H', 'A', 20)
+    g.addEdge('K', 'B', 7)
