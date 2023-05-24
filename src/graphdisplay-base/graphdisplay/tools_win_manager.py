@@ -14,6 +14,7 @@ class ToolWindow(tk.Toplevel):
         if not self.__gui._is_tree:
             self.__create_djistra_frame()
             self.__create_minimum_path_frame()
+            self.__create_tree_convert_frame()
 
     def __reset_colors(self):
         for node in self.__gui.nodes:
@@ -164,3 +165,35 @@ class ToolWindow(tk.Toplevel):
                         self.__gui.canvas.itemconfigure(node.circle, fill=self.__gui._AUTHOR_NAME_COLOR)
         else:
             print("ERROR: there is no path from", first_node, "to", second_node)
+
+    def __create_tree_convert_frame(self):
+        self.__tree_convert_frame = tk.Frame(self, bg=self.__gui._BACKGROUND_CANVAS_COLOR,
+                                        height=80,
+                                        width=500)
+        self.__tree_convert_frame.pack(padx=7, pady=7)
+
+        # Tree conversion text
+        text_label = tk.Label(self.__tree_convert_frame,
+                              text="Convert graph into binary tree",
+                              bg=self.__gui._BACKGROUND_CANVAS_COLOR,
+                              font=("Courier", 13))
+        text_label.place(x=5, y=30)
+
+        # Go button
+        go_button = tk.Button(self.__tree_convert_frame,
+                              text="Convert",
+                              command=self.__tree_convert_press,
+                              bg=self.__gui._BUTTON_COLOR,
+                              bd=0)
+        go_button.place(x=390, y=30, height=BUTTON_HEIGHT, width=BUTTON_WIDTH + 30)
+
+    def __tree_convert_press(self):
+        self.__reset_colors()
+
+        gui_graph: Graph = self.__gui._graph
+
+        if not gui_graph.has_cycles():
+            # ASK FOR A ROOT
+            ...
+        else:
+            print("ERROR: graph cannot be converted into a binary tree")
