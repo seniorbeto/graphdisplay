@@ -6,6 +6,7 @@ WARNING: modifying this file may cause the program to stop working or work incor
 # Libraries
 import tkinter as tk
 import math
+import time
 import queue
 import ctypes
 import platform
@@ -68,6 +69,7 @@ class GraphGUI:
             :param scr_width: The width of the window (default 600)
             :param scr_height: The height of the window (default 600)
             """
+            start = time.time()
             if type(node_radius) != int:
                 raise TypeError("The parameter node_radius must be an integer")
             if type(scr_width) != int or type(scr_height) != int:
@@ -153,6 +155,9 @@ class GraphGUI:
             self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
             self.canvas.tag_bind("movil", "<Button1-Motion>", self.move)
             self.selected_node = None
+
+            end = time.time()
+            print("Displayed in:", round(end-start, 4))
 
             self.root.mainloop()
 

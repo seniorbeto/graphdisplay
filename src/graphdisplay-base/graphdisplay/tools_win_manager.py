@@ -34,7 +34,7 @@ class ToolWindow(tk.Toplevel):
                               text="Djistra",
                               bg=self.__gui._BACKGROUND_CANVAS_COLOR,
                               font=("Courier", 13))
-        text_label.place(x=5, y=35)
+        text_label.place(x=5, y=30)
 
         # First node entry
         self.first_node_entry_djis = tk.Entry(self.__djistra_frame)
@@ -102,10 +102,10 @@ class ToolWindow(tk.Toplevel):
 
         # Djistra text
         text_label = tk.Label(self.__minimum_path_frame,
-                              text="Minimum Path",
+                              text="Minimum Edge \nPath",
                               bg=self.__gui._BACKGROUND_CANVAS_COLOR,
                               font=("Courier", 13))
-        text_label.place(x=5, y=35)
+        text_label.place(x=5, y=20)
 
         # First node entry
         self.first_node_entry_min = tk.Entry(self.__minimum_path_frame)
@@ -154,9 +154,9 @@ class ToolWindow(tk.Toplevel):
             return
 
         min_path = gui_graph.min_number_edges(first_node, second_node)
-        if len(min_path[0]) >= 2:
+        if len(min_path) >= 2:
             for node in self.__gui.nodes:
-                if node.id in min_path[0]:
+                if node.id in min_path:
                     if node.id == first_node or node.id == second_node:
                         self.__gui.canvas.itemconfigure(node.circle,
                                                         fill=self.__gui._AUTHOR_NAME_COLOR)

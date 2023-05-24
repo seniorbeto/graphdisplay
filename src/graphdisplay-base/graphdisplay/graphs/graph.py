@@ -457,7 +457,16 @@ class Graph():
                 if visited[v] == False and distances[v] > distances[current] + 1:
                     distances[v] = distances[current] + 1
 
-        return distances[end] if distances[end] != math.inf else 0
+        path = []
+        if distances[end] != math.inf:
+            path.insert(0, end)
+            for i in range(distances[end]):
+                for vx in distances:
+                    if distances[vx] == distances[end] - 1 - i:
+                        path.insert(0, vx)
+                        break
+
+        return path
 
     def __closer_vertex(self, visited, distances):
         """This function is used by the min_number_edges function."""
@@ -508,30 +517,26 @@ class Graph():
         return True
 
 if __name__ == "__main__":
-
-    g = Graph(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'Z', 'N', 'O', 'P', 'Q'])
-    g.addEdge('A', 'B', 4)
-    g.addEdge('B', 'C', 8)
-    g.addEdge('C', 'A', 100)
-    g.addEdge('D', 'E', 7)
-    g.addEdge('E', 'F', 10)
-    g.addEdge('F', 'G', 5)
-    g.addEdge('G', 'Z', 6)
-    g.addEdge('A', 'H', 2)
-    g.addEdge('B', 'I', 3)
-    g.addEdge('C', 'J', 4)
-    g.addEdge('D', 'K', 5)
-    g.addEdge('E', 'L', 6)
-    g.addEdge('F', 'D', 3)
-    g.addEdge('G', 'H', 9)
-    g.addEdge('H', 'Z', 2)
+    g = Graph(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'])
+    g.addEdge('A', 'B', 1)
+    g.addEdge('A', 'C', 5)
+    g.addEdge('A', 'D', 3)
+    g.addEdge('B', 'C', 2)
+    g.addEdge('B', 'E', 1)
+    g.addEdge('C', 'D', 8)
+    g.addEdge('C', 'E', 4)
+    g.addEdge('C', 'F', 6)
+    g.addEdge('D', 'F', 1)
+    g.addEdge('E', 'F', 2)
+    g.addEdge('E', 'G', 3)
+    g.addEdge('F', 'G', 4)
+    g.addEdge('F', 'H', 2)
+    g.addEdge('G', 'H', 1)
+    g.addEdge('G', 'I', 2)
+    g.addEdge('G', 'J', 4)
+    g.addEdge('H', 'J', 3)
     g.addEdge('I', 'J', 1)
-    g.addEdge('J', 'A', 6)
-    g.addEdge('K', 'L', 5)
-    g.addEdge('L', 'M', 4)
-    g.addEdge('M', 'H', 3)
-    g.addEdge('N', 'O', 2)
-    g.addEdge('O', 'P', 1)
-    g.addEdge('P', 'Q', 7)
-    g.addEdge('H', 'A', 20)
-    g.addEdge('K', 'B', 7)
+
+    #g.addEdge('B', 'J', 1)
+
+    print(g.min_number_edges('A', 'J'))
