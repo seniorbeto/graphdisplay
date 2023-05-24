@@ -167,3 +167,18 @@ class SaveWindow(tk.Toplevel):
 
     def __on_cancel(self):
         self.destroy()
+
+if __name__ == "__main__":
+    confirmation = input("WARNING: eliminating store. Do you want to proceed? [Y/N]: ")
+    if confirmation == "Y":
+        path = os.getcwd()
+
+        if os.path.exists(os.path.join(path, "permanent.json")):
+            os.remove(os.path.join(path, "permanent.json"))
+
+        store_path = os.path.join(path, "store/")
+
+        for file in os.listdir(store_path):
+            if file.endswith(".json"):
+                removing = os.path.join(store_path, file)
+                os.remove(removing)
