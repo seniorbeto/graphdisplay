@@ -101,7 +101,7 @@ class Graph():
         visited[vertex] = True
         for adj in self._vertices[vertex]:
             # adj is an object of AdjacentVertex
-            adj_vertex = adj.vertex
+            adj_vertex = adj._vertex
             if not visited[adj_vertex]:
                 self._dfs(adj_vertex, visited)
 
@@ -112,9 +112,9 @@ class Graph():
             u = queue.pop(0)
             for adj in self._vertices[u]:
                 # remember that adj is an AdjacentVertex
-                if not visited[adj.vertex]:
-                    queue.append(adj.vertex)
-                    visited[adj.vertex] = True
+                if not visited[adj._vertex]:
+                    queue.append(adj._vertex)
+                    visited[adj._vertex] = True
 
     def non_accessible(self, vertex: str) -> list:
         """gets a vertex and returns the list of vertices
@@ -460,12 +460,18 @@ class Graph():
         path = []
         if distances[end] != math.inf:
             path.insert(0, end)
+            current = end
             for i in range(distances[end]):
+                posibles = []
                 for vx in distances:
                     if distances[vx] == distances[end] - 1 - i:
-                        path.insert(0, vx)
+                        posibles.append(vx)
+                for pos in posibles:
+                    reachable = self.get_reachable(pos)
+                    if current in reachable:
+                        path.insert(0, pos)
+                        current = pos
                         break
-
         return path
 
     def __closer_vertex(self, visited, distances):
@@ -539,4 +545,33 @@ if __name__ == "__main__":
 
     #g.addEdge('B', 'J', 1)
 
-    print(g.min_number_edges('A', 'J'))
+    my_gragph = Graph(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'Z', 'N', 'O', 'P', 'Q'])
+    my_gragph.addEdge('A', 'B', 4)
+    my_gragph.addEdge('B', 'C', 8)
+    my_gragph.addEdge('C', 'A', 100)
+    my_gragph.addEdge('D', 'E', 7)
+    my_gragph.addEdge('E', 'F', 10)
+    my_gragph.addEdge('F', 'G', 5)
+    my_gragph.addEdge('G', 'Z', 6)
+    my_gragph.addEdge('A', 'H', 2)
+    my_gragph.addEdge('B', 'I', 3)
+    my_gragph.addEdge('C', 'J', 4)
+    my_gragph.addEdge('D', 'K', 5)
+    my_gragph.addEdge('E', 'L', 6)
+    my_gragph.addEdge('F', 'D', 3)
+    my_gragph.addEdge('G', 'H', 9)
+    my_gragph.addEdge('H', 'Z', 2)
+    my_gragph.addEdge('I', 'J', 1)
+    my_gragph.addEdge('J', 'A', 6)
+    my_gragph.addEdge('K', 'L', 5)
+    my_gragph.addEdge('L', 'M', 4)
+    my_gragph.addEdge('M', 'H', 3)
+    my_gragph.addEdge('N', 'O', 2)
+    my_gragph.addEdge('O', 'P', 1)
+    my_gragph.addEdge('P', 'Q', 7)
+    my_gragph.addEdge('H', 'A', 20)
+    my_gragph.addEdge('K', 'B', 7)
+    my_gragph.addEdge('H', 'N', 9)
+    my_gragph.addEdge('Q', 'D', 40)
+
+    print(my_gragph.min_number_edges('B', 'K'))
