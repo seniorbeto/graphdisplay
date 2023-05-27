@@ -9,6 +9,7 @@ import math
 import time
 import queue
 import ctypes
+import pprint
 import platform
 import multiprocessing as mp
 
@@ -46,7 +47,17 @@ class GraphGUI:
                                                              theme))
                 pid.start()
             except RuntimeError:
-                pass
+
+                # For how multiprocessing works in python, it doesn't allow generating multiple processes
+                # without using a "if __name__ == "__main__":" statement. By implementing a try/expect, we
+                # can temporarily deal with this issue. Nevertheless, by doing this, there is a high chance
+                # to run into code-duplication and zombie processes generations.
+
+                print('\033[93m'+"WARNING:"+'\033[0m'+" it is highly recommended to run the program inside a\n\n"
+                      "     if __name__ == \"__name__\":\n\n"
+                      "statement in order to avoid issues and duplicated processes.\n"
+                      "For more information please consider visiting the proyect \n"
+                      "documentation at: https://github.com/seniorbeto/graphdisplay\n")
 
     def __getattr__(self, name):
         return getattr(self.instance, name)
