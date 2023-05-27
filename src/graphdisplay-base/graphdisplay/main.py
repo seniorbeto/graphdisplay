@@ -23,13 +23,27 @@ from .general_config import *
 
 
 class GraphGUI:
+    """
+    Creates a GraphGUI object, which will display the graph in a external window. Nodes can be moved with the mouse.
+    The creation of the window will stop the execution of the program until the window is closed. Thus, it is recommended
+    to create the GraphGUI object at the end of the program.
+    :param graph: The graph/tree to be displayed.
+    :param node_radius: The radius of the nodes.
+    :param scr_width: The width of the window.
+    :param scr_height: The height of the window.
+    :param theme: color scheme of the node display.
+    """
 
+    # Using a instance-counter will determine how many GraphGUI objects are wanted
     instance = 0
 
     def __new__(cls, graph, node_radius: int = 30, scr_width: int = 600, scr_height: int = 600, theme: str = 'BROWN'):
         GraphGUI.instance += 1
         if GraphGUI.instance > 5:
             raise Exception("For safety reasons, only five instances of GraphGUI can be created")
+
+        # Generate multiprocessing
+
         if platform.system() == "Linux":
             mp.Process(target=cls._generate, args=(graph,
                                                     GraphGUI.instance,
@@ -80,7 +94,11 @@ class GraphGUI:
             :param scr_width: The width of the window (default 600)
             :param scr_height: The height of the window (default 600)
             """
+
+            # Begin time measurement
             start = time.time()
+
+            # Parameter validation
             if type(node_radius) != int:
                 raise TypeError("The parameter node_radius must be an integer")
             if type(scr_width) != int or type(scr_height) != int:
@@ -111,12 +129,11 @@ class GraphGUI:
             except KeyError:
                 raise ValueError("The theme must be one of the following: " + str(list(THEMES.keys())))
 
+            # We will transform the graph type into our own prototype, so that future changes are easier
+            # to implement. Beyond this point, code will be implemented based on this prototypes.
             try:
                 self.__tree_root = graph._root
                 self._is_tree = True
-
-                # We will transform the tree into our own prototype, so that future changes are easier
-                # to implement
 
                 vertices = list(self.__levelorder(self.__tree_root).keys())
                 if type(graph) == AVLTree:
@@ -130,9 +147,6 @@ class GraphGUI:
             except AttributeError:
                 self._is_tree = False
 
-                # We will transform the graph into our own prototype, so that future changes are easier
-                # to implement
-
                 vertices = list(graph._vertices.keys())
                 self._graph = Graph(vertices)
 
@@ -140,7 +154,7 @@ class GraphGUI:
                     for adj in graph._vertices[vertex]:
                         self._graph.addEdge(vertex, adj._vertex, adj._weight)
 
-            # create the main window and start the GUI
+            # Create the main window
             self.root = tk.Tk()
             self.root.title('GraphGUI')
             self.root.resizable(False, False)
@@ -149,6 +163,7 @@ class GraphGUI:
             # Closing protocol
             self.root.protocol("WM_DELETE_WINDOW", self.__on_closing)
 
+            # Canvas creation and placement
             self.canvas = tk.Canvas(self.root, bg=self._BACKGROUND_CANVAS_COLOR, bd=0)
             self.canvas.place(x=self.__XMARGIN,
                               y=self.__YMARGIN,
@@ -163,13 +178,16 @@ class GraphGUI:
             data = self.json_manager.get_data('__last_store_'+str(self.__ACTUAL_INSTANCE))
             self.__display(data)
 
+            # Tag_bind for movable canvas objects
             self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
             self.canvas.tag_bind("movil", "<Button1-Motion>", self.move)
             self.selected_node = None
 
+            # End time measurement
             end = time.time()
             print("Displayed in:", round(end-start, 4))
 
+            # Main display protocol
             self.root.mainloop()
 
         def __display_buttons(self):
@@ -224,19 +242,23 @@ class GraphGUI:
                                    height=BUTTON_HEIGHT)
 
         def __call_tools_window(self):
+            """Generator of ToolWindow"""
             if not self._is_tree:
                 ToolWindow(self.root, self)
 
         def __call_about_window(self):
+            """Generator of AboutWindow"""
             AboutWindow(self.root, self)
 
         def __call_manager_delete(self):
+            """Generator of Delete Window"""
             if not self._is_tree:
                 self.json_manager.generate_delete_window()
             else:
                 tk.messagebox.showerror("Error", "This function is not yet available for trees")
 
         def __call_manager_load(self):
+            """Generator of Load Window"""
             if not self._is_tree:
                 new_position = self.json_manager.generate_load_window()
                 if new_position:
@@ -245,6 +267,7 @@ class GraphGUI:
                 tk.messagebox.showerror("Error", "This function is not yet available for trees")
 
         def __call_manager_save(self):
+            """Generator of Save Window"""
             if not self._is_tree:
                 curr_pos = {}
                 for node in self.nodes:
@@ -254,10 +277,23 @@ class GraphGUI:
                 tk.messagebox.showerror("Error", "This function is not yet available for trees")
 
         def display_reset(self, new_data: dict = None):
+            """
+            Sets the main display to default by deleting all objects in canvas and displaying them
+            in the position stored in new_data.
+            """
             self.canvas.delete("all")
             self.__display(new_data)
 
         def __display(self, data: dict = None):
+            """
+            Main display for all nodes in the canvas. Whose position is determined in "data".
+            If data is None, the default display will be showed. This is, in case of a simple graph,
+            the first vertex in the middle of the screen and the rest surrounding it in a polygon shape.
+            In case of a tree, it is always display in a tree-like structure.
+
+            This function also checks if some node position has been stored outside the frames of the window,
+            in which case will correct.
+            """
             if not self._is_tree:
                 # Preparation for the nodes display
                 scr_center = ((self.__scr_width - 14) // 2, (self.__scr_height - 30) // 2)
@@ -270,6 +306,7 @@ class GraphGUI:
                 i = 0
                 angle = 0
                 for vertex in self._graph._vertices:
+                    # The first vertex will be displayed in the screen center
                     if i == 0:
                         if data and str(vertex) in data and \
                                 data[str(vertex)][0] < self.__scr_width and \
@@ -292,6 +329,8 @@ class GraphGUI:
                                      text=vertex,
                                      bg=self._VERTEX_COLOR))
                     else:
+                        # Those vertices that are not the first, will surround the screen center, scrolling
+                        # around an imaginary circumference.
                         if data and str(vertex) in data and \
                                 data[str(vertex)][0] < self.__scr_width and \
                                 data[str(vertex)][1] < self.__scr_height - 30 and \
@@ -325,13 +364,15 @@ class GraphGUI:
                                 self.edges.append(Edge(self.canvas,
                                                        self.nodes[i],
                                                        node,
-                                                       adj._weight if adj._weight else 1,
+                                                       adj._weight,
                                                        window_color=self._BACKGROUND_CANVAS_COLOR))
                                 node.asociated_edges_IN.append(self.edges[-1])
                                 self.nodes[i].asociated_edges_OUT.append(self.edges[-1])
                     i += 1
 
-                # Display the edges
+                # While displaying the edges, we first have to check if it is needed to display the weight
+                # in a edge side (instead of the center) in case that to vertices are pointing to each other,
+                # since this would resoult in an overlap between those to weights
                 if self._graph._directed:
                     for edge in self.edges:
                         edge_start_node = edge.start_node
@@ -350,6 +391,8 @@ class GraphGUI:
                         edge.show()
 
             elif self._is_tree:
+                # The tree display is slightly more complicated (it was a complete nightmare for a one man job
+                # to be honest). For information on how it works, please consider visiting: #TODO
                 self.nodes = []
                 self.edges = []
                 root_position = ((self.__scr_width - self.__node_radius*2) // 2, self.__YMARGIN + 33)
@@ -442,7 +485,7 @@ class GraphGUI:
                                                    fill=self._AUTHOR_NAME_COLOR, font=("Courier", 10))
 
         def __get_children(self, elem) -> tuple:
-            """returns a tuple with the children of node"""
+            """returns a tuple with the children of node with element = elem"""
             node = self.__search_node(elem)
             return node.left.elem if node.left else None, node.right.elem if node.right else None
 
@@ -481,6 +524,7 @@ class GraphGUI:
             return register
 
         def __on_closing(self):
+            """Store the current data at closing protocol"""
             data = {}
             for node in self.nodes:
                 data[node.id] = (node.pos_x, node.pos_y)
@@ -488,10 +532,16 @@ class GraphGUI:
             self.root.destroy()
 
         def on_press(self, event):
+            """Right mouse click protocol"""
+            # Store the node if it has been right-clicked
             node = self.canvas.find_withtag(tk.CURRENT)
             self.selected_node = (node, event.x, event.y)
 
         def move(self, event):
+            """
+            It moves a node if it has been selected on the right mouse click protocol. After moving it, it updates
+            automatically all edges attached to the node.
+            """
             x, y = event.x, event.y
             node, x0, y0 = self.selected_node
             for i in self.nodes:
