@@ -268,7 +268,7 @@ class Graph():
         # Recur for all the vertices
         # adjacent to this vertex
         for adj in self._vertices[vertex]:
-            adj_vertex = adj.vertex
+            adj_vertex = adj._vertex
             # If the node is not visited then recurse on it
             if not visited[adj_vertex]:
                 if self._has_cycles_directed(adj_vertex, visited, rec_stack):
@@ -282,7 +282,6 @@ class Graph():
 
     def has_cycles(self, alg: str = 'dfs') -> bool:
         """returns True if the graph contains a cycle, False eoc"""
-        print(self._directed)
         visited = {}
         recursion_stack = {}
 
