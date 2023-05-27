@@ -6,6 +6,7 @@ WARNING: modifying this file may cause the program to stop working or work incor
 # Libraries
 import tkinter as tk
 import math
+import copy
 import time
 import queue
 import ctypes
@@ -25,8 +26,6 @@ from .general_config import *
 class GraphGUI:
     """
     Creates a GraphGUI object, which will display the graph in a external window. Nodes can be moved with the mouse.
-    The creation of the window will stop the execution of the program until the window is closed. Thus, it is recommended
-    to create the GraphGUI object at the end of the program.
     :param graph: The graph/tree to be displayed.
     :param node_radius: The radius of the nodes.
     :param scr_width: The width of the window.
@@ -180,6 +179,7 @@ class GraphGUI:
 
             # Tag_bind for movable canvas objects
             self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
+            self.canvas.tag_bind("movil", "<Button-3>", self.on_press_left)
             self.canvas.tag_bind("movil", "<Button1-Motion>", self.move)
             self.selected_node = None
 
@@ -530,6 +530,26 @@ class GraphGUI:
                 data[node.id] = (node.pos_x, node.pos_y)
             self.json_manager.save_data('__last_store_'+str(self.__ACTUAL_INSTANCE), data)
             self.root.destroy()
+
+        def on_press_left(self, event):
+            """
+            If, in a tree, a node is left-clicked, it will generate a display of the subtree
+            """
+            if self._is_tree:
+                node = self.canvas.find_withtag(tk.CURRENT)
+                for nd in self.nodes:
+                    if nd.circle == node[0] or nd.text == node[0]:
+                        root = self.__search_node(nd.id)
+                        vertices = self.__levelorder(root)
+                        new_tree = copy.copy(self._graph)
+                        new_tree.remove_all()
+                        for i in list(vertices.keys()):
+                            new_tree.insert(i)
+                GraphGUI(new_tree,
+                         self.__node_radius,
+                         self.__scr_width,
+                         self.__scr_height,
+                         self._theme)
 
         def on_press(self, event):
             """Right mouse click protocol"""

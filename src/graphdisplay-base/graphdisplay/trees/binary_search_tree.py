@@ -46,6 +46,9 @@ class BinarySearchTree(BinaryTree):
             min_node = min_node.left
         return min_node
 
+    def remove_all(self):
+        self._root = None
+
     def remove(self, elem: object) -> None:
         # update the root with the new subtree after remove elem
         self._root = self._remove(self._root, elem)
