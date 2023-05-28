@@ -58,7 +58,7 @@ class ToolWindow(tk.Toplevel):
         for i in inorder_list:
             for nd in self.__gui.nodes:
                 if nd.id == i and self.__running_inorder:
-                    self.__gui.canvas.itemconfigure(nd.circle, fill=self.__gui._AUTHOR_NAME_COLOR)
+                    self.__gui.canvas.itemconfigure(nd.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
                     self.__gui.canvas.update()
                     time.sleep(0.1)
                     break
@@ -100,7 +100,7 @@ class ToolWindow(tk.Toplevel):
         for i in levelorder_list:
             for nd in self.__gui.nodes:
                 if nd.id == i and self.__running_levelorder:
-                    self.__gui.canvas.itemconfigure(nd.circle, fill=self.__gui._AUTHOR_NAME_COLOR)
+                    self.__gui.canvas.itemconfigure(nd.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
                     self.__gui.canvas.update()
                     time.sleep(0.1)
                     break
@@ -142,7 +142,7 @@ class ToolWindow(tk.Toplevel):
         for i in preorder_list:
             for nd in self.__gui.nodes:
                 if nd.id == i and self.__running_preorder:
-                    self.__gui.canvas.itemconfigure(nd.circle, fill=self.__gui._AUTHOR_NAME_COLOR)
+                    self.__gui.canvas.itemconfigure(nd.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
                     self.__gui.canvas.update()
                     time.sleep(0.1)
                     break
@@ -184,7 +184,7 @@ class ToolWindow(tk.Toplevel):
         for i in postorder_list:
             for nd in self.__gui.nodes:
                 if nd.id == i and self.__running_postorder:
-                    self.__gui.canvas.itemconfigure(nd.circle, fill=self.__gui._AUTHOR_NAME_COLOR)
+                    self.__gui.canvas.itemconfigure(nd.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
                     self.__gui.canvas.update()
                     time.sleep(0.1)
                     break
@@ -257,9 +257,9 @@ class ToolWindow(tk.Toplevel):
                 if node.id in min_path[0] and self.__djistra_running:
                     if node.id == first_node or node.id == second_node:
                         self.__gui.canvas.itemconfigure(node.circle,
-                                                        fill=self.__gui._AUTHOR_NAME_COLOR)
+                                                        fill=self.__gui._SELECTED_VERTEX_COLOR)
                     else:
-                        self.__gui.canvas.itemconfigure(node.circle, fill=self.__gui._AUTHOR_NAME_COLOR)
+                        self.__gui.canvas.itemconfigure(node.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
                     self.__gui.canvas.update()
                     self.__gui.canvas.after(100)
         else:
@@ -330,9 +330,9 @@ class ToolWindow(tk.Toplevel):
                 if node.id in min_path:
                     if node.id == first_node or node.id == second_node:
                         self.__gui.canvas.itemconfigure(node.circle,
-                                                        fill=self.__gui._AUTHOR_NAME_COLOR)
+                                                        fill=self.__gui._SELECTED_VERTEX_COLOR)
                     else:
-                        self.__gui.canvas.itemconfigure(node.circle, fill=self.__gui._AUTHOR_NAME_COLOR)
+                        self.__gui.canvas.itemconfigure(node.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
         else:
             print("ERROR: there is no path from", first_node, "to", second_node)
 

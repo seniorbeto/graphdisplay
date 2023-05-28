@@ -122,6 +122,7 @@ class GraphGUI:
             try:
                 self._BACKGROUND_CANVAS_COLOR = THEMES[theme.upper()]['BACKGROUND_CANVAS_COLOR']
                 self._BUTTON_COLOR = THEMES[theme.upper()]['BUTTON_COLOR']
+                self._SELECTED_VERTEX_COLOR = THEMES[theme.upper()]['SELECTED_VERTEX_COLOR']
                 self._FRAME_COLOR = THEMES[theme.upper()]['FRAME_COLOR']
                 self._VERTEX_COLOR = THEMES[theme.upper()]['VERTEX_COLOR']
                 self._AUTHOR_NAME_COLOR = THEMES[theme.upper()]['AUTHOR_NAME_COLOR']
