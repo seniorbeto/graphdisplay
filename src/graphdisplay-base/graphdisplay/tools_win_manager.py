@@ -237,6 +237,7 @@ class ToolWindow(tk.Toplevel):
         go_button.place(x=390, y=35, height=BUTTON_HEIGHT, width=BUTTON_WIDTH + 30)
 
     def __djistra_press(self):
+        self.__djistra_running = True
         self.__reset_colors()
         first_node = self.first_node_entry_djis.get()
         second_node = self.second_node_entry_djis.get()
@@ -253,12 +254,14 @@ class ToolWindow(tk.Toplevel):
         min_path = gui_graph.minimum_path(first_node, second_node)
         if len(min_path[0]) >= 2:
             for node in self.__gui.nodes:
-                if node.id in min_path[0]:
+                if node.id in min_path[0] and self.__djistra_running:
                     if node.id == first_node or node.id == second_node:
                         self.__gui.canvas.itemconfigure(node.circle,
                                                         fill=self.__gui._AUTHOR_NAME_COLOR)
                     else:
                         self.__gui.canvas.itemconfigure(node.circle, fill=self.__gui._AUTHOR_NAME_COLOR)
+                    self.__gui.canvas.update()
+                    self.__gui.canvas.after(100)
         else:
             print("ERROR: there is no path from", first_node, "to", second_node)
 
@@ -370,6 +373,7 @@ class ToolWindow(tk.Toplevel):
             self.__gui.canvas.itemconfigure(node.circle, fill=self.__gui._VERTEX_COLOR)
 
     def __reset_all_traversal(self):
+        self.__djistra_running = False
         self.__running_postorder = False
         self.__running_preorder = False
         self.__running_levelorder = False
