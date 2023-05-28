@@ -179,7 +179,7 @@ class GraphGUI:
 
             # Tag_bind for movable canvas objects
             self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
-            if not self._is_tree:
+            if self._is_tree:
                 self.canvas.tag_bind("movil", "<Button-3>", self.on_press_left)
             self.canvas.tag_bind("movil", "<Button1-Motion>", self.move)
             self.selected_node = None
