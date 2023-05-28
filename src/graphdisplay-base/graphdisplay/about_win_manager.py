@@ -11,6 +11,7 @@ class AboutWindow(tk.Toplevel):
         self.geometry("400x430")
         self.resizable(False, False)
         self.configure(bg=self.__graphgui._FRAME_COLOR, width=400, height=430)
+        self.protocol("WM_DELETE_WINDOW", self.__on_close)
 
         buton = tk.Button(self, text="Contribute", bg=self.__graphgui._BUTTON_COLOR, command=self.__open_github, bd=0)
         buton.pack(side=tk.BOTTOM)
@@ -27,14 +28,20 @@ class AboutWindow(tk.Toplevel):
                                 fill=self.__graphgui._AUTHOR_NAME_COLOR)
         self.canvas.create_text(0, 165, text="by and for students!", font=("Courier", 13),
                                 fill=self.__graphgui._AUTHOR_NAME_COLOR)
+        self.running = True
         for i in range(92):
-            if i % 2 == 0:
-                self.turtle.penup()
-            else:
-                self.turtle.pendown()
-                self.turtle.color(self.__graphgui._VERTEX_COLOR)
-            self.turtle.forward(i+1+5)
-            self.turtle.right(91)
+            if self.running:
+                if i % 2 == 0:
+                    self.turtle.penup()
+                else:
+                    self.turtle.pendown()
+                    self.turtle.color(self.__graphgui._VERTEX_COLOR)
+                self.turtle.forward(i+1+5)
+                self.turtle.right(91)
+
+    def __on_close(self):
+        self.running = False
+        self.destroy()
 
     def __open_github(self):
         webbrowser.open("https://github.com/seniorbeto/graphdisplay")
