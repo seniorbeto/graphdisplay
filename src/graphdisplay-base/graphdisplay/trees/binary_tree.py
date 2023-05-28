@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Implementation of Binary Tree
 
+import queue
 
 class BinaryNode:
 
@@ -136,7 +137,21 @@ class BinaryTree:
             in_list.append(node.elem)
             self._postorder_list(node.right, in_list)
 
+    def levelorder_list(self):
+        """returns a list with the level order traversal of the trees"""
+        levelorder = []
+        q = queue.Queue()
+        q.put(self._root)  # enqueue: we save the root
 
+        while q.empty() == False:
+            current = q.get()  # dequeue
+            levelorder.append(current.elem)
+            if current.left != None:
+                q.put(current.left)
+            if current.right != None:
+                q.put(current.right)
+
+        return levelorder
 
     def draw(self) -> None:
         """function to draw a trees. """
