@@ -179,7 +179,8 @@ class GraphGUI:
 
             # Tag_bind for movable canvas objects
             self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
-            self.canvas.tag_bind("movil", "<Button-3>", self.on_press_left)
+            if not self._is_tree:
+                self.canvas.tag_bind("movil", "<Button-3>", self.on_press_left)
             self.canvas.tag_bind("movil", "<Button1-Motion>", self.move)
             self.selected_node = None
 
@@ -243,8 +244,7 @@ class GraphGUI:
 
         def __call_tools_window(self):
             """Generator of ToolWindow"""
-            if not self._is_tree:
-                ToolWindow(self.root, self)
+            ToolWindow(self.root, self)
 
         def __call_about_window(self):
             """Generator of AboutWindow"""

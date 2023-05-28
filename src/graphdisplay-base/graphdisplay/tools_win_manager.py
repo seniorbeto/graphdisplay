@@ -1,6 +1,8 @@
 import tkinter as tk
+import time
 from .general_config import *
 from .graphs import Graph
+from .trees import AVLTree, BinarySearchTree
 
 class ToolWindow(tk.Toplevel):
     def __init__(self, root, graph):
@@ -15,6 +17,39 @@ class ToolWindow(tk.Toplevel):
             self.__create_djistra_frame()
             self.__create_minimum_path_frame()
             self.__create_tree_convert_frame()
+        else:
+            self.__create_inorder_frame()
+
+    def __create_inorder_frame(self):
+        self.__inorder_frame = tk.Frame(self, bg=self.__gui._BACKGROUND_CANVAS_COLOR,
+                                        height=80,
+                                        width=500)
+        self.__inorder_frame.pack(padx=7, pady=7)
+
+        text_label = tk.Label(self.__inorder_frame,
+                              text="Inorder traversal",
+                              bg=self.__gui._BACKGROUND_CANVAS_COLOR,
+                              font=("Courier", 13))
+        text_label.place(x=5, y=30)
+
+        go_button = tk.Button(self.__inorder_frame,
+                              text="Play",
+                              command=self.__inorder_press,
+                              bg=self.__gui._BUTTON_COLOR,
+                              bd=0)
+        go_button.place(x=200, y=35, height=BUTTON_HEIGHT, width=BUTTON_WIDTH)
+
+    def __inorder_press(self):
+        self.__reset_colors()
+        gui_tree: AVLTree = self.__gui._graph
+        inorder_list = gui_tree.inorder_list()
+
+        for i in inorder_list:
+            for nd in self.__gui.nodes:
+                if nd.id == i:
+                    self.__gui.canvas.itemconfigure(nd.circle, fill=self.__gui._AUTHOR_NAME_COLOR)
+                    self.__gui.canvas.after(100)
+                    break
 
     def __reset_colors(self):
         for node in self.__gui.nodes:
