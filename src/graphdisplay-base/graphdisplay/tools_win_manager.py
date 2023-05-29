@@ -16,7 +16,7 @@ class ToolWindow(tk.Toplevel):
         if not self.__gui._is_tree:
             self.__create_djistra_frame()
             self.__create_minimum_path_frame()
-            self.__create_tree_convert_frame()
+            #self.__create_tree_convert_frame()
         else:
             self.__create_preorder_frame()
             self.__create_postorder_frame()
@@ -245,10 +245,10 @@ class ToolWindow(tk.Toplevel):
         gui_graph: Graph = self.__gui._graph
 
         if first_node not in list(gui_graph._vertices.keys()):
-            print("ERROR: first node not in graph's vertices")
+            print('\n' + '\033[91m' + "ERROR: " + '\033[0m' + "first node not in graph's vertices")
             return
-        elif  second_node not in list(gui_graph._vertices.keys()):
-            print("ERROR: second node not in graph's vertices")
+        elif second_node not in list(gui_graph._vertices.keys()):
+            print('\n' + '\033[91m' + "ERROR: " + '\033[0m' + "second node not in graph's vertices")
             return
 
         min_path = gui_graph.minimum_path(first_node, second_node)
@@ -260,10 +260,8 @@ class ToolWindow(tk.Toplevel):
                                                         fill=self.__gui._SELECTED_VERTEX_COLOR)
                     else:
                         self.__gui.canvas.itemconfigure(node.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
-                    self.__gui.canvas.update()
-                    self.__gui.canvas.after(100)
         else:
-            print("ERROR: there is no path from", first_node, "to", second_node)
+            print('\n' + '\033[91m' + "ERROR: " + '\033[0m' + "there is no path from", first_node, "to", second_node)
 
     def __create_minimum_path_frame(self):
         self.__minimum_path_frame = tk.Frame(self, bg=self.__gui._BACKGROUND_CANVAS_COLOR,
@@ -318,10 +316,10 @@ class ToolWindow(tk.Toplevel):
         gui_graph: Graph = self.__gui._graph
 
         if first_node not in list(gui_graph._vertices.keys()):
-            print("ERROR: first node not in graph's vertices")
+            print('\n' + '\033[91m' + "ERROR: " + '\033[0m' + "first node not in graph's vertices")
             return
         elif second_node not in list(gui_graph._vertices.keys()):
-            print("ERROR: second node not in graph's vertices")
+            print('\n' + '\033[91m' + "ERROR: " + '\033[0m' + "second node not in graph's vertices")
             return
 
         min_path = gui_graph.min_number_edges(first_node, second_node)
@@ -334,7 +332,7 @@ class ToolWindow(tk.Toplevel):
                     else:
                         self.__gui.canvas.itemconfigure(node.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
         else:
-            print("ERROR: there is no path from", first_node, "to", second_node)
+            print('\n' + '\033[91m' + "ERROR: " + '\033[0m' + "there is no path from", first_node, "to", second_node)
 
     def __create_tree_convert_frame(self):
         self.__tree_convert_frame = tk.Frame(self, bg=self.__gui._BACKGROUND_CANVAS_COLOR,
@@ -363,7 +361,7 @@ class ToolWindow(tk.Toplevel):
         gui_graph: Graph = self.__gui._graph
 
         if not gui_graph.has_cycles():
-            # ASK FOR A ROOT
+            # WORK IN PROGRESS... CHECK OUT SOON ;)
             ...
         else:
             print("ERROR: graph cannot be converted into a binary tree")

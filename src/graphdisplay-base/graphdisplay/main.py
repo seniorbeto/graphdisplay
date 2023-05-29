@@ -189,7 +189,7 @@ class GraphGUI:
 
             # Tag_bind for movable canvas objects
             self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
-            if self._is_tree:
+            if self._is_tree and platform.system() != "Linux":
                 self.canvas.tag_bind("movil", "<Button-3>", self.on_press_left)
             self.canvas.tag_bind("movil", "<Button1-Motion>", self.move)
             self.selected_node = None
@@ -381,8 +381,8 @@ class GraphGUI:
                     i += 1
 
                 # While displaying the edges, we first have to check if it is needed to display the weight
-                # in a edge side (instead of the center) in case that to vertices are pointing to each other,
-                # since this would resoult in an overlap between those to weights
+                # in an edge side (instead of the center) in case that to vertices are pointing to each other,
+                # since this would result in an overlap between those to weights
                 if self._graph._directed:
                     for edge in self.edges:
                         edge_start_node = edge.start_node
