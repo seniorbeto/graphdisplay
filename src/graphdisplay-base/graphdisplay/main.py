@@ -9,8 +9,6 @@ import math
 import copy
 import time
 import queue
-import ctypes
-import pprint
 import platform
 import multiprocessing as mp
 
@@ -119,6 +117,7 @@ class GraphGUI:
             self._theme = theme.upper()
             self.nodes = []
             self.edges = []
+            self.__canvas_node_relation = {}
             try:
                 self._BACKGROUND_CANVAS_COLOR = THEMES[theme.upper()]['BACKGROUND_CANVAS_COLOR']
                 self._BUTTON_COLOR = THEMES[theme.upper()]['BUTTON_COLOR']
@@ -177,6 +176,13 @@ class GraphGUI:
             self.json_manager = JsonManager(self.root, self)
             data = self.json_manager.get_data('__last_store_'+str(self.__ACTUAL_INSTANCE))
             self.__display(data)
+
+            # We will store each canvas TAGorID with each associated node object in order
+            # to reduce movement complexity to O(1)
+            for node in self.nodes:
+                self.__canvas_node_relation[node.circle] = node
+                self.__canvas_node_relation[node.text] = node
+
 
             # Tag_bind for movable canvas objects
             self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
@@ -565,44 +571,15 @@ class GraphGUI:
             """
             x, y = event.x, event.y
             node, x0, y0 = self.selected_node
-            for i in self.nodes:
-                if i.circle == node[0] or i.text == node[0]:
-                    self.canvas.move(i.circle, x - x0, y - y0)
-                    self.canvas.move(i.text, x - x0, y - y0)
-                    i.pos_x += x - x0
-                    i.pos_y += y - y0
-                    for edge in i.asociated_edges_IN:
-                        edge_start = edge.start_node
-                        weight = edge.weight
-                        color = edge.window_color
-                        overlaped = edge.overlaped
-                        i.asociated_edges_IN.remove(edge)
-                        edge.terminate()
-                        new_edge = Edge(self.canvas, edge_start, i, weight, overlaped=overlaped, window_color=color)
-                        new_edge.show()
-                        i.asociated_edges_IN.append(new_edge)
-                        for nd in self.nodes:
-                            if edge in nd.asociated_edges_OUT:
-                                nd.asociated_edges_OUT.remove(edge)
-                                nd.asociated_edges_OUT.append(new_edge)
-                                break
-                    for edge in i.asociated_edges_OUT:
-                        edge_end = edge.end_node
-                        weight = edge.weight
-                        color = edge.window_color
-                        overlaped = edge.overlaped
-                        i.asociated_edges_OUT.remove(edge)
-                        edge.terminate()
-                        new_edge = Edge(self.canvas, i, edge_end, weight, overlaped=overlaped, window_color=color)
-                        new_edge.show()
-                        i.asociated_edges_OUT.append(new_edge)
-                        for nd in self.nodes:
-                            if edge in nd.asociated_edges_IN:
-                                nd.asociated_edges_IN.remove(edge)
-                                nd.asociated_edges_IN.append(new_edge)
-                                break
-
-
+            node_obj = self.__canvas_node_relation[node[0]]
+            self.canvas.move(node_obj.circle, x - x0, y - y0)
+            self.canvas.move(node_obj.text, x - x0, y - y0)
+            node_obj.pos_x += x - x0
+            node_obj.pos_y += y - y0
+            for edge in node_obj.asociated_edges_IN:
+                edge.update_position()
+            for edge in node_obj.asociated_edges_OUT:
+                edge.update_position()
             self.selected_node = (node, x, y)
 
 class Node:
@@ -637,21 +614,44 @@ class Edge:
         self.start = self.__calculate_start(start, end)
         self.end = self.__calculate_end(start, end)
 
+    def update_position(self):
+        self.__recalculate()
+        self.canvas.coords(self.line, self.start[0], self.start[1], self.end[0], self.end[1])
+        if self.weight:
+            if not self.overlaped:
+                self.canvas.coords(self.window, (self.start[0] + self.end[0]) // 2, (self.start[1] + self.end[1]) // 2)
+            else:
+                self.canvas.coords(self.window, self.start[0] * 0.2 + self.end[0] * 0.8, self.start[1] * 0.2 + self.end[1] * 0.8)
+
     def terminate(self):
         self.canvas.delete(self.line)
         if self.weight:
             self.canvas.delete(self.window)
 
     def show(self):
-        self.line = self.canvas.create_line(self.start[0], self.start[1], self.end[0], self.end[1], arrow=tk.LAST, width=1.5)
+        self.line = self.canvas.create_line(self.start[0],
+                                            self.start[1],
+                                            self.end[0],
+                                            self.end[1],
+                                            arrow=tk.LAST,
+                                            width=1.5)
         if self.weight:
             if not self.overlaped:
-                self.window = self.canvas.create_window((self.start[0] + self.end[0]) // 2, (self.start[1] + self.end[1]) // 2,
-                                                   window=tk.Label(self.canvas,bg=self.window_color ,text=str(self.weight)))
+                self.window = self.canvas.create_window((self.start[0] + self.end[0]) // 2,
+                                                        (self.start[1] + self.end[1]) // 2,
+                                                        window=tk.Label(self.canvas,
+                                                                        bg=self.window_color,
+                                                                        text=str(self.weight)))
             else:
                 self.window = self.canvas.create_window((self.start[0] * 0.2 + self.end[0] * 0.8),
-                                                   (self.start[1] * 0.2 + self.end[1] * 0.8),
-                                                   window=tk.Label(self.canvas, bg=self.window_color, text=str(self.weight)))
+                                                        (self.start[1] * 0.2 + self.end[1] * 0.8),
+                                                        window=tk.Label(self.canvas,
+                                                                        bg=self.window_color,
+                                                                        text=str(self.weight)))
+
+    def __recalculate(self):
+        self.start = self.__calculate_start(self.start_node, self.end_node)
+        self.end = self.__calculate_end(self.start_node, self.end_node)
 
     def __calculate_start(self, start: Node, end: Node) -> tuple:
         """
