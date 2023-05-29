@@ -57,6 +57,9 @@ class GraphGUI:
                                                              scr_height,
                                                              theme))
                 pid.start()
+            except RecursionError:
+                print('\n' + '\033[91m' + "ERROR: " + '\033[0m' + "For how GraphGUI works, high-demanding recursion trees are"
+                                                                 " not supported. Sorry for the inconvenience. ")
             except RuntimeError:
 
                 # For how multiprocessing works in python, it doesn't allow generating multiple processes
@@ -64,7 +67,7 @@ class GraphGUI:
                 # can temporarily deal with this issue. Nevertheless, by doing this, there is a high chance
                 # to run into code-duplication and zombie processes generations.
 
-                print('\033[93m'+"WARNING:"+'\033[0m'+" it is highly recommended to run the program inside a\n\n"
+                print('\n'+'\033[93m'+"WARNING:"+'\033[0m'+" it is highly recommended to run the program inside a\n\n"
                       "     if __name__ == \"__name__\":\n\n"
                       "statement in order to avoid issues and duplicated processes.\n"
                       "For more information please consider visiting the proyect \n"
