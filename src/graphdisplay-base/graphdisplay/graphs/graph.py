@@ -466,7 +466,9 @@ class Graph():
                     if distances[vx] == distances[end] - 1 - i:
                         posibles.append(vx)
                 for pos in posibles:
-                    reachable = self.get_reachable(pos)
+                    reachable = []
+                    for adj in self._vertices[pos]:
+                        reachable.append(adj._vertex)
                     if current in reachable:
                         path.insert(0, pos)
                         current = pos
@@ -573,4 +575,4 @@ if __name__ == "__main__":
     my_gragph.addEdge('H', 'N', 9)
     my_gragph.addEdge('Q', 'D', 40)
 
-    print(my_gragph.min_number_edges('B', 'K'))
+    print(my_gragph.min_number_edges('H', 'P'))
