@@ -68,7 +68,7 @@ class GraphGUI:
                 # to run into code-duplication and zombie processes generations.
 
                 print('\n'+'\033[93m'+"WARNING:"+'\033[0m'+" it is highly recommended to run the program inside a\n\n"
-                      "     if __name__ == \"__name__\":\n\n"
+                      "     if __name__ == \"__main__\":\n\n"
                       "statement in order to avoid issues and duplicated processes.\n"
                       "For more information please consider visiting the proyect \n"
                       "documentation at: https://github.com/seniorbeto/graphdisplay\n")
@@ -179,13 +179,6 @@ class GraphGUI:
             self.json_manager = JsonManager(self.root, self)
             data = self.json_manager.get_data('__last_store_'+str(self.__ACTUAL_INSTANCE))
             self.__display(data)
-
-            # We will store each canvas TAGorID with each associated node object in order
-            # to reduce movement complexity to O(1)
-            for node in self.nodes:
-                self.__canvas_node_relation[node.circle] = node
-                self.__canvas_node_relation[node.text] = node
-
 
             # Tag_bind for movable canvas objects
             self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
@@ -493,6 +486,13 @@ class GraphGUI:
             # Display author
             self.__autor = self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto",
                                                    fill=self._AUTHOR_NAME_COLOR, font=("Courier", 10))
+
+            # We will store each canvas TAGorID with each associated node object in order
+            # to reduce movement complexity to O(1)
+            self.__canvas_node_relation = {}
+            for node in self.nodes:
+                self.__canvas_node_relation[node.circle] = node
+                self.__canvas_node_relation[node.text] = node
 
         def __get_children(self, elem) -> tuple:
             """returns a tuple with the children of node with element = elem"""
