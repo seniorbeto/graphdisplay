@@ -2,6 +2,7 @@ venv
 .idea
 testing.py
 testing_trees.py
+general_tests.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
