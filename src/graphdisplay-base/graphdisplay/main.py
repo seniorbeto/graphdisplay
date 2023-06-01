@@ -159,18 +159,21 @@ class GraphGUI:
             # Create the main window
             self.root = tk.Tk()
             self.root.title('GraphGUI')
-            self.root.resizable(False, False)
-            self.root.configure(bg=self._FRAME_COLOR, border=0, width=self.__scr_width, height=self.__scr_height)
+            #self.root.resizable(False, False)
+            self.root.geometry(f"{self.__scr_width}x{self.__scr_height}")
+            self.root.configure(bg=self._FRAME_COLOR, border=0)
 
             # Closing protocol
             self.root.protocol("WM_DELETE_WINDOW", self.__on_closing)
 
             # Canvas creation and placement
-            self.canvas = tk.Canvas(self.root, bg=self._BACKGROUND_CANVAS_COLOR, bd=0)
-            self.canvas.place(x=self.__XMARGIN,
-                              y=self.__YMARGIN,
-                              width=self.__scr_width - self.__XMARGIN * 2,
-                              height=self.__scr_height - self.__YMARGIN * 2 - BUTTON_HEIGHT)
+            self.canvas = tk.Canvas(self.root, bg=self._BACKGROUND_CANVAS_COLOR, bd=0,
+                                    width=self.__scr_width - self.__XMARGIN * 2,
+                                    height=self.__scr_height - self.__YMARGIN * 2 - BUTTON_HEIGHT)
+            self.canvas.place(relx=0.01,
+                              rely=0.01,
+                              relwidth=0.98,
+                              relheight=0.93)
 
             # Buttons display
             self.__display_buttons()
@@ -179,6 +182,10 @@ class GraphGUI:
             self.json_manager = JsonManager(self.root, self)
             data = self.json_manager.get_data('__last_store_'+str(self.__ACTUAL_INSTANCE))
             self.__display(data)
+            if data:
+                actual_scr_width = data['Screen_dimensions'][0]
+                actual_scr_height = data['Screen_dimensions'][1]
+                self.root.geometry(f'{actual_scr_width}x{actual_scr_height}')
 
             # Tag_bind for movable canvas objects
             self.canvas.tag_bind("movil", "<ButtonPress-1>", self.on_press)
@@ -195,55 +202,73 @@ class GraphGUI:
             self.root.mainloop()
 
         def __display_buttons(self):
+            # Button Frame
+            self.button_frame = tk.Frame(self.root, bg=self._FRAME_COLOR,
+                                         height=self.__YMARGIN + BUTTON_HEIGHT)
+            self.button_frame.pack(fill='x', side='bottom')
             # Reset button
-            self.reset_button = tk.Button(self.root, text="Reset", bg=self._BUTTON_COLOR, command=self.display_reset,
+            self.reset_button = tk.Button(self.button_frame,
+                                          text="Reset",
+                                          bg=self._BUTTON_COLOR,
+                                          command=self.display_reset,
                                           bd=0)
-            self.reset_button.place(x=self.__XMARGIN,
-                                    y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
+            self.reset_button.place(x = self.__XMARGIN,
+                                    y = self.__YMARGIN//2,
                                     width=BUTTON_WIDTH,
                                     height=BUTTON_HEIGHT)
 
             # Load button
-            self.load_button = tk.Button(self.root, text="Load", bg=self._BUTTON_COLOR,
+            self.load_button = tk.Button(self.button_frame,
+                                         text="Load",
+                                         bg=self._BUTTON_COLOR,
                                          command=self.__call_manager_load,
                                          bd=0)
             self.load_button.place(x=self.__XMARGIN + BUTTON_WIDTH + self.__XMARGIN,
-                                   y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
+                                   y=self.__YMARGIN//2,
                                    width=BUTTON_WIDTH,
                                    height=BUTTON_HEIGHT)
 
             # Save button
-            self.save_button = tk.Button(self.root, text="Save", bg=self._BUTTON_COLOR,
+            self.save_button = tk.Button(self.button_frame,
+                                         text="Save",
+                                         bg=self._BUTTON_COLOR,
                                          command=self.__call_manager_save,
                                          bd=0)
             self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 2,
-                                   y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
+                                   y=self.__YMARGIN//2,
                                    width=BUTTON_WIDTH,
                                    height=BUTTON_HEIGHT)
 
             # Delete button
-            self.save_button = tk.Button(self.root, text="Delete", bg=self._BUTTON_COLOR,
+            self.save_button = tk.Button(self.button_frame,
+                                         text="Delete",
+                                         bg=self._BUTTON_COLOR,
                                          command=self.__call_manager_delete, bd=0)
             self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 3,
-                                   y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
-                                   width=BUTTON_WIDTH,
-                                   height=BUTTON_HEIGHT)
-
-            # About button
-            self.save_button = tk.Button(self.root, text="About", bg=self._BUTTON_COLOR,
-                                         command=self.__call_about_window, bd=0)
-            self.save_button.place(x=self.__scr_width - self.__XMARGIN - BUTTON_WIDTH,
-                                   y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
+                                   y=self.__YMARGIN//2,
                                    width=BUTTON_WIDTH,
                                    height=BUTTON_HEIGHT)
 
             # Tools button
-            self.save_button = tk.Button(self.root, text="Tools", bg=self._BUTTON_COLOR,
+            self.save_button = tk.Button(self.button_frame,
+                                         text="Tools",
+                                         bg=self._BUTTON_COLOR,
                                          command=self.__call_tools_window, bd=0)
             self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 4,
-                                   y=self.__scr_height - self.__YMARGIN // 2 - BUTTON_HEIGHT,
+                                   y=self.__YMARGIN//2,
                                    width=BUTTON_WIDTH,
                                    height=BUTTON_HEIGHT)
+
+            # About button
+            self.save_button = tk.Button(self.button_frame,
+                                         text="About",
+                                         bg=self._BUTTON_COLOR,
+                                         command=self.__call_about_window, bd=0)
+            self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 5,
+                                   y=self.__YMARGIN//2,
+                                   width=BUTTON_WIDTH,
+                                   height=BUTTON_HEIGHT)
+
 
         def __call_tools_window(self):
             """Generator of ToolWindow"""
@@ -273,6 +298,9 @@ class GraphGUI:
             """Generator of Save Window"""
             if not self._is_tree:
                 curr_pos = {}
+                actual_scr_width = self.root.winfo_width()
+                actual_scr_height = self.root.winfo_height()
+                curr_pos['Screen_dimensions'] = (actual_scr_width, actual_scr_height)
                 for node in self.nodes:
                     curr_pos[node.id] = (node.pos_x, node.pos_y)
                 self.json_manager.generate_save_window(curr_pos)
@@ -297,10 +325,17 @@ class GraphGUI:
             This function also checks if some node position has been stored outside the frames of the window,
             in which case will correct.
             """
+            # First, we store the actual dimensions of the screen
+            if data:
+                actual_scr_width = data['Screen_dimensions'][0]
+                actual_scr_height = data['Screen_dimensions'][1]
+            else:
+                actual_scr_width = self.root.winfo_width()
+                actual_scr_height = self.root.winfo_height()
             if not self._is_tree:
                 # Preparation for the nodes display
-                scr_center = ((self.__scr_width - 14) // 2, (self.__scr_height - 30) // 2)
-                display_radius = min(self.__scr_width - 30 - self.__node_radius, self.__scr_height - 14 - self.__node_radius) // 2 - self.__node_radius - 10
+                scr_center = ((actual_scr_width - 14) // 2, (actual_scr_height - 30) // 2)
+                display_radius = min(actual_scr_width - 30 - self.__node_radius, actual_scr_height - 14 - self.__node_radius) // 2 - self.__node_radius - 10
                 arch_angle = 360 / len(self._graph._vertices)
                 first_node_pos = (scr_center[0] - self.__node_radius, scr_center[1] - self.__node_radius)
 
@@ -312,8 +347,8 @@ class GraphGUI:
                     # The first vertex will be displayed in the screen center
                     if i == 0:
                         if data and str(vertex) in data and \
-                                data[str(vertex)][0] < self.__scr_width and \
-                                data[str(vertex)][1] < self.__scr_height - 30 and \
+                                data[str(vertex)][0] < actual_scr_width and \
+                                data[str(vertex)][1] < actual_scr_height - 30 and \
                                 data[str(vertex)][0] + self.__node_radius*2 > 0 and \
                                 data[str(vertex)][1] + self.__node_radius*2 > 0:
                             self.nodes.append(
@@ -335,8 +370,8 @@ class GraphGUI:
                         # Those vertices that are not the first, will surround the screen center, scrolling
                         # around an imaginary circumference.
                         if data and str(vertex) in data and \
-                                data[str(vertex)][0] < self.__scr_width and \
-                                data[str(vertex)][1] < self.__scr_height - 30 and \
+                                data[str(vertex)][0] < actual_scr_width and \
+                                data[str(vertex)][1] < actual_scr_height - 30 and \
                                 data[str(vertex)][0] + self.__node_radius*2 > 0 and \
                                 data[str(vertex)][1] + self.__node_radius*2 > 0:
                             self.nodes.append(
@@ -398,7 +433,7 @@ class GraphGUI:
                 # to be honest). For information on how it works, please consider visiting: #TODO
                 self.nodes = []
                 self.edges = []
-                root_position = ((self.__scr_width - self.__node_radius*2) // 2, self.__YMARGIN + 33)
+                root_position = ((actual_scr_width - self.__node_radius*2) // 2, self.__YMARGIN + 33)
                 self.nodes.append(Node(self.canvas,
                                        self.__node_radius,
                                        root_position[0],
@@ -410,7 +445,7 @@ class GraphGUI:
                 # dividing the screen in levels and displaying the nodes in each level
                 level_order = self.__levelorder(self._graph._root)
                 levels = max(level_order.values()) + 1
-                level_height = (self.__scr_height - self.__YMARGIN - 60) // levels
+                level_height = (actual_scr_height - self.__YMARGIN - 60) // levels
 
                 # We determine how many nodes are in each level
                 last_nodes = [self._graph._root.elem]
@@ -425,7 +460,7 @@ class GraphGUI:
                     level_grid = 2**(i + 1)
 
                     # We determine the x_axis of each node in the level
-                    x_axis = (self.__scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2)) // level_grid
+                    x_axis = (actual_scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2)) // level_grid
                     x_axis_counter = 0
 
                     final_nodes = nodes_in_level + last_nodes
@@ -462,8 +497,8 @@ class GraphGUI:
 
                         if children_right or children_right == 0:
                             final_position_x = position_x + x_axis // 2
-                            if final_position_x >= self.__scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2) - 5:
-                                final_position_x = self.__scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2) - 5
+                            if final_position_x >= actual_scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2) - 5:
+                                final_position_x = actual_scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2) - 5
 
                             new_node = Node(self.canvas,
                                             self.__node_radius,
@@ -481,11 +516,6 @@ class GraphGUI:
                             self.edges.append(new_edge)
                             new_node.asociated_edges_IN.append(new_edge)
                             father_node.asociated_edges_OUT.append(new_edge)
-
-
-            # Display author
-            self.__autor = self.canvas.create_text(self.__scr_width // 2, self.__YMARGIN + 3, text="by @seniorbeto",
-                                                   fill=self._AUTHOR_NAME_COLOR, font=("Courier", 10))
 
             # We will store each canvas TAGorID with each associated node object in order
             # to reduce movement complexity to O(1)
@@ -536,6 +566,9 @@ class GraphGUI:
         def __on_closing(self):
             """Store the current data at closing protocol"""
             data = {}
+            actual_scr_width = self.root.winfo_width()
+            actual_scr_height = self.root.winfo_height()
+            data['Screen_dimensions'] = (actual_scr_width, actual_scr_height)
             for node in self.nodes:
                 data[node.id] = (node.pos_x, node.pos_y)
             self.json_manager.save_data('__last_store_'+str(self.__ACTUAL_INSTANCE), data)
