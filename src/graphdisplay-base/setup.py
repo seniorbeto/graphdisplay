@@ -6,13 +6,13 @@ HERE = pathlib.Path(__file__).parent
 
 VERSION = VERSION
 PACKAGE_NAME = 'graphdisplay'
-AUTHOR = 'Alberto Penas Díaz'
+AUTHOR = 'Alberto Penas Díaz (@seniorbeto)'
 AUTHOR_EMAIL = 'albertopenasdiaz@gmail.com'
 URL = 'https://github.com/seniorbeto'
 
 LICENSE = 'MIT' #Tipo de licencia
-DESCRIPTION = 'Librería para representar visualmente grafos de tipo diccionario'
-LONG_DESCRIPTION = (HERE / "README.md").read_text(encoding='utf-8')
+DESCRIPTION = 'Librería para representar grafos visualmente'
+LONG_DESCRIPTION = (HERE / "../../README.md").read_text(encoding='utf-8')
 LONG_DESC_TYPE = "text/markdown"
 
 
