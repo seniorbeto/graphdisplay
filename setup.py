@@ -1,4 +1,5 @@
 import pathlib
+import os
 from setuptools import find_packages, setup
 from graphdisplay.general_config import *
 
@@ -12,13 +13,27 @@ URL = 'https://github.com/seniorbeto'
 
 LICENSE = 'MIT' #Tipo de licencia
 DESCRIPTION = 'Librería para representar grafos visualmente'
-LONG_DESCRIPTION = (HERE / "../../README.md").read_text(encoding='utf-8')
+LONG_DESCRIPTION = (HERE / "README.md").read_text(encoding='utf-8')
 LONG_DESC_TYPE = "text/markdown"
 
 
 INSTALL_REQUIRES = [
       'tk==0.1.1'
       ]
+
+path = os.getcwd()
+try:
+    if os.path.exists(os.path.join(path, "permanent.json")):
+        os.remove(os.path.join(path, "permanent.json"))
+except FileNotFoundError:
+    pass
+
+store_path = os.path.join(path, "graphdisplay/store/")
+
+for file in os.listdir(store_path):
+    if file.endswith(".json"):
+        removing = os.path.join(store_path, file)
+        os.remove(removing)
 
 setup(
     name=PACKAGE_NAME,
