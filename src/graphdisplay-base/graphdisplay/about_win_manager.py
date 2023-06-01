@@ -21,6 +21,8 @@ class AboutWindow(tk.Toplevel):
         self.turtle = turtle.RawTurtle(self.canvas, visible=False)
         self.canvas.configure(bg=self.__graphgui._BACKGROUND_CANVAS_COLOR)
         self.turtle.speed(0)
+        self.canvas.create_text(0, -100, text="by @seniorbeto",
+                                fill=self.__graphgui._AUTHOR_NAME_COLOR, font=("Courier", 15))
         text = "GraphDisplay v"+VERSION
         self.canvas.create_text(0, -150, text=text, font=("Courier", 20),
                                 fill=self.__graphgui._AUTHOR_NAME_COLOR)
