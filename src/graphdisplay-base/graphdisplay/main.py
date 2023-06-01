@@ -34,7 +34,7 @@ class GraphGUI:
     # Using a instance-counter will determine how many GraphGUI objects are wanted
     instance = 0
 
-    def __new__(cls, graph, node_radius: int = 30, scr_width: int = 600, scr_height: int = 600, theme: str = 'BROWN'):
+    def __new__(cls, graph, node_radius: int = 30, theme: str = 'BROWN'):
         GraphGUI.instance += 1
         if GraphGUI.instance > 5:
             raise Exception("For safety reasons, only five instances of GraphGUI can be created")
@@ -45,16 +45,12 @@ class GraphGUI:
             mp.Process(target=cls._generate, args=(graph,
                                                     GraphGUI.instance,
                                                     node_radius,
-                                                    scr_width,
-                                                    scr_height,
                                                     theme)).start()
         else:
             try:
                 pid = mp.Process(target=cls._generate, args=(graph,
                                                              GraphGUI.instance,
                                                              node_radius,
-                                                             scr_width,
-                                                             scr_height,
                                                              theme))
                 pid.start()
             except RecursionError:
@@ -80,11 +76,11 @@ class GraphGUI:
         return setattr(self.instance, name, value)
 
     @staticmethod
-    def _generate(graph, instance, node_radius, scr_width, scr_height, theme):
-        GraphGUI.__GraphGUI(graph, instance, node_radius, scr_width, scr_height, theme)
+    def _generate(graph, instance, node_radius, theme):
+        GraphGUI.__GraphGUI(graph, instance, node_radius, theme)
 
     class __GraphGUI:
-        def __init__(self, graph, instance, node_radius: int = 40, scr_width: int = 600, scr_height: int = 600, theme: str = 'BROWN'):
+        def __init__(self, graph, instance, node_radius: int = 40, theme: str = 'BROWN'):
             """
             Creates a GraphGUI object, which will display the graph in a external window. Nodes can be moved with the mouse.
             The creation of the window will stop the execution of the program until the window is closed. Thus, it is recommended
@@ -101,20 +97,14 @@ class GraphGUI:
             # Parameter validation
             if type(node_radius) != int:
                 raise TypeError("The parameter node_radius must be an integer")
-            if type(scr_width) != int or type(scr_height) != int:
-                raise TypeError("The parameters scr_width and scr_height must be integers")
             if node_radius < 10 or node_radius > 100:
                 raise ValueError("The parameter node_radius must be a value between 10 and 100")
-            if scr_width < 200 or scr_height < 200:
-                raise ValueError("The parameters scr_width and scr_height must be values greater than 200")
-            if scr_width > 2000 or scr_height > 2000:
-                raise ValueError("The parameters scr_width and scr_height must be values less than 2000")
 
             self.__ACTUAL_INSTANCE = instance
             self._graph = graph
             self.__node_radius = node_radius
-            self.__scr_width = scr_width
-            self.__scr_height = scr_height
+            self.__scr_width = DEFAULT_SCR_WIDTH
+            self.__scr_height = DEFAULT_SCR_WIDTH
             self.__XMARGIN = XMARGEN
             self.__YMARGIN = YMARGEN
             self._theme = theme.upper()
@@ -159,21 +149,26 @@ class GraphGUI:
             # Create the main window
             self.root = tk.Tk()
             self.root.title('GraphGUI')
-            #self.root.resizable(False, False)
             self.root.geometry(f"{self.__scr_width}x{self.__scr_height}")
             self.root.configure(bg=self._FRAME_COLOR, border=0)
+
+            # Button Frame
+            self.button_frame = tk.Frame(self.root, bg=self._FRAME_COLOR,
+                                         height=self.__YMARGIN + BUTTON_HEIGHT)
+            self.button_frame.pack(fill='x', side='bottom')
+
+            # Canvas Frame
+            self.__canvas_frame = tk.Frame(self.root, bg=self._BACKGROUND_CANVAS_COLOR)
+            self.__canvas_frame.pack(expand=1, fill='both', pady=self.__YMARGIN, padx=self.__XMARGIN)
 
             # Closing protocol
             self.root.protocol("WM_DELETE_WINDOW", self.__on_closing)
 
             # Canvas creation and placement
-            self.canvas = tk.Canvas(self.root, bg=self._BACKGROUND_CANVAS_COLOR, bd=0,
+            self.canvas = tk.Canvas(self.__canvas_frame, bg=self._BACKGROUND_CANVAS_COLOR, bd=0,
                                     width=self.__scr_width - self.__XMARGIN * 2,
                                     height=self.__scr_height - self.__YMARGIN * 2 - BUTTON_HEIGHT)
-            self.canvas.place(relx=0.01,
-                              rely=0.01,
-                              relwidth=0.98,
-                              relheight=0.93)
+            self.canvas.pack(fill='both', expand=1)
 
             # Buttons display
             self.__display_buttons()
@@ -202,10 +197,6 @@ class GraphGUI:
             self.root.mainloop()
 
         def __display_buttons(self):
-            # Button Frame
-            self.button_frame = tk.Frame(self.root, bg=self._FRAME_COLOR,
-                                         height=self.__YMARGIN + BUTTON_HEIGHT)
-            self.button_frame.pack(fill='x', side='bottom')
             # Reset button
             self.reset_button = tk.Button(self.button_frame,
                                           text="Reset",
@@ -213,7 +204,7 @@ class GraphGUI:
                                           command=self.display_reset,
                                           bd=0)
             self.reset_button.place(x = self.__XMARGIN,
-                                    y = self.__YMARGIN//2,
+                                    y = 0,
                                     width=BUTTON_WIDTH,
                                     height=BUTTON_HEIGHT)
 
@@ -224,7 +215,7 @@ class GraphGUI:
                                          command=self.__call_manager_load,
                                          bd=0)
             self.load_button.place(x=self.__XMARGIN + BUTTON_WIDTH + self.__XMARGIN,
-                                   y=self.__YMARGIN//2,
+                                   y=0,
                                    width=BUTTON_WIDTH,
                                    height=BUTTON_HEIGHT)
 
@@ -235,7 +226,7 @@ class GraphGUI:
                                          command=self.__call_manager_save,
                                          bd=0)
             self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 2,
-                                   y=self.__YMARGIN//2,
+                                   y=0,
                                    width=BUTTON_WIDTH,
                                    height=BUTTON_HEIGHT)
 
@@ -245,7 +236,7 @@ class GraphGUI:
                                          bg=self._BUTTON_COLOR,
                                          command=self.__call_manager_delete, bd=0)
             self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 3,
-                                   y=self.__YMARGIN//2,
+                                   y=0,
                                    width=BUTTON_WIDTH,
                                    height=BUTTON_HEIGHT)
 
@@ -255,7 +246,7 @@ class GraphGUI:
                                          bg=self._BUTTON_COLOR,
                                          command=self.__call_tools_window, bd=0)
             self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 4,
-                                   y=self.__YMARGIN//2,
+                                   y=0,
                                    width=BUTTON_WIDTH,
                                    height=BUTTON_HEIGHT)
 
@@ -265,10 +256,9 @@ class GraphGUI:
                                          bg=self._BUTTON_COLOR,
                                          command=self.__call_about_window, bd=0)
             self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 5,
-                                   y=self.__YMARGIN//2,
+                                   y=0,
                                    width=BUTTON_WIDTH,
                                    height=BUTTON_HEIGHT)
-
 
         def __call_tools_window(self):
             """Generator of ToolWindow"""
@@ -332,6 +322,11 @@ class GraphGUI:
             else:
                 actual_scr_width = self.root.winfo_width()
                 actual_scr_height = self.root.winfo_height()
+
+            # Now, we will restrict the screen to the canvas dimensions
+            actual_scr_width -= self.__XMARGIN * 2
+            actual_scr_height -= self.__YMARGIN * 2 + BUTTON_HEIGHT
+
             if not self._is_tree:
                 # Preparation for the nodes display
                 scr_center = ((actual_scr_width - 14) // 2, (actual_scr_height - 30) // 2)
@@ -590,8 +585,6 @@ class GraphGUI:
                             new_tree.insert(i)
                 GraphGUI(new_tree,
                          self.__node_radius,
-                         self.__scr_width,
-                         self.__scr_height,
                          self._theme)
 
         def on_press(self, event):
