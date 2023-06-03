@@ -322,9 +322,11 @@ class GraphGUI:
             else:
                 actual_scr_width = self.root.winfo_width()
                 actual_scr_height = self.root.winfo_height()
+                if actual_scr_height == 1 and actual_scr_width == 1:
+                    actual_scr_width = DEFAULT_SCR_WIDTH
+                    actual_scr_height = DEFAULT_SCR_HEIGHT
 
             # Now, we will restrict the screen to the canvas dimensions
-            actual_scr_width -= self.__XMARGIN * 2
             actual_scr_height -= self.__YMARGIN * 2 + BUTTON_HEIGHT
 
             if not self._is_tree:
