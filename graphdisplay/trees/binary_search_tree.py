@@ -27,7 +27,6 @@ class BinarySearchTree(BinaryTree):
             return BinaryNode(elem)
 
         if node.elem == elem:
-            print('Error: elem already exist ', elem)
             return node
 
         if elem < node.elem:
@@ -57,7 +56,6 @@ class BinarySearchTree(BinaryTree):
         """It recursively searches the node. When the node is
         found, the node has to be removed"""
         if node is None:
-            print(elem, ' not found')
             return node
 
         if elem < node.elem:
