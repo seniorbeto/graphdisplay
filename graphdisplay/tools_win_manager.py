@@ -22,6 +22,30 @@ class ToolWindow(tk.Toplevel):
             self.__create_postorder_frame()
             self.__create_inorder_frame()
             self.__create_levelorder_frame()
+            self.__create_speed_frame()
+
+    def __create_speed_frame(self):
+        self.__speed_frame = tk.Frame(self, bg=self.__gui._BACKGROUND_CANVAS_COLOR,
+                                        height=40,
+                                        width=500)
+        self.__speed_frame.pack(padx=7, pady=7)
+
+        text_label = tk.Label(self.__speed_frame,
+                              text="Animation speed",
+                              bg=self.__gui._BACKGROUND_CANVAS_COLOR,
+                              font=("Courier", 13))
+        text_label.place(x=5, y=12)
+
+        self.__speed_scale = tk.Scale(self.__speed_frame,
+                                      from_=0.1,
+                                      to=1,
+                                      resolution=0.1,
+                                      highlightthickness=0,
+                                      orient=tk.HORIZONTAL,
+                                      bg=self.__gui._BACKGROUND_CANVAS_COLOR,
+                                      bd=0,
+                                      length=150)
+        self.__speed_scale.place(x = 300, y = 0)
 
     def __create_inorder_frame(self):
         self.__inorder_frame = tk.Frame(self, bg=self.__gui._BACKGROUND_CANVAS_COLOR,
@@ -60,7 +84,8 @@ class ToolWindow(tk.Toplevel):
                 self.__gui.canvas.itemconfigure(self.__gui.nodes[i].circle,
                                                 fill=self.__gui._SELECTED_VERTEX_COLOR)
                 self.__gui.canvas.update()
-                time.sleep(0.1)
+                hold = self.__speed_scale.get()
+                time.sleep(hold)
             else:
                 break
 
@@ -101,7 +126,8 @@ class ToolWindow(tk.Toplevel):
                 self.__gui.canvas.itemconfigure(self.__gui.nodes[i].circle,
                                                 fill=self.__gui._SELECTED_VERTEX_COLOR)
                 self.__gui.canvas.update()
-                time.sleep(0.1)
+                hold = self.__speed_scale.get()
+                time.sleep(hold)
             else:
                 break
 
@@ -142,7 +168,8 @@ class ToolWindow(tk.Toplevel):
                 self.__gui.canvas.itemconfigure(self.__gui.nodes[i].circle,
                                                 fill=self.__gui._SELECTED_VERTEX_COLOR)
                 self.__gui.canvas.update()
-                time.sleep(0.1)
+                hold = self.__speed_scale.get()
+                time.sleep(hold)
             else:
                 break
 
@@ -183,7 +210,8 @@ class ToolWindow(tk.Toplevel):
                 self.__gui.canvas.itemconfigure(self.__gui.nodes[i].circle,
                                                 fill=self.__gui._SELECTED_VERTEX_COLOR)
                 self.__gui.canvas.update()
-                time.sleep(0.1)
+                hold = self.__speed_scale.get()
+                time.sleep(hold)
             else:
                 break
 
