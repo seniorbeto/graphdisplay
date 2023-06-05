@@ -23,7 +23,7 @@ from .general_config import *
 
 class GraphGUI:
     """
-    Creates a GraphGUI object, which will display the graph in a external window. Nodes can be moved with the mouse.
+    Creates a GraphGUI object, which will display the graph in an external window. Nodes can be moved with the mouse.
     :param graph: The graph/tree to be displayed.
     :param node_radius: The radius of the nodes.
     :param scr_width: The width of the window.
@@ -31,7 +31,7 @@ class GraphGUI:
     :param theme: color scheme of the node display.
     """
 
-    # Using a instance-counter will determine how many GraphGUI objects are wanted
+    # Using an instance-counter will determine how many GraphGUI objects are wanted
     instance = 0
 
     def __new__(cls, graph, node_radius: int = 30, theme: str = 'BROWN'):
@@ -122,7 +122,7 @@ class GraphGUI:
                 raise ValueError("The theme must be one of the following: " + str(list(THEMES.keys())))
 
             # We will transform the graph type into our own prototype, so that future changes are easier
-            # to implement. Beyond this point, code will be implemented based on this prototypes.
+            # to implement. Beyond this point, code will be implemented based on these prototypes.
             try:
                 self.__tree_root = graph._root
                 self._is_tree = True
@@ -307,7 +307,7 @@ class GraphGUI:
 
         def __display(self, data: dict = None):
             """
-            Main display for all nodes in the canvas. Whose position is determined in "data".
+            Main display for all nodes in the canvas, whose position is determined in "data".
             If data is None, the default display will be showed. This is, in case of a simple graph,
             the first vertex in the middle of the screen and the rest surrounding it in a polygon shape.
             In case of a tree, it is always display in a tree-like structure.
@@ -402,13 +402,11 @@ class GraphGUI:
                                                node,
                                                adj._weight,
                                                window_color=self._BACKGROUND_CANVAS_COLOR))
-                        node.asociated_edges_IN.append(self.edges[-1])
-                        self.nodes[vertex].asociated_edges_OUT.append(self.edges[-1])
                     i += 1
 
                 # While displaying the edges, we first have to check if it is needed to display the weight
-                # in an edge side (instead of the center) in case that to vertices are pointing to each other,
-                # since this would result in an overlap between those to weights
+                # in an edge side (instead of the center) in case that two vertices are pointing to each other,
+                # since this would result in an overlap between those two weights.
                 if self._graph._directed:
                     for edge in self.edges:
                         edge_start_node = edge.start_node
@@ -445,16 +443,18 @@ class GraphGUI:
                 level_order = self.__levelorder(self._graph._root)
                 levels = max(level_order.values()) + 1
                 level_height = (actual_scr_height - self.__YMARGIN - 60) // levels
+                level_list = []
+                for _ in range(levels):
+                    level_list.append([])
+                for node in level_order:
+                    level_list[level_order[node]].append(node)
 
                 # We determine how many nodes are in each level
                 last_nodes = [self._graph._root.elem]
                 for i in range(levels - 1):
                     if i != 0:
                         last_nodes = nodes_in_level
-                    nodes_in_level = []
-                    for node in level_order:
-                        if level_order[node] == i + 1:
-                            nodes_in_level.append(node)
+                    nodes_in_level = level_list[i+1]
 
                     level_grid = 2**(i + 1)
 
@@ -489,8 +489,6 @@ class GraphGUI:
                                             window_color=self._BACKGROUND_CANVAS_COLOR)
                             new_edge.show()
                             self.edges.append(new_edge)
-                            new_node.asociated_edges_IN.append(new_edge)
-                            father_node.asociated_edges_OUT.append(new_edge)
 
                         if children_right or children_right == 0:
                             final_position_x = position_x + x_axis // 2
@@ -511,8 +509,6 @@ class GraphGUI:
                                             window_color=self._BACKGROUND_CANVAS_COLOR)
                             new_edge.show()
                             self.edges.append(new_edge)
-                            new_node.asociated_edges_IN.append(new_edge)
-                            father_node.asociated_edges_OUT.append(new_edge)
 
             # We will store each canvas TAGorID with each associated node object in order
             # to reduce movement complexity to O(1)
@@ -614,7 +610,7 @@ class GraphGUI:
             self.selected_node = (node, x, y)
 
 class Node:
-    def __init__(self, canvas: tk.Canvas, radius:int, posx: int, posy: int, text: str, bg: str = "white"):
+    def __init__(self, canvas: tk.Canvas, radius: int, posx: int, posy: int, text: str, bg: str = "white"):
         self.asociated_edges_IN = []
         self.asociated_edges_OUT = []
         self.canvas = canvas
@@ -644,6 +640,11 @@ class Edge:
         self.window_color = window_color
         self.start = self.__calculate_start(start, end)
         self.end = self.__calculate_end(start, end)
+
+        if self not in self.end_node.asociated_edges_IN:
+            self.end_node.asociated_edges_IN.append(self)
+        if self not in self.start_node.asociated_edges_OUT:
+            self.start_node.asociated_edges_OUT.append(self)
 
     def update_position(self):
         self.__recalculate()
