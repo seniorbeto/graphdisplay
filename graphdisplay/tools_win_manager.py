@@ -56,13 +56,12 @@ class ToolWindow(tk.Toplevel):
         inorder_list = gui_tree.inorder_list()
 
         for i in inorder_list:
-            for nd in self.__gui.nodes:
-                if nd.id == i and self.__running_inorder:
-                    self.__gui.canvas.itemconfigure(nd.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
-                    self.__gui.canvas.update()
-                    time.sleep(0.1)
-                    break
-            if not self.__running_inorder:
+            if self.__running_inorder:
+                self.__gui.canvas.itemconfigure(self.__gui.nodes[i].circle,
+                                                fill=self.__gui._SELECTED_VERTEX_COLOR)
+                self.__gui.canvas.update()
+                time.sleep(0.1)
+            else:
                 break
 
     def __create_levelorder_frame(self):
@@ -98,13 +97,12 @@ class ToolWindow(tk.Toplevel):
         levelorder_list = gui_tree.levelorder_list()
 
         for i in levelorder_list:
-            for nd in self.__gui.nodes:
-                if nd.id == i and self.__running_levelorder:
-                    self.__gui.canvas.itemconfigure(nd.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
-                    self.__gui.canvas.update()
-                    time.sleep(0.1)
-                    break
-            if not self.__running_levelorder:
+            if self.__running_levelorder:
+                self.__gui.canvas.itemconfigure(self.__gui.nodes[i].circle,
+                                                fill=self.__gui._SELECTED_VERTEX_COLOR)
+                self.__gui.canvas.update()
+                time.sleep(0.1)
+            else:
                 break
 
     def __create_preorder_frame(self):
@@ -140,13 +138,12 @@ class ToolWindow(tk.Toplevel):
         preorder_list = gui_tree.preorder_list()
 
         for i in preorder_list:
-            for nd in self.__gui.nodes:
-                if nd.id == i and self.__running_preorder:
-                    self.__gui.canvas.itemconfigure(nd.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
-                    self.__gui.canvas.update()
-                    time.sleep(0.1)
-                    break
-            if not self.__running_preorder:
+            if self.__running_preorder:
+                self.__gui.canvas.itemconfigure(self.__gui.nodes[i].circle,
+                                                fill=self.__gui._SELECTED_VERTEX_COLOR)
+                self.__gui.canvas.update()
+                time.sleep(0.1)
+            else:
                 break
 
     def __create_postorder_frame(self):
@@ -182,13 +179,12 @@ class ToolWindow(tk.Toplevel):
         postorder_list = gui_tree.postorder_list()
 
         for i in postorder_list:
-            for nd in self.__gui.nodes:
-                if nd.id == i and self.__running_postorder:
-                    self.__gui.canvas.itemconfigure(nd.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
-                    self.__gui.canvas.update()
-                    time.sleep(0.1)
-                    break
-            if not self.__running_postorder:
+            if self.__running_postorder:
+                self.__gui.canvas.itemconfigure(self.__gui.nodes[i].circle,
+                                                fill=self.__gui._SELECTED_VERTEX_COLOR)
+                self.__gui.canvas.update()
+                time.sleep(0.1)
+            else:
                 break
 
     def __create_djistra_frame(self):
@@ -253,13 +249,13 @@ class ToolWindow(tk.Toplevel):
 
         min_path = gui_graph.minimum_path(first_node, second_node)
         if len(min_path[0]) >= 2:
-            for node in self.__gui.nodes:
-                if node.id in min_path[0] and self.__djistra_running:
-                    if node.id == first_node or node.id == second_node:
-                        self.__gui.canvas.itemconfigure(node.circle,
-                                                        fill=self.__gui._SELECTED_VERTEX_COLOR)
-                    else:
-                        self.__gui.canvas.itemconfigure(node.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
+            for node in min_path[0]:
+                if node == first_node or node == second_node:
+                    self.__gui.canvas.itemconfigure(self.__gui.nodes[node].circle,
+                                                    fill=self.__gui._SELECTED_VERTEX_COLOR)
+                else:
+                    self.__gui.canvas.itemconfigure(self.__gui.nodes[node].circle,
+                                                    fill=self.__gui._SELECTED_VERTEX_COLOR)
         else:
             print('\n' + '\033[91m' + "ERROR: " + '\033[0m' + "there is no path from", first_node, "to", second_node)
 
@@ -324,13 +320,13 @@ class ToolWindow(tk.Toplevel):
 
         min_path = gui_graph.min_number_edges(first_node, second_node)
         if len(min_path) >= 2:
-            for node in self.__gui.nodes:
-                if node.id in min_path:
-                    if node.id == first_node or node.id == second_node:
-                        self.__gui.canvas.itemconfigure(node.circle,
-                                                        fill=self.__gui._SELECTED_VERTEX_COLOR)
-                    else:
-                        self.__gui.canvas.itemconfigure(node.circle, fill=self.__gui._SELECTED_VERTEX_COLOR)
+            for node in min_path:
+                if node == first_node or node == second_node:
+                    self.__gui.canvas.itemconfigure(self.__gui.nodes[node].circle,
+                                                    fill=self.__gui._SELECTED_VERTEX_COLOR)
+                else:
+                    self.__gui.canvas.itemconfigure(self.__gui.nodes[node].circle,
+                                                    fill=self.__gui._SELECTED_VERTEX_COLOR)
         else:
             print('\n' + '\033[91m' + "ERROR: " + '\033[0m' + "there is no path from", first_node, "to", second_node)
 
@@ -368,7 +364,7 @@ class ToolWindow(tk.Toplevel):
 
     def __reset_colors(self):
         for node in self.__gui.nodes:
-            self.__gui.canvas.itemconfigure(node.circle, fill=self.__gui._VERTEX_COLOR)
+            self.__gui.canvas.itemconfigure(self.__gui.nodes[node].circle, fill=self.__gui._VERTEX_COLOR)
 
     def __reset_all_traversal(self):
         self.__djistra_running = False

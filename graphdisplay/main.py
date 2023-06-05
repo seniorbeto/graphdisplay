@@ -108,7 +108,7 @@ class GraphGUI:
             self.__XMARGIN = XMARGEN
             self.__YMARGIN = YMARGEN
             self._theme = theme.upper()
-            self.nodes = []
+            self.nodes = {}
             self.edges = []
             self.__canvas_node_relation = {}
             try:
@@ -292,7 +292,7 @@ class GraphGUI:
                 actual_scr_height = self.root.winfo_height()
                 curr_pos['Screen_dimensions'] = (actual_scr_width, actual_scr_height)
                 for node in self.nodes:
-                    curr_pos[node.id] = (node.pos_x, node.pos_y)
+                    curr_pos[node] = (self.nodes[node].pos_x, self.nodes[node].pos_y)
                 self.json_manager.generate_save_window(curr_pos)
             else:
                 tk.messagebox.showerror("Error", "This function is not yet available for trees")
@@ -327,7 +327,8 @@ class GraphGUI:
                     actual_scr_height = DEFAULT_SCR_HEIGHT
 
             # Now, we will restrict the screen to the canvas dimensions
-            actual_scr_height -= self.__YMARGIN * 2 + BUTTON_HEIGHT
+            if not self._is_tree:
+                actual_scr_height -= self.__YMARGIN * 2 + BUTTON_HEIGHT
 
             if not self._is_tree:
                 # Preparation for the nodes display
@@ -337,7 +338,7 @@ class GraphGUI:
                 first_node_pos = (scr_center[0] - self.__node_radius, scr_center[1] - self.__node_radius)
 
                 # Display the nodes
-                self.nodes = []
+                self.nodes = {}
                 i = 0
                 angle = 0
                 for vertex in self._graph._vertices:
@@ -348,21 +349,21 @@ class GraphGUI:
                                 data[str(vertex)][1] < actual_scr_height - 30 and \
                                 data[str(vertex)][0] + self.__node_radius*2 > 0 and \
                                 data[str(vertex)][1] + self.__node_radius*2 > 0:
-                            self.nodes.append(
-                                Node(self.canvas,
+                            node = Node(self.canvas,
                                      self.__node_radius,
                                      data[str(vertex)][0],
                                      data[str(vertex)][1],
                                      text=vertex,
-                                     bg=self._VERTEX_COLOR))
+                                     bg=self._VERTEX_COLOR)
+                            self.nodes[vertex] = node
                         else:
-                            self.nodes.append(
-                                Node(self.canvas,
+                            node = Node(self.canvas,
                                      self.__node_radius,
                                      first_node_pos[0],
                                      first_node_pos[1],
                                      text=vertex,
-                                     bg=self._VERTEX_COLOR))
+                                     bg=self._VERTEX_COLOR)
+                            self.nodes[vertex] = node
                     else:
                         # Those vertices that are not the first, will surround the screen center, scrolling
                         # around an imaginary circumference.
@@ -371,21 +372,22 @@ class GraphGUI:
                                 data[str(vertex)][1] < actual_scr_height - 30 and \
                                 data[str(vertex)][0] + self.__node_radius*2 > 0 and \
                                 data[str(vertex)][1] + self.__node_radius*2 > 0:
-                            self.nodes.append(
-                                Node(self.canvas,
+                            node = Node(self.canvas,
                                      self.__node_radius,
                                      data[str(vertex)][0],
                                      data[str(vertex)][1],
                                      text=vertex,
-                                     bg=self._VERTEX_COLOR))
+                                     bg=self._VERTEX_COLOR)
+                            self.nodes[vertex] = node
                         else:
-                            self.nodes.append(Node(self.canvas,
+                            node = Node(self.canvas,
                                                    self.__node_radius,
                                                    int(scr_center[0] - self.__node_radius - display_radius * math.sin(
                                                        math.radians(angle))),
                                                    int(scr_center[1] - self.__node_radius - display_radius * math.cos(
                                                        math.radians(angle))),
-                                                   text=vertex, bg=self._VERTEX_COLOR))
+                                                   text=vertex, bg=self._VERTEX_COLOR)
+                            self.nodes[vertex] = node
                     i += 1
                     angle += arch_angle
 
@@ -394,15 +396,14 @@ class GraphGUI:
                 self.edges = []
                 for vertex in self._graph._vertices:
                     for adj in self._graph._vertices[vertex]:
-                        for node in self.nodes:
-                            if node.id == adj._vertex:
-                                self.edges.append(Edge(self.canvas,
-                                                       self.nodes[i],
-                                                       node,
-                                                       adj._weight,
-                                                       window_color=self._BACKGROUND_CANVAS_COLOR))
-                                node.asociated_edges_IN.append(self.edges[-1])
-                                self.nodes[i].asociated_edges_OUT.append(self.edges[-1])
+                        node = self.nodes[adj._vertex]
+                        self.edges.append(Edge(self.canvas,
+                                               self.nodes[vertex],
+                                               node,
+                                               adj._weight,
+                                               window_color=self._BACKGROUND_CANVAS_COLOR))
+                        node.asociated_edges_IN.append(self.edges[-1])
+                        self.nodes[vertex].asociated_edges_OUT.append(self.edges[-1])
                     i += 1
 
                 # While displaying the edges, we first have to check if it is needed to display the weight
@@ -428,15 +429,16 @@ class GraphGUI:
             elif self._is_tree:
                 # The tree display is slightly more complicated (it was a complete nightmare for a one man job
                 # to be honest). For information on how it works, please consider visiting: #TODO
-                self.nodes = []
+                self.nodes = {}
                 self.edges = []
-                root_position = ((actual_scr_width - self.__node_radius*2) // 2, self.__YMARGIN + 33)
-                self.nodes.append(Node(self.canvas,
+                root_position = ((actual_scr_width - self.__node_radius*2) // 2, self.__YMARGIN + 3)
+                root_node = Node(self.canvas,
                                        self.__node_radius,
                                        root_position[0],
                                        root_position[1],
                                        text=self._graph._root.elem,
-                                       bg=self._VERTEX_COLOR))
+                                       bg=self._VERTEX_COLOR)
+                self.nodes[self._graph._root.elem] = root_node
 
                 # We display the rest of the nodes in a tree-like structure by
                 # dividing the screen in levels and displaying the nodes in each level
@@ -464,11 +466,9 @@ class GraphGUI:
                     final_nodes.sort()
                     for node in last_nodes:
                         # We look for the position x of the father
-                        for aux in self.nodes:
-                            if node == aux.id:
-                                position_x = aux.pos_x
-                                father_node = aux
-                                break
+                        position_x = self.nodes[node].pos_x
+                        father_node = self.nodes[node]
+
                         relative = last_nodes.index(node) + 1
                         children_left, children_right = self.__get_children(node)
                         if children_left or children_left == 0:
@@ -481,7 +481,7 @@ class GraphGUI:
                                             root_position[1] + level_height*(level_order[children_left]),
                                             text=children_left,
                                             bg=self._VERTEX_COLOR)
-                            self.nodes.append(new_node)
+                            self.nodes[children_left] = new_node
                             new_edge = Edge(self.canvas,
                                             father_node,
                                             new_node,
@@ -503,7 +503,7 @@ class GraphGUI:
                                             root_position[1] + level_height*(level_order[children_right]),
                                             text=children_right,
                                             bg=self._VERTEX_COLOR)
-                            self.nodes.append(new_node)
+                            self.nodes[children_right] = new_node
                             new_edge = Edge(self.canvas,
                                             father_node,
                                             new_node,
@@ -518,8 +518,8 @@ class GraphGUI:
             # to reduce movement complexity to O(1)
             self.__canvas_node_relation = {}
             for node in self.nodes:
-                self.__canvas_node_relation[node.circle] = node
-                self.__canvas_node_relation[node.text] = node
+                self.__canvas_node_relation[self.nodes[node].circle] = self.nodes[node]
+                self.__canvas_node_relation[self.nodes[node].text] = self.nodes[node]
 
         def __get_children(self, elem) -> tuple:
             """returns a tuple with the children of node with element = elem"""
@@ -567,7 +567,7 @@ class GraphGUI:
             actual_scr_height = self.root.winfo_height()
             data['Screen_dimensions'] = (actual_scr_width, actual_scr_height)
             for node in self.nodes:
-                data[node.id] = (node.pos_x, node.pos_y)
+                data[node] = (self.nodes[node].pos_x, self.nodes[node].pos_y)
             self.json_manager.save_data('__last_store_'+str(self.__ACTUAL_INSTANCE), data)
             self.root.destroy()
 
