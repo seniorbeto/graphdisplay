@@ -277,13 +277,10 @@ class GraphGUI:
                     actual_scr_width = DEFAULT_SCR_WIDTH
                     actual_scr_height = DEFAULT_SCR_HEIGHT
 
-            # Now, we will restrict the screen to the canvas dimensions
-            if not self._is_tree:
-                actual_scr_height -= self.__YMARGIN * 2 + BUTTON_HEIGHT
 
             if not self._is_tree:
                 # Preparation for the nodes display
-                scr_center = ((actual_scr_width - 14) // 2, (actual_scr_height - 30) // 2)
+                scr_center = ((actual_scr_width - (self.__XMARGIN*2)) // 2, (actual_scr_height - (self.__YMARGIN*2)) // 2)
                 display_radius = min(actual_scr_width - 30 - self.__node_radius, actual_scr_height - 14 - self.__node_radius) // 2 - self.__node_radius - 10
                 arch_angle = 360 / len(self._graph._vertices)
                 first_node_pos = (scr_center[0] - self.__node_radius, scr_center[1] - self.__node_radius)
@@ -393,7 +390,7 @@ class GraphGUI:
                 # dividing the screen in levels and displaying the nodes in each level
                 level_order = self.__levelorder(self._graph._root)
                 levels = max(level_order.values()) + 1
-                level_height = (actual_scr_height - self.__YMARGIN - 60) // levels
+                level_height = (actual_scr_height - self.__YMARGIN*2 - self.__node_radius) // levels
                 level_list = []
                 for _ in range(levels):
                     level_list.append([])
@@ -524,14 +521,13 @@ class GraphGUI:
             """
             if self._is_tree:
                 node = self.canvas.find_withtag(tk.CURRENT)
-                for nd in self.nodes:
-                    if nd.circle == node[0] or nd.text == node[0]:
-                        root = self.__search_node(nd.id)
-                        vertices = self.__levelorder(root)
-                        new_tree = copy.copy(self._graph)
-                        new_tree.remove_all()
-                        for i in list(vertices.keys()):
-                            new_tree.insert(i)
+                node_obj = self.__canvas_node_relation[node[0]]
+                root = self.__search_node(node_obj.id)
+                vertices = self.__levelorder(root)
+                new_tree = copy.copy(self._graph)
+                new_tree.remove_all()
+                for i in list(vertices.keys()):
+                    new_tree.insert(i)
                 GraphGUI(new_tree,
                          self.__node_radius,
                          self._theme)
