@@ -5,6 +5,7 @@ WARNING: modifying this file may cause the program to stop working or work incor
 """
 # Libraries
 import tkinter as tk
+import tkinter.ttk as ttk
 import math
 import copy
 import time
@@ -152,11 +153,6 @@ class GraphGUI:
             self.root.geometry(f"{self.__scr_width}x{self.__scr_height}")
             self.root.configure(bg=self._FRAME_COLOR, border=0)
 
-            # Button Frame
-            self.button_frame = tk.Frame(self.root, bg=self._FRAME_COLOR,
-                                         height=self.__YMARGIN + BUTTON_HEIGHT)
-            self.button_frame.pack(fill='x', side='bottom')
-
             # Canvas Frame
             self.__canvas_frame = tk.Frame(self.root, bg=self._BACKGROUND_CANVAS_COLOR)
             self.__canvas_frame.pack(expand=1, fill='both', pady=self.__YMARGIN, padx=self.__XMARGIN)
@@ -170,8 +166,8 @@ class GraphGUI:
                                     height=self.__scr_height - self.__YMARGIN * 2 - BUTTON_HEIGHT)
             self.canvas.pack(fill='both', expand=1)
 
-            # Buttons display
-            self.__display_buttons()
+            # Menu display ( Experimental )
+            self.__menu_display()
 
             # Main display
             self.json_manager = JsonManager(self.root, self)
@@ -196,69 +192,24 @@ class GraphGUI:
             # Main display protocol
             self.root.mainloop()
 
-        def __display_buttons(self):
-            # Reset button
-            self.reset_button = tk.Button(self.button_frame,
-                                          text="Reset",
-                                          bg=self._BUTTON_COLOR,
-                                          command=self.display_reset,
-                                          bd=0)
-            self.reset_button.place(x = self.__XMARGIN,
-                                    y = 0,
-                                    width=BUTTON_WIDTH,
-                                    height=BUTTON_HEIGHT)
+        def __menu_display(self):
+            self.__main_menu = tk.Menu(self.root)
+            self.root.config(menu=self.__main_menu)
 
-            # Load button
-            self.load_button = tk.Button(self.button_frame,
-                                         text="Load",
-                                         bg=self._BUTTON_COLOR,
-                                         command=self.__call_manager_load,
-                                         bd=0)
-            self.load_button.place(x=self.__XMARGIN + BUTTON_WIDTH + self.__XMARGIN,
-                                   y=0,
-                                   width=BUTTON_WIDTH,
-                                   height=BUTTON_HEIGHT)
+            self.__file_menu = tk.Menu(self.__main_menu, tearoff=False)
+            self.__main_menu.add_cascade(label='File', menu=self.__file_menu)
 
-            # Save button
-            self.save_button = tk.Button(self.button_frame,
-                                         text="Save",
-                                         bg=self._BUTTON_COLOR,
-                                         command=self.__call_manager_save,
-                                         bd=0)
-            self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 2,
-                                   y=0,
-                                   width=BUTTON_WIDTH,
-                                   height=BUTTON_HEIGHT)
+            self.__file_menu.add_command(label='Save', command=self.__call_manager_save)
+            self.__file_menu.add_command(label='Reset', command=self.display_reset)
+            self.__file_menu.add_command(label='Load', command=self.__call_manager_load)
+            self.__file_menu.add_command(label='Delete', command=self.__call_manager_delete)
 
-            # Delete button
-            self.save_button = tk.Button(self.button_frame,
-                                         text="Delete",
-                                         bg=self._BUTTON_COLOR,
-                                         command=self.__call_manager_delete, bd=0)
-            self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 3,
-                                   y=0,
-                                   width=BUTTON_WIDTH,
-                                   height=BUTTON_HEIGHT)
+            self.__tools_menu = tk.Menubutton(self.__main_menu)
+            self.__main_menu.add_cascade(label='Tools', menu=self.__tools_menu, command=self.__call_tools_window)
 
-            # Tools button
-            self.save_button = tk.Button(self.button_frame,
-                                         text="Tools",
-                                         bg=self._BUTTON_COLOR,
-                                         command=self.__call_tools_window, bd=0)
-            self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 4,
-                                   y=0,
-                                   width=BUTTON_WIDTH,
-                                   height=BUTTON_HEIGHT)
+            self.__about_menu = tk.Menubutton(self.__main_menu)
+            self.__main_menu.add_cascade(label='About', menu=self.__about_menu, command=self.__call_about_window)
 
-            # About button
-            self.save_button = tk.Button(self.button_frame,
-                                         text="About",
-                                         bg=self._BUTTON_COLOR,
-                                         command=self.__call_about_window, bd=0)
-            self.save_button.place(x=self.__XMARGIN + (BUTTON_WIDTH + self.__XMARGIN) * 5,
-                                   y=0,
-                                   width=BUTTON_WIDTH,
-                                   height=BUTTON_HEIGHT)
 
         def __call_tools_window(self):
             """Generator of ToolWindow"""
