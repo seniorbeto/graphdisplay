@@ -1,4 +1,4 @@
-VERSION = '0.4.6'
+VERSION = '0.4.7'
 DEFAULT_SCR_WIDTH = 600
 DEFAULT_SCR_HEIGHT = 600
 DEFAULT_NODE_RADIUS = 25
@@ -16,6 +16,14 @@ THEMES = {
         "FRAME_COLOR": "#87715f",
         "AUTHOR_NAME_COLOR": "#301d05"
     },
+    "LIGHT":{
+        "BUTTON_COLOR": "#a6a6a6",
+        "SELECTED_VERTEX_COLOR": "#b3b3b3",
+        "VERTEX_COLOR": "#bfbdbd",
+        "BACKGROUND_CANVAS_COLOR": "#d4d3d2",
+        "FRAME_COLOR": "#b3b3b3",
+        "AUTHOR_NAME_COLOR": "#454545"
+    },
     "BLUE":{
         "BUTTON_COLOR": "#b7e7e8",
         "VERTEX_COLOR": "#a7d6fc",
@@ -30,15 +38,7 @@ THEMES = {
         "VERTEX_COLOR": "#7d7d96",
         "BACKGROUND_CANVAS_COLOR": "#404147",
         "FRAME_COLOR": "#272729",
-        "AUTHOR_NAME_COLOR": "#c0c0f0"
-    },
-    "JESUSFUCKINGCHRIST":{
-        "BUTTON_COLOR": "#fffb00",
-        "SELECTED_VERTEX_COLOR": "#fffb00",
-        "VERTEX_COLOR": "#fffb00",
-        "BACKGROUND_CANVAS_COLOR": "#fffb00",
-        "FRAME_COLOR": "#fffb00",
-        "AUTHOR_NAME_COLOR": "#000000"
+        "AUTHOR_NAME_COLOR": "#7c7c9c"
     },
     "PURPLE":{
         "BUTTON_COLOR": "#f2c8fa",
@@ -83,10 +83,10 @@ THEMES = {
     "LA GRAN OLA":{
         "BUTTON_COLOR": "#a6a49b",
         "SELECTED_VERTEX_COLOR": "#d5bc6a",
-        "VERTEX_COLOR": "#e7e2d2",
+            "VERTEX_COLOR": "#e7e2d2",
         "BACKGROUND_CANVAS_COLOR": "#8599a4",
         "FRAME_COLOR": "#4a5f79",
-        "AUTHOR_NAME_COLOR": "#d5bc6a"
+        "AUTHOR_NAME_COLOR": "#2d3a4a"
     },
     "ANTARTICA":{
         "BUTTON_COLOR": "#9BA4B5",

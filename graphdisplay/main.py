@@ -19,8 +19,11 @@ from .about_win_manager import AboutWindow
 from .tools_win_manager import ToolWindow
 from .graphs import Graph
 from .trees import AVLTree, BinarySearchTree
+from .trees.binary_tree import BinaryNode
 from .general_config import *
 
+class Node: ...
+class Edge: ...
 
 class GraphGUI:
     """
@@ -168,7 +171,7 @@ class GraphGUI:
             # Main display protocol
             self.root.mainloop()
 
-        def set_colors(self, theme):
+        def set_colors(self, theme: str) -> None:
             """Set the color theme for the GUI"""
             try:
                 self._BACKGROUND_CANVAS_COLOR = THEMES[theme.upper()]['BACKGROUND_CANVAS_COLOR']
@@ -180,7 +183,7 @@ class GraphGUI:
             except KeyError:
                 raise ValueError("The theme must be one of the following: " + str(list(THEMES.keys())))
 
-        def __menu_display(self):
+        def __menu_display(self) -> None:
             self.__main_menu = tk.Menu(self.root)
             self.root.config(menu=self.__main_menu)
 
@@ -198,26 +201,26 @@ class GraphGUI:
 
             self.__main_menu.add_command(label='Config', command=self.__call_manager_config)
 
-        def __call_tools_window(self):
+        def __call_tools_window(self) -> None:
             """Generator of ToolWindow"""
             ToolWindow(self.root, self)
 
-        def __call_about_window(self):
+        def __call_about_window(self) -> None:
             """Generator of AboutWindow"""
             AboutWindow(self.root, self)
 
-        def __call_manager_config(self):
+        def __call_manager_config(self) -> None:
             """Generator of ConfigWindow"""
             self.json_manager.generate_config_window()
 
-        def __call_manager_delete(self):
+        def __call_manager_delete(self) -> None:
             """Generator of Delete Window"""
             if not self._is_tree:
                 self.json_manager.generate_delete_window()
             else:
                 tk.messagebox.showerror("Error", "This function is not yet available for trees")
 
-        def __call_manager_load(self):
+        def __call_manager_load(self) -> None:
             """Generator of Load Window"""
             if not self._is_tree:
                 new_position = self.json_manager.generate_load_window()
@@ -226,7 +229,7 @@ class GraphGUI:
             else:
                 tk.messagebox.showerror("Error", "This function is not yet available for trees")
 
-        def __call_manager_save(self):
+        def __call_manager_save(self) -> None:
             """Generator of Save Window"""
             if not self._is_tree:
                 curr_pos = self.get_current_position()
@@ -234,7 +237,7 @@ class GraphGUI:
             else:
                 tk.messagebox.showerror("Error", "This function is not yet available for trees")
 
-        def get_current_position(self):
+        def get_current_position(self) -> dict:
             """Returns the current position of the nodes in the canvas"""
             curr_pos = {}
             actual_scr_width = self.root.winfo_width()
@@ -244,17 +247,21 @@ class GraphGUI:
                 curr_pos[node] = (self.nodes[node].pos_x, self.nodes[node].pos_y)
             return curr_pos
 
-        def display_reset(self, new_data: dict = None):
+        def display_reset(self, new_data: dict = None) -> None:
             """
             Sets the main display to default by deleting all objects in canvas and displaying them
             in the position stored in new_data.
             """
+            if new_data:
+                actual_scr_width = new_data['Screen_dimensions'][0]
+                actual_scr_height = new_data['Screen_dimensions'][1]
+                self.root.geometry(f'{actual_scr_width}x{actual_scr_height}')
             self.canvas.delete("all")
             self.root.config(bg=self._FRAME_COLOR)
             self.canvas.config(bg=self._BACKGROUND_CANVAS_COLOR)
             self.__display(new_data)
 
-        def __display(self, data: dict = None):
+        def __display(self, data: dict = None) -> None:
             """
             Main display for all nodes in the canvas, whose position is determined in "data".
             If data is None, the default display will be showed. This is, in case of a simple graph,
@@ -362,7 +369,7 @@ class GraphGUI:
                         for i in edge_start_node.asociated_edges_IN:
                             if i.start_node == edge_end_node:
                                 found = True
-                                edge.overlaped = True
+                                edge.overlapped = True
                                 edge.show()
                                 break
                         if not found:
@@ -471,11 +478,11 @@ class GraphGUI:
             node = self.__search_node(elem)
             return node.left.elem if node.left else None, node.right.elem if node.right else None
 
-        def __search_node(self, elem):
+        def __search_node(self, elem) -> BinaryNode:
             """returns the node with the given element"""
             return self.__search_node_aux(self._graph._root, elem)
 
-        def __search_node_aux(self, node, elem):
+        def __search_node_aux(self, node: BinaryNode, elem) -> BinaryNode | None:
             """returns the node with the given element"""
             if node == None:
                 return None
@@ -484,7 +491,7 @@ class GraphGUI:
             else:
                 return self.__search_node_aux(node.left, elem) or self.__search_node_aux(node.right, elem)
 
-        def __levelorder(self, node) -> dict:
+        def __levelorder(self, node: BinaryNode) -> dict:
             """
             returns a dictionary with the level order of the tree and the height of each node
             """
@@ -505,7 +512,7 @@ class GraphGUI:
 
             return register
 
-        def __on_closing(self):
+        def __on_closing(self) -> None:
             """Store the current data at closing protocol"""
             data = {}
             actual_scr_width = self.root.winfo_width()
@@ -517,7 +524,7 @@ class GraphGUI:
             self.json_manager.update_main_config()
             self.root.destroy()
 
-        def on_press_left(self, event):
+        def on_press_left(self, event: tk.Event) -> None:
             """
             If, in a tree, a node is left-clicked, it will generate a display of the subtree
             """
@@ -532,16 +539,16 @@ class GraphGUI:
                     new_tree.insert(i)
                 GraphGUI(new_tree)
 
-        def on_press(self, event):
+        def on_press(self, event: tk.Event) -> None:
             """Right mouse click protocol"""
             # Store the node if it has been right-clicked
             node = self.canvas.find_withtag(tk.CURRENT)
             self.selected_node = (node, event.x, event.y)
 
-        def move(self, event):
+        def move(self, event: tk.Event) -> Node:
             """
             It moves a node if it has been selected on the right mouse click protocol. After moving it, it updates
-            automatically all edges attached to the node.
+            automatically all edges attached to the node. Returns the node that has been moved.
             """
             x, y = event.x, event.y
             node, x0, y0 = self.selected_node
@@ -556,11 +563,18 @@ class GraphGUI:
                 edge.update_position()
             self.selected_node = (node, x, y)
 
-        def set_node_radius(self, value):
+            return node_obj
+
+        def set_node_radius(self, value) -> None:
             self.__node_radius = value
 
 class Node:
-    def __init__(self, canvas: tk.Canvas, radius: int, posx: int, posy: int, text: str, bg: str = "white"):
+    def __init__(self, canvas: tk.Canvas,
+                 radius: int,
+                 posx: int,
+                 posy: int,
+                 text: str,
+                 bg: str = "white"):
         self.asociated_edges_IN = []
         self.asociated_edges_OUT = []
         self.__canvas = canvas
@@ -568,9 +582,9 @@ class Node:
         self.__radius = radius
         self.__pos_x = posx
         self.__pos_y = posy
-        self.__circle = canvas.create_oval(self.__pos_x, self.__pos_y, self.__pos_x + self.__radius*2, self.__pos_y + self.__radius*2, fill=bg, width=2,)
-        self.__text = canvas.create_text(self.__pos_x + self.__radius, self.__pos_y + self.__radius, text=self.__id)
-        canvas.addtag_enclosed("movil", self.__pos_x - 3, self.__pos_y - 3, self.__pos_x + self.__radius * 2 + 3, self.__pos_y + self.__radius * 2 + 3)
+        self.__circle = self.__canvas.create_oval(self.__pos_x, self.__pos_y, self.__pos_x + self.__radius*2, self.__pos_y + self.__radius*2, fill=bg, width=2,)
+        self.__text = self.__canvas.create_text(self.__pos_x + self.__radius, self.__pos_y + self.__radius, text=self.__id)
+        self.__canvas.addtag_enclosed("movil", self.__pos_x - 3, self.__pos_y - 3, self.__pos_x + self.__radius * 2 + 3, self.__pos_y + self.__radius * 2 + 3)
 
     def terminate(self):
         for edge in self.asociated_edges_IN:
@@ -621,7 +635,7 @@ class Edge:
                  window_color: str = "white",
                  text_color: str = "black"):
         self.__canvas = canvas
-        self.__overlapped = overlapped
+        self.overlapped = overlapped
         self.__start_node = start
         self.__end_node = end
         self.__weight = weight
@@ -639,7 +653,7 @@ class Edge:
         self.__recalculate()
         self.__canvas.coords(self.line, self.__start[0], self.__start[1], self.__end[0], self.__end[1])
         if self.__weight:
-            if not self.__overlapped:
+            if not self.overlapped:
                 self.__canvas.coords(self.window, (self.__start[0] + self.__end[0]) // 2, (self.__start[1] + self.__end[1]) // 2)
             else:
                 self.__canvas.coords(self.window, self.__start[0] * 0.2 + self.__end[0] * 0.8, self.__start[1] * 0.2 + self.__end[1] * 0.8)
@@ -657,12 +671,13 @@ class Edge:
                                             arrow=tk.LAST,
                                             width=1.5)
         if self.__weight:
-            if not self.__overlapped:
+            if not self.overlapped:
                 self.window = self.__canvas.create_window((self.__start[0] + self.__end[0]) // 2,
                                                         (self.__start[1] + self.__end[1]) // 2,
                                                         window=tk.Label(self.__canvas,
                                                                         bg=self.__window_color,
                                                                         text=str(self.__weight),
+                                                                        font=("Arial", 13),
                                                                         fg=self.__text_color))
             else:
                 self.window = self.__canvas.create_window((self.__start[0] * 0.2 + self.__end[0] * 0.8),
@@ -670,6 +685,7 @@ class Edge:
                                                         window=tk.Label(self.__canvas,
                                                                         bg=self.__window_color,
                                                                         text=str(self.__weight),
+                                                                        font=("Arial", 13),
                                                                         fg=self.__text_color))
 
     def __recalculate(self):
@@ -731,10 +747,6 @@ class Edge:
     @property
     def weight(self):
         return self.__weight
-
-    @property
-    def overlapped(self):
-        return self.__overlapped
 
     @property
     def window_color(self):
