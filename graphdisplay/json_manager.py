@@ -102,7 +102,6 @@ class ConfigWindow(tk.Toplevel):
                                      to=100,
                                      orient=tk.HORIZONTAL,
                                      bg=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR,
-                                     fg=self.__manager.graphgui._FRAME_COLOR,
                                      troughcolor=self.__manager.graphgui._FRAME_COLOR,
                                      highlightthickness=0,
                                      length=150,
@@ -132,7 +131,6 @@ class ConfigWindow(tk.Toplevel):
         self.__apply_button = tk.Button(self.__button_frame,
                                         text="Apply",
                                         bg=self.__manager.graphgui._BUTTON_COLOR,
-                                        fg=self.__manager.graphgui._FRAME_COLOR,
                                         bd=0,
                                         command=self.__apply__settings)
         self.__apply_button.place(width=BUTTON_WIDTH,
@@ -142,11 +140,23 @@ class ConfigWindow(tk.Toplevel):
 
 
     def __apply__settings(self):
-        self.__manager._config['node_radius'] = self.__node_scale.get()
-        self.__manager._config['theme'] = self.__theme_selection.get()
+        new_node_radius = self.__node_scale.get()
+        new_theme = self.__theme_selection.get()
+        self.__manager._config['node_radius'] = new_node_radius
+        self.__manager._config['theme'] = new_theme
         self.__manager.update_main_config()
-        messagebox.showinfo("Confirm", f"Settings applied successfully! \nRestart the program to see the changes.")
-        self.destroy()
+
+        # Change the GUI theme
+        self.__manager.graphgui._theme = new_theme
+        self.__manager.graphgui.set_colors(new_theme)
+
+        # Change the node radius
+        self.__manager.graphgui.set_node_radius(new_node_radius)
+
+        # Update the GUI
+        current_position = self.__manager.graphgui.get_current_position()
+        self.__manager.graphgui.display_reset(current_position)
+
 
 class DeleteWindow(tk.Toplevel):
     def __init__(self, root, json_manager: JsonManager):

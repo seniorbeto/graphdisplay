@@ -96,15 +96,9 @@ class GraphGUI:
             self.nodes = {}
             self.edges = []
             self.__canvas_node_relation = {}
-            try:
-                self._BACKGROUND_CANVAS_COLOR = THEMES[self._theme]['BACKGROUND_CANVAS_COLOR']
-                self._BUTTON_COLOR = THEMES[self._theme]['BUTTON_COLOR']
-                self._SELECTED_VERTEX_COLOR = THEMES[self._theme]['SELECTED_VERTEX_COLOR']
-                self._FRAME_COLOR = THEMES[self._theme]['FRAME_COLOR']
-                self._VERTEX_COLOR = THEMES[self._theme]['VERTEX_COLOR']
-                self._AUTHOR_NAME_COLOR = THEMES[self._theme]['AUTHOR_NAME_COLOR']
-            except KeyError:
-                raise ValueError("The theme must be one of the following: " + str(list(THEMES.keys())))
+
+            # Set the color theme
+            self.set_colors(self._theme)
 
             # We will transform the graph type into our own prototype, so that future changes are easier
             # to implement. Beyond this point, code will be implemented based on these prototypes.
@@ -174,6 +168,18 @@ class GraphGUI:
             # Main display protocol
             self.root.mainloop()
 
+        def set_colors(self, theme):
+            """Set the color theme for the GUI"""
+            try:
+                self._BACKGROUND_CANVAS_COLOR = THEMES[theme.upper()]['BACKGROUND_CANVAS_COLOR']
+                self._BUTTON_COLOR = THEMES[theme.upper()]['BUTTON_COLOR']
+                self._SELECTED_VERTEX_COLOR = THEMES[theme.upper()]['SELECTED_VERTEX_COLOR']
+                self._FRAME_COLOR = THEMES[theme.upper()]['FRAME_COLOR']
+                self._VERTEX_COLOR = THEMES[theme.upper()]['VERTEX_COLOR']
+                self._AUTHOR_NAME_COLOR = THEMES[theme.upper()]['AUTHOR_NAME_COLOR']
+            except KeyError:
+                raise ValueError("The theme must be one of the following: " + str(list(THEMES.keys())))
+
         def __menu_display(self):
             self.__main_menu = tk.Menu(self.root)
             self.root.config(menu=self.__main_menu)
@@ -223,15 +229,20 @@ class GraphGUI:
         def __call_manager_save(self):
             """Generator of Save Window"""
             if not self._is_tree:
-                curr_pos = {}
-                actual_scr_width = self.root.winfo_width()
-                actual_scr_height = self.root.winfo_height()
-                curr_pos['Screen_dimensions'] = (actual_scr_width, actual_scr_height)
-                for node in self.nodes:
-                    curr_pos[node] = (self.nodes[node].pos_x, self.nodes[node].pos_y)
+                curr_pos = self.get_current_position()
                 self.json_manager.generate_save_window(curr_pos)
             else:
                 tk.messagebox.showerror("Error", "This function is not yet available for trees")
+
+        def get_current_position(self):
+            """Returns the current position of the nodes in the canvas"""
+            curr_pos = {}
+            actual_scr_width = self.root.winfo_width()
+            actual_scr_height = self.root.winfo_height()
+            curr_pos['Screen_dimensions'] = (actual_scr_width, actual_scr_height)
+            for node in self.nodes:
+                curr_pos[node] = (self.nodes[node].pos_x, self.nodes[node].pos_y)
+            return curr_pos
 
         def display_reset(self, new_data: dict = None):
             """
@@ -239,6 +250,8 @@ class GraphGUI:
             in the position stored in new_data.
             """
             self.canvas.delete("all")
+            self.root.config(bg=self._FRAME_COLOR)
+            self.canvas.config(bg=self._BACKGROUND_CANVAS_COLOR)
             self.__display(new_data)
 
         def __display(self, data: dict = None):
@@ -542,6 +555,9 @@ class GraphGUI:
             for edge in node_obj.asociated_edges_OUT:
                 edge.update_position()
             self.selected_node = (node, x, y)
+
+        def set_node_radius(self, value):
+            self.__node_radius = value
 
 class Node:
     def __init__(self, canvas: tk.Canvas, radius: int, posx: int, posy: int, text: str, bg: str = "white"):
