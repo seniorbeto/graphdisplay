@@ -26,14 +26,12 @@ class GraphGUI:
     """
     Creates a GraphGUI object, which will display the graph in an external window. Nodes can be moved with the mouse.
     :param graph: The graph/tree to be displayed.
-    :param node_radius: The radius of the nodes.
-    :param theme: color scheme of the node display.
     """
 
     # Using an instance-counter will determine how many GraphGUI objects are wanted
     instance = 0
 
-    def __new__(cls, graph, node_radius: int = 30, theme: str = 'BROWN'):
+    def __new__(cls, graph):
         GraphGUI.instance += 1
         if GraphGUI.instance > 5:
             raise Exception("For safety reasons, only five instances of GraphGUI can be created")
@@ -41,16 +39,10 @@ class GraphGUI:
         # Generate multiprocessing
 
         if platform.system() == "Linux":
-            mp.Process(target=cls._generate, args=(graph,
-                                                    GraphGUI.instance,
-                                                    node_radius,
-                                                    theme)).start()
+            mp.Process(target=cls._generate, args=(graph, GraphGUI.instance)).start()
         else:
             try:
-                pid = mp.Process(target=cls._generate, args=(graph,
-                                                             GraphGUI.instance,
-                                                             node_radius,
-                                                             theme))
+                pid = mp.Process(target=cls._generate, args=(graph, GraphGUI.instance))
                 pid.start()
             except RecursionError:
                 print('\n' + '\033[91m' + "ERROR: " + '\033[0m' + "For how GraphGUI works, high-demanding recursion trees are"
@@ -75,45 +67,42 @@ class GraphGUI:
         return setattr(self.instance, name, value)
 
     @staticmethod
-    def _generate(graph, instance, node_radius, theme):
-        GraphGUI.__GraphGUI(graph, instance, node_radius, theme)
+    def _generate(graph, instance):
+        GraphGUI.__GraphGUI(graph, instance)
 
     class __GraphGUI:
-        def __init__(self, graph, instance, node_radius: int = 40, theme: str = 'BROWN'):
+        def __init__(self, graph, instance):
             """
             Creates a GraphGUI object, which will display the graph in an external window. Nodes can be moved with the mouse.
             :param graph: The graph/tree to be displayed.
-            :param node_radius: The radius of the nodes.
-            :param theme: color scheme of the node display.
             """
-
             # Begin time measurement
             start = time.time()
 
-            # Parameter validation
-            if type(node_radius) != int:
-                raise TypeError("The parameter node_radius must be an integer")
-            if node_radius < 10 or node_radius > 100:
-                raise ValueError("The parameter node_radius must be a value between 10 and 100")
+            # Create the main window
+            self.root = tk.Tk()
+
+            # Create the json manager
+            self.json_manager = JsonManager(self.root, self)
 
             self.__ACTUAL_INSTANCE = instance
             self._graph = graph
-            self.__node_radius = node_radius
+            self.__node_radius = self.json_manager._config['node_radius']
             self.__scr_width = DEFAULT_SCR_WIDTH
             self.__scr_height = DEFAULT_SCR_WIDTH
             self.__XMARGIN = XMARGEN
             self.__YMARGIN = YMARGEN
-            self._theme = theme.upper()
+            self._theme = self.json_manager._config['theme']
             self.nodes = {}
             self.edges = []
             self.__canvas_node_relation = {}
             try:
-                self._BACKGROUND_CANVAS_COLOR = THEMES[theme.upper()]['BACKGROUND_CANVAS_COLOR']
-                self._BUTTON_COLOR = THEMES[theme.upper()]['BUTTON_COLOR']
-                self._SELECTED_VERTEX_COLOR = THEMES[theme.upper()]['SELECTED_VERTEX_COLOR']
-                self._FRAME_COLOR = THEMES[theme.upper()]['FRAME_COLOR']
-                self._VERTEX_COLOR = THEMES[theme.upper()]['VERTEX_COLOR']
-                self._AUTHOR_NAME_COLOR = THEMES[theme.upper()]['AUTHOR_NAME_COLOR']
+                self._BACKGROUND_CANVAS_COLOR = THEMES[self._theme]['BACKGROUND_CANVAS_COLOR']
+                self._BUTTON_COLOR = THEMES[self._theme]['BUTTON_COLOR']
+                self._SELECTED_VERTEX_COLOR = THEMES[self._theme]['SELECTED_VERTEX_COLOR']
+                self._FRAME_COLOR = THEMES[self._theme]['FRAME_COLOR']
+                self._VERTEX_COLOR = THEMES[self._theme]['VERTEX_COLOR']
+                self._AUTHOR_NAME_COLOR = THEMES[self._theme]['AUTHOR_NAME_COLOR']
             except KeyError:
                 raise ValueError("The theme must be one of the following: " + str(list(THEMES.keys())))
 
@@ -142,8 +131,7 @@ class GraphGUI:
                     for adj in graph._vertices[vertex]:
                         self._graph.addEdge(vertex, adj._vertex, adj._weight)
 
-            # Create the main window
-            self.root = tk.Tk()
+            # Configure main window
             self.root.title('GraphGUI')
             self.root.geometry(f"{self.__scr_width}x{self.__scr_height}")
             self.root.configure(bg=self._FRAME_COLOR, border=0)
@@ -165,7 +153,6 @@ class GraphGUI:
             self.__menu_display()
 
             # Main display
-            self.json_manager = JsonManager(self.root, self)
             data = self.json_manager.get_data('__last_store_'+str(self.__ACTUAL_INSTANCE))
             self.__display(data)
             if data:
@@ -203,6 +190,8 @@ class GraphGUI:
 
             self.__main_menu.add_command(label='About', command=self.__call_about_window)
 
+            self.__main_menu.add_command(label='Config', command=self.__call_manager_config)
+
         def __call_tools_window(self):
             """Generator of ToolWindow"""
             ToolWindow(self.root, self)
@@ -210,6 +199,10 @@ class GraphGUI:
         def __call_about_window(self):
             """Generator of AboutWindow"""
             AboutWindow(self.root, self)
+
+        def __call_manager_config(self):
+            """Generator of ConfigWindow"""
+            self.json_manager.generate_config_window()
 
         def __call_manager_delete(self):
             """Generator of Delete Window"""
@@ -341,7 +334,8 @@ class GraphGUI:
                                                self.nodes[vertex],
                                                node,
                                                adj._weight,
-                                               window_color=self._BACKGROUND_CANVAS_COLOR))
+                                               window_color=self._BACKGROUND_CANVAS_COLOR,
+                                               text_color=self._AUTHOR_NAME_COLOR))
                     i += 1
 
                 # While displaying the edges, we first have to check if it is needed to display the weight
@@ -426,7 +420,8 @@ class GraphGUI:
                                             father_node,
                                             new_node,
                                             None,
-                                            window_color=self._BACKGROUND_CANVAS_COLOR)
+                                            window_color=self._BACKGROUND_CANVAS_COLOR,
+                                            text_color=self._AUTHOR_NAME_COLOR)
                             new_edge.show()
                             self.edges.append(new_edge)
 
@@ -446,7 +441,8 @@ class GraphGUI:
                                             father_node,
                                             new_node,
                                             None,
-                                            window_color=self._BACKGROUND_CANVAS_COLOR)
+                                            window_color=self._BACKGROUND_CANVAS_COLOR,
+                                            text_color=self._AUTHOR_NAME_COLOR)
                             new_edge.show()
                             self.edges.append(new_edge)
 
@@ -505,6 +501,7 @@ class GraphGUI:
             for node in self.nodes:
                 data[node] = (self.nodes[node].pos_x, self.nodes[node].pos_y)
             self.json_manager.save_data('__last_store_'+str(self.__ACTUAL_INSTANCE), data)
+            self.json_manager.update_main_config()
             self.root.destroy()
 
         def on_press_left(self, event):
@@ -520,9 +517,7 @@ class GraphGUI:
                 new_tree.remove_all()
                 for i in list(vertices.keys()):
                     new_tree.insert(i)
-                GraphGUI(new_tree,
-                         self.__node_radius,
-                         self._theme)
+                GraphGUI(new_tree)
 
         def on_press(self, event):
             """Right mouse click protocol"""
@@ -602,13 +597,20 @@ class Node:
         return self.__radius
 
 class Edge:
-    def __init__(self, canvas: tk.Canvas, start: Node, end: Node, weight: int = 1, overlapped: bool = False, window_color: str = "white"):
+    def __init__(self, canvas: tk.Canvas,
+                 start: Node,
+                 end: Node,
+                 weight: int = 1,
+                 overlapped: bool = False,
+                 window_color: str = "white",
+                 text_color: str = "black"):
         self.__canvas = canvas
         self.__overlapped = overlapped
         self.__start_node = start
         self.__end_node = end
         self.__weight = weight
         self.__window_color = window_color
+        self.__text_color = text_color
         self.__start = self.__calculate_start(start, end)
         self.__end = self.__calculate_end(start, end)
 
@@ -644,13 +646,15 @@ class Edge:
                                                         (self.__start[1] + self.__end[1]) // 2,
                                                         window=tk.Label(self.__canvas,
                                                                         bg=self.__window_color,
-                                                                        text=str(self.__weight)))
+                                                                        text=str(self.__weight),
+                                                                        fg=self.__text_color))
             else:
                 self.window = self.__canvas.create_window((self.__start[0] * 0.2 + self.__end[0] * 0.8),
                                                         (self.__start[1] * 0.2 + self.__end[1] * 0.8),
                                                         window=tk.Label(self.__canvas,
                                                                         bg=self.__window_color,
-                                                                        text=str(self.__weight)))
+                                                                        text=str(self.__weight),
+                                                                        fg=self.__text_color))
 
     def __recalculate(self):
         self.__start = self.__calculate_start(self.__start_node, self.__end_node)
