@@ -223,7 +223,7 @@ class ToolWindow(tk.Toplevel):
 
         # Djistra text
         text_label = tk.Label(self.__djistra_frame,
-                              text="Djistra",
+                              text="Dijkstra",
                               bg=self.__gui._BACKGROUND_CANVAS_COLOR,
                               font=("Courier", 13))
         text_label.place(x=5, y=30)

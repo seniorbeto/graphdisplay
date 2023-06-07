@@ -1,5 +1,5 @@
 """
-Ofitial graph implementation for Data Structures and Algorithms subject at Carlos III university of Madrid
+Official graph implementation for Data Structures and Algorithms subject at Carlos III university of Madrid
 
     - min_number_edges function implemented by Raúl Aguilar Arroyo (https://github.com/Ragarr)
     - transpose and is_strongly_connected functions implemented by Alberto Penas Díaz (https://github.com/seniorbeto)
@@ -41,11 +41,11 @@ class Graph():
             print(end, ' does not exist!')
             return
 
-        # adds to the end of the list of neigbours for start
+        # adds to the end of the list of neighbours for start
         self._vertices[start].append(AdjacentVertex(end, weight))
 
         if self._directed == False:
-            # adds to the end of the list of neigbours for end
+            # adds to the end of the list of neighbours for end
             self._vertices[end].append(AdjacentVertex(start, weight))
 
     def containsEdge(self, start, end):
