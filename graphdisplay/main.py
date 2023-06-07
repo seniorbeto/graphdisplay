@@ -27,8 +27,6 @@ class GraphGUI:
     Creates a GraphGUI object, which will display the graph in an external window. Nodes can be moved with the mouse.
     :param graph: The graph/tree to be displayed.
     :param node_radius: The radius of the nodes.
-    :param scr_width: The width of the window.
-    :param scr_height: The height of the window.
     :param theme: color scheme of the node display.
     """
 
@@ -67,7 +65,7 @@ class GraphGUI:
                 print('\n'+'\033[93m'+"WARNING:"+'\033[0m'+" it is highly recommended to run the program inside a\n\n"
                       "     if __name__ == \"__main__\":\n\n"
                       "statement in order to avoid issues and duplicated processes.\n"
-                      "For more information please consider visiting the proyect \n"
+                      "For more information please consider visiting the project \n"
                       "documentation at: https://github.com/seniorbeto/graphdisplay\n")
 
     def __getattr__(self, name):
@@ -83,13 +81,10 @@ class GraphGUI:
     class __GraphGUI:
         def __init__(self, graph, instance, node_radius: int = 40, theme: str = 'BROWN'):
             """
-            Creates a GraphGUI object, which will display the graph in a external window. Nodes can be moved with the mouse.
-            The creation of the window will stop the execution of the program until the window is closed. Thus, it is recommended
-            to create the GraphGUI object at the end of the program.
-            :param graph: The graph to be displayed
-            :param node_radius: The radius of the nodes (default 40)
-            :param scr_width: The width of the window (default 600)
-            :param scr_height: The height of the window (default 600)
+            Creates a GraphGUI object, which will display the graph in an external window. Nodes can be moved with the mouse.
+            :param graph: The graph/tree to be displayed.
+            :param node_radius: The radius of the nodes.
+            :param theme: color scheme of the node display.
             """
 
             # Begin time measurement
@@ -557,77 +552,109 @@ class Node:
     def __init__(self, canvas: tk.Canvas, radius: int, posx: int, posy: int, text: str, bg: str = "white"):
         self.asociated_edges_IN = []
         self.asociated_edges_OUT = []
-        self.canvas = canvas
-        self.id = text
-        self.radius = radius
-        self.pos_x = posx
-        self.pos_y = posy
-        self.circle = canvas.create_oval(self.pos_x, self.pos_y, self.pos_x + self.radius*2, self.pos_y + self.radius*2, fill=bg, width=2,)
-        self.text = canvas.create_text(self.pos_x + self.radius, self.pos_y + self.radius, text=text)
-        canvas.addtag_enclosed("movil", self.pos_x - 3, self.pos_y - 3, self.pos_x + self.radius * 2 + 3, self.pos_y + self.radius * 2 + 3)
+        self.__canvas = canvas
+        self.__id = text
+        self.__radius = radius
+        self.__pos_x = posx
+        self.__pos_y = posy
+        self.__circle = canvas.create_oval(self.__pos_x, self.__pos_y, self.__pos_x + self.__radius*2, self.__pos_y + self.__radius*2, fill=bg, width=2,)
+        self.__text = canvas.create_text(self.__pos_x + self.__radius, self.__pos_y + self.__radius, text=self.__id)
+        canvas.addtag_enclosed("movil", self.__pos_x - 3, self.__pos_y - 3, self.__pos_x + self.__radius * 2 + 3, self.__pos_y + self.__radius * 2 + 3)
 
     def terminate(self):
         for edge in self.asociated_edges_IN:
             edge.terminate()
         for edge in self.asociated_edges_OUT:
             edge.terminate()
-        self.canvas.delete(self.circle)
-        self.canvas.delete(self.text)
+        self.__canvas.delete(self.__circle)
+        self.__canvas.delete(self.__text)
+
+    @property
+    def id(self):
+        return self.__id
+
+    @property
+    def pos_x(self):
+        return self.__pos_x
+
+    @pos_x.setter
+    def pos_x(self, value):
+        self.__pos_x = value
+
+    @property
+    def pos_y(self):
+        return self.__pos_y
+
+    @pos_y.setter
+    def pos_y(self, value):
+        self.__pos_y = value
+
+    @property
+    def circle(self):
+        return self.__circle
+
+    @property
+    def text(self):
+        return self.__text
+
+    @property
+    def radius(self):
+        return self.__radius
 
 class Edge:
-    def __init__(self, canvas: tk.Canvas, start: Node, end: Node, weight: int = 1, overlaped: bool = False, window_color: str = "white"):
-        self.canvas = canvas
-        self.overlaped = overlaped
-        self.start_node = start
-        self.end_node = end
-        self.weight = weight
-        self.window_color = window_color
-        self.start = self.__calculate_start(start, end)
-        self.end = self.__calculate_end(start, end)
+    def __init__(self, canvas: tk.Canvas, start: Node, end: Node, weight: int = 1, overlapped: bool = False, window_color: str = "white"):
+        self.__canvas = canvas
+        self.__overlapped = overlapped
+        self.__start_node = start
+        self.__end_node = end
+        self.__weight = weight
+        self.__window_color = window_color
+        self.__start = self.__calculate_start(start, end)
+        self.__end = self.__calculate_end(start, end)
 
-        if self not in self.end_node.asociated_edges_IN:
-            self.end_node.asociated_edges_IN.append(self)
-        if self not in self.start_node.asociated_edges_OUT:
-            self.start_node.asociated_edges_OUT.append(self)
+        if self not in self.__end_node.asociated_edges_IN:
+            self.__end_node.asociated_edges_IN.append(self)
+        if self not in self.__start_node.asociated_edges_OUT:
+            self.__start_node.asociated_edges_OUT.append(self)
 
     def update_position(self):
         self.__recalculate()
-        self.canvas.coords(self.line, self.start[0], self.start[1], self.end[0], self.end[1])
-        if self.weight:
-            if not self.overlaped:
-                self.canvas.coords(self.window, (self.start[0] + self.end[0]) // 2, (self.start[1] + self.end[1]) // 2)
+        self.__canvas.coords(self.line, self.__start[0], self.__start[1], self.__end[0], self.__end[1])
+        if self.__weight:
+            if not self.__overlapped:
+                self.__canvas.coords(self.window, (self.__start[0] + self.__end[0]) // 2, (self.__start[1] + self.__end[1]) // 2)
             else:
-                self.canvas.coords(self.window, self.start[0] * 0.2 + self.end[0] * 0.8, self.start[1] * 0.2 + self.end[1] * 0.8)
+                self.__canvas.coords(self.window, self.__start[0] * 0.2 + self.__end[0] * 0.8, self.__start[1] * 0.2 + self.__end[1] * 0.8)
 
     def terminate(self):
-        self.canvas.delete(self.line)
-        if self.weight:
-            self.canvas.delete(self.window)
+        self.__canvas.delete(self.line)
+        if self.__weight:
+            self.__canvas.delete(self.window)
 
     def show(self):
-        self.line = self.canvas.create_line(self.start[0],
-                                            self.start[1],
-                                            self.end[0],
-                                            self.end[1],
+        self.line = self.__canvas.create_line(self.__start[0],
+                                            self.__start[1],
+                                            self.__end[0],
+                                            self.__end[1],
                                             arrow=tk.LAST,
                                             width=1.5)
-        if self.weight:
-            if not self.overlaped:
-                self.window = self.canvas.create_window((self.start[0] + self.end[0]) // 2,
-                                                        (self.start[1] + self.end[1]) // 2,
-                                                        window=tk.Label(self.canvas,
-                                                                        bg=self.window_color,
-                                                                        text=str(self.weight)))
+        if self.__weight:
+            if not self.__overlapped:
+                self.window = self.__canvas.create_window((self.__start[0] + self.__end[0]) // 2,
+                                                        (self.__start[1] + self.__end[1]) // 2,
+                                                        window=tk.Label(self.__canvas,
+                                                                        bg=self.__window_color,
+                                                                        text=str(self.__weight)))
             else:
-                self.window = self.canvas.create_window((self.start[0] * 0.2 + self.end[0] * 0.8),
-                                                        (self.start[1] * 0.2 + self.end[1] * 0.8),
-                                                        window=tk.Label(self.canvas,
-                                                                        bg=self.window_color,
-                                                                        text=str(self.weight)))
+                self.window = self.__canvas.create_window((self.__start[0] * 0.2 + self.__end[0] * 0.8),
+                                                        (self.__start[1] * 0.2 + self.__end[1] * 0.8),
+                                                        window=tk.Label(self.__canvas,
+                                                                        bg=self.__window_color,
+                                                                        text=str(self.__weight)))
 
     def __recalculate(self):
-        self.start = self.__calculate_start(self.start_node, self.end_node)
-        self.end = self.__calculate_end(self.start_node, self.end_node)
+        self.__start = self.__calculate_start(self.__start_node, self.__end_node)
+        self.__end = self.__calculate_end(self.__start_node, self.__end_node)
 
     def __calculate_start(self, start: Node, end: Node) -> tuple:
         """
@@ -672,6 +699,35 @@ class Edge:
         x = math.cos(math.radians(edge_angle)) * end.radius
         y = math.sin(math.radians(edge_angle)) * end.radius
         return  (center_end[0] - int(x), center_end[1] - int(y))
+
+    @property
+    def start_node(self):
+        return self.__start_node
+
+    @property
+    def end_node(self):
+        return self.__end_node
+
+    @property
+    def weight(self):
+        return self.__weight
+
+    @property
+    def overlapped(self):
+        return self.__overlapped
+
+    @property
+    def window_color(self):
+        return self.__window_color
+
+    @property
+    def start(self):
+        return self.__start
+
+    @property
+    def end(self):
+        return self.__end
+
 
 if __name__ == "__main__":
     pass
