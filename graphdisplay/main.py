@@ -204,12 +204,9 @@ class GraphGUI:
             self.__file_menu.add_command(label='Load', command=self.__call_manager_load)
             self.__file_menu.add_command(label='Delete', command=self.__call_manager_delete)
 
-            self.__tools_menu = tk.Menubutton(self.__main_menu)
-            self.__main_menu.add_cascade(label='Tools', menu=self.__tools_menu, command=self.__call_tools_window)
+            self.__main_menu.add_command(label='Tools', command=self.__call_tools_window)
 
-            self.__about_menu = tk.Menubutton(self.__main_menu)
-            self.__main_menu.add_cascade(label='About', menu=self.__about_menu, command=self.__call_about_window)
-
+            self.__main_menu.add_command(label='About', command=self.__call_about_window)
 
         def __call_tools_window(self):
             """Generator of ToolWindow"""
