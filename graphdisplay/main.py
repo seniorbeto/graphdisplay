@@ -5,7 +5,6 @@ WARNING: modifying this file may cause the program to stop working or work incor
 """
 # Libraries
 import tkinter as tk
-import tkinter.ttk as ttk
 import math
 import copy
 import time
@@ -414,7 +413,6 @@ class GraphGUI:
 
                     # We determine the x_axis of each node in the level
                     x_axis = (actual_scr_width - (self.__XMARGIN * 2) - (self.__node_radius * 2)) // level_grid
-                    x_axis_counter = 0
 
                     final_nodes = nodes_in_level + last_nodes
                     final_nodes.sort()
@@ -423,7 +421,6 @@ class GraphGUI:
                         position_x = self.nodes[node].pos_x
                         father_node = self.nodes[node]
 
-                        relative = last_nodes.index(node) + 1
                         children_left, children_right = self.__get_children(node)
                         if children_left or children_left == 0:
                             final_position_x = position_x - x_axis // 2
