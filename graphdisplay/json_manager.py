@@ -3,6 +3,7 @@ import json
 import tkinter as tk
 from tkinter import messagebox
 from datetime import datetime
+from .general_config import *
 
 class JsonManager:
     def __init__(self, parent, graphgui):
@@ -18,6 +19,20 @@ class JsonManager:
                 self.__permanent = json.load(file)
         except FileNotFoundError:
             self.__permanent = {}
+
+        try:
+            with open(self.__JSON_SAVE_DIR + '../win_config.json', "r", encoding="utf-8", newline="") as file:
+                self._config = json.load(file)
+        except FileNotFoundError:
+            self._config = {
+                'node_radius': DEFAULT_NODE_RADIUS,
+                'theme': DEFAULT_THEME
+            }
+            self.update_main_config()
+
+    def update_main_config(self):
+        with open(self.__JSON_SAVE_DIR + '../win_config.json', "w", encoding="utf-8", newline="") as file:
+            json.dump(self._config, file, indent=4)
 
     def update_permanent(self):
         with open(self.__JSON_SAVE_DIR + '../permanent.json', "w", encoding="utf-8", newline="") as file:
@@ -54,6 +69,84 @@ class JsonManager:
 
     def generate_delete_window(self):
         DeleteWindow(self.__parent, self)
+
+    def generate_config_window(self):
+        ConfigWindow(self.__parent, self)
+
+class ConfigWindow(tk.Toplevel):
+    def __init__(self, root, json_manager: JsonManager):
+        super().__init__(root)
+        self.title("Config")
+        self.resizable(False, False)
+        self.__manager = json_manager
+        self.configure(background=self.__manager.graphgui._FRAME_COLOR)
+
+        # Node configuration frame
+        self.__node_frame = tk.Frame(self, bg=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR, width=320, height=40)
+        self.__node_frame.pack(padx=7, pady=7, expand=True)
+
+        # Theme configuration frame
+        self.__theme_frame = tk.Frame(self, bg=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR, width=320, height=40)
+        self.__theme_frame.pack(padx=7, pady=7, expand=True)
+
+        # Node radius label
+        text_label = tk.Label(self.__node_frame,
+                              text="Node radius:",
+                              bg=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR,
+                              font=("Courier", 13))
+        text_label.place(x=5, y=7)
+
+        # Node radius Scale widget
+        self.__node_scale = tk.Scale(self.__node_frame,
+                                     from_=10,
+                                     to=100,
+                                     orient=tk.HORIZONTAL,
+                                     bg=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR,
+                                     fg=self.__manager.graphgui._FRAME_COLOR,
+                                     troughcolor=self.__manager.graphgui._FRAME_COLOR,
+                                     highlightthickness=0,
+                                     length=150,
+                                     sliderlength=20)
+        self.__node_scale.set(self.__manager._config['node_radius'])
+        self.__node_scale.place(x=150, y=0)
+
+        # Theme label
+        text_label = tk.Label(self.__theme_frame,
+                                text="Theme:",
+                                bg=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR,
+                                font=("Courier", 13))
+        text_label.place(x=5, y=7)
+
+         # Theme Selection widget
+        self.__theme_selection = tk.StringVar(self)
+        self.__theme_selection.set(self.__manager._config['theme'])
+        self.__theme_option_menu = tk.OptionMenu(self.__theme_frame, self.__theme_selection, *THEMES)
+        self.__theme_option_menu.config(bg=self.__manager.graphgui._BUTTON_COLOR, bd=0, highlightthickness=0)
+        self.__theme_option_menu.place(x=150, y=9)
+
+        # Button frame
+        self.__button_frame = tk.Frame(self, bg=self.__manager.graphgui._BACKGROUND_CANVAS_COLOR, width=320, height=40)
+        self.__button_frame.pack(padx=7, pady=7, expand=True)
+
+        # Apply button
+        self.__apply_button = tk.Button(self.__button_frame,
+                                        text="Apply",
+                                        bg=self.__manager.graphgui._BUTTON_COLOR,
+                                        fg=self.__manager.graphgui._FRAME_COLOR,
+                                        bd=0,
+                                        command=self.__apply__settings)
+        self.__apply_button.place(width=BUTTON_WIDTH,
+                                  height=BUTTON_HEIGHT,
+                                  x=160 - BUTTON_WIDTH / 2,
+                                  y=7)
+
+
+    def __apply__settings(self):
+        self.__manager._config['node_radius'] = self.__node_scale.get()
+        self.__manager._config['theme'] = self.__theme_selection.get()
+        self.__manager.update_main_config()
+        messagebox.showinfo("Confirm", f"Settings applied successfully! \nRestart the program to see the changes.")
+        self.destroy()
 
 class DeleteWindow(tk.Toplevel):
     def __init__(self, root, json_manager: JsonManager):
