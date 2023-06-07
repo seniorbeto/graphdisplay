@@ -33,7 +33,8 @@ class ToolWindow(tk.Toplevel):
         text_label = tk.Label(self.__speed_frame,
                               text="Animation speed",
                               bg=self.__gui._BACKGROUND_CANVAS_COLOR,
-                              font=("Courier", 13))
+                              font=("Courier", 13),
+                              fg=self.__gui._AUTHOR_NAME_COLOR)
         text_label.place(x=5, y=12)
 
         self.__speed_scale = tk.Scale(self.__speed_frame,
@@ -56,7 +57,8 @@ class ToolWindow(tk.Toplevel):
         text_label = tk.Label(self.__inorder_frame,
                               text="Inorder traversal",
                               bg=self.__gui._BACKGROUND_CANVAS_COLOR,
-                              font=("Courier", 13))
+                              font=("Courier", 13),
+                              fg=self.__gui._AUTHOR_NAME_COLOR)
         text_label.place(x=5, y=30)
 
         go_button = tk.Button(self.__inorder_frame,
@@ -98,7 +100,8 @@ class ToolWindow(tk.Toplevel):
         text_label = tk.Label(self.__levelorder_frame,
                               text="Level order traversal",
                               bg=self.__gui._BACKGROUND_CANVAS_COLOR,
-                              font=("Courier", 13))
+                              font=("Courier", 13),
+                              fg=self.__gui._AUTHOR_NAME_COLOR)
         text_label.place(x=5, y=30)
 
         go_button = tk.Button(self.__levelorder_frame,
@@ -140,7 +143,8 @@ class ToolWindow(tk.Toplevel):
         text_label = tk.Label(self.__preorder_frame,
                               text="Preorder traversal",
                               bg=self.__gui._BACKGROUND_CANVAS_COLOR,
-                              font=("Courier", 13))
+                              font=("Courier", 13),
+                              fg=self.__gui._AUTHOR_NAME_COLOR)
         text_label.place(x=5, y=30)
 
         go_button = tk.Button(self.__preorder_frame,
@@ -182,7 +186,8 @@ class ToolWindow(tk.Toplevel):
         text_label = tk.Label(self.__postorder_frame,
                               text="Postorder traversal",
                               bg=self.__gui._BACKGROUND_CANVAS_COLOR,
-                              font=("Courier", 13))
+                              font=("Courier", 13),
+                              fg=self.__gui._AUTHOR_NAME_COLOR)
         text_label.place(x=5, y=30)
 
         go_button = tk.Button(self.__postorder_frame,
@@ -225,7 +230,8 @@ class ToolWindow(tk.Toplevel):
         text_label = tk.Label(self.__djistra_frame,
                               text="Dijkstra",
                               bg=self.__gui._BACKGROUND_CANVAS_COLOR,
-                              font=("Courier", 13))
+                              font=("Courier", 13),
+                              fg=self.__gui._AUTHOR_NAME_COLOR)
         text_label.place(x=5, y=30)
 
         # First node entry
@@ -237,7 +243,8 @@ class ToolWindow(tk.Toplevel):
         first_entry_text = tk.Label(self.__djistra_frame,
                                     text="First Node",
                                     bg=self.__gui._BACKGROUND_CANVAS_COLOR,
-                                    font=("Courier", 13))
+                                    font=("Courier", 13),
+                                    fg=self.__gui._AUTHOR_NAME_COLOR)
         first_entry_text.place(x=150, y=10)
 
         # Second node entry
@@ -249,7 +256,8 @@ class ToolWindow(tk.Toplevel):
         first_entry_text = tk.Label(self.__djistra_frame,
                                     text="Second Node",
                                     bg=self.__gui._BACKGROUND_CANVAS_COLOR,
-                                    font=("Courier", 13))
+                                    font=("Courier", 13),
+                                    fg=self.__gui._AUTHOR_NAME_COLOR)
         first_entry_text.place(x=275, y=10)
 
         # Go button
@@ -297,7 +305,8 @@ class ToolWindow(tk.Toplevel):
         text_label = tk.Label(self.__minimum_path_frame,
                               text="Minimum Edge \nPath",
                               bg=self.__gui._BACKGROUND_CANVAS_COLOR,
-                              font=("Courier", 13))
+                              font=("Courier", 13),
+                                fg=self.__gui._AUTHOR_NAME_COLOR)
         text_label.place(x=5, y=20)
 
         # First node entry
@@ -309,7 +318,8 @@ class ToolWindow(tk.Toplevel):
         first_entry_text = tk.Label(self.__minimum_path_frame,
                                     text="First Node",
                                     bg=self.__gui._BACKGROUND_CANVAS_COLOR,
-                                    font=("Courier", 13))
+                                    font=("Courier", 13),
+                                    fg=self.__gui._AUTHOR_NAME_COLOR)
         first_entry_text.place(x=150, y=10)
 
         # Second node entry
@@ -321,7 +331,8 @@ class ToolWindow(tk.Toplevel):
         first_entry_text = tk.Label(self.__minimum_path_frame,
                                     text="Second Node",
                                     bg=self.__gui._BACKGROUND_CANVAS_COLOR,
-                                    font=("Courier", 13))
+                                    font=("Courier", 13),
+                                    fg=self.__gui._AUTHOR_NAME_COLOR)
         first_entry_text.place(x=275, y=10)
 
         # Go button
