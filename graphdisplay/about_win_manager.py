@@ -33,15 +33,17 @@ class AboutWindow(tk.Toplevel):
         self.running = True
         i = 0
         self.turtle.color(self.__graphgui._VERTEX_COLOR)
-        while self.running and i<92:
-            if i % 2 == 0:
-                self.turtle.penup()
-            else:
-                self.turtle.pendown()
-            if self.running:
+        try:
+            while self.running and i<92:
+                if i % 2 == 0:
+                    self.turtle.penup()
+                else:
+                    self.turtle.pendown()
                 self.turtle.forward(i + 1 + 5)
                 self.turtle.right(91)
-            i += 1
+                i += 1
+        except tk.TclError:
+            pass
 
     def __on_close(self):
         self.running = False

@@ -81,12 +81,12 @@ class ToolWindow(tk.Toplevel):
         gui_tree: AVLTree = self.__gui._graph
         inorder_list = gui_tree.inorder_list()
 
+        hold = self.__speed_scale.get()
         for i in inorder_list:
             if self.__running_inorder:
                 self.__gui.canvas.itemconfigure(self.__gui.nodes[i].circle,
                                                 fill=self.__gui._SELECTED_VERTEX_COLOR)
                 self.__gui.canvas.update()
-                hold = self.__speed_scale.get()
                 time.sleep(hold)
             else:
                 break
@@ -124,12 +124,12 @@ class ToolWindow(tk.Toplevel):
         gui_tree: AVLTree = self.__gui._graph
         levelorder_list = gui_tree.levelorder_list()
 
+        hold = self.__speed_scale.get()
         for i in levelorder_list:
             if self.__running_levelorder:
                 self.__gui.canvas.itemconfigure(self.__gui.nodes[i].circle,
                                                 fill=self.__gui._SELECTED_VERTEX_COLOR)
                 self.__gui.canvas.update()
-                hold = self.__speed_scale.get()
                 time.sleep(hold)
             else:
                 break
@@ -167,12 +167,12 @@ class ToolWindow(tk.Toplevel):
         gui_tree: AVLTree = self.__gui._graph
         preorder_list = gui_tree.preorder_list()
 
+        hold = self.__speed_scale.get()
         for i in preorder_list:
             if self.__running_preorder:
                 self.__gui.canvas.itemconfigure(self.__gui.nodes[i].circle,
                                                 fill=self.__gui._SELECTED_VERTEX_COLOR)
                 self.__gui.canvas.update()
-                hold = self.__speed_scale.get()
                 time.sleep(hold)
             else:
                 break
@@ -210,12 +210,12 @@ class ToolWindow(tk.Toplevel):
         gui_tree: AVLTree = self.__gui._graph
         postorder_list = gui_tree.postorder_list()
 
+        hold = self.__speed_scale.get()
         for i in postorder_list:
             if self.__running_postorder:
                 self.__gui.canvas.itemconfigure(self.__gui.nodes[i].circle,
                                                 fill=self.__gui._SELECTED_VERTEX_COLOR)
                 self.__gui.canvas.update()
-                hold = self.__speed_scale.get()
                 time.sleep(hold)
             else:
                 break
