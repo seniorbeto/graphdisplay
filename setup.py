@@ -47,6 +47,7 @@ setup(
     #install_requires=INSTALL_REQUIRES,
     license=LICENSE,
     packages=find_packages(),
+    package_data={'graphdisplay': ['graphdisplay.pyi']},
     include_package_data=True,
     classifiers=['Programming Language :: Python',
                  'Programming Language :: Python :: 2.7',
