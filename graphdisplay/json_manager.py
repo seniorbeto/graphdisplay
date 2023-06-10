@@ -279,6 +279,9 @@ if __name__ == "__main__":
         if os.path.exists(os.path.join(path, "permanent.json")):
             os.remove(os.path.join(path, "permanent.json"))
 
+        if os.path.exists(os.path.join(path, "win_config.json")):
+            os.remove(os.path.join(path, "win_config.json"))
+
         store_path = os.path.join(path, "store/")
 
         for file in os.listdir(store_path):
