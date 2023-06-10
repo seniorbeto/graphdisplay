@@ -11,6 +11,7 @@ import time
 import queue
 import platform
 import multiprocessing as mp
+from typing import Any
 
 # Modules
 from .json_manager import JsonManager
@@ -24,16 +25,21 @@ from .general_config import *
 class Node: ...
 class Edge: ...
 
-class GraphGUI:
-    """
-    Creates a GraphGUI object, which will display the graph in an external window. Nodes can be moved with the mouse.
-    :param graph: The graph/tree to be displayed.
-    """
 
+# Decorator builtin function for measure time
+def measure_time(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        func(*args, **kwargs)
+        print(f"\nFunction {func.__name__} Finished in: {time.time() - start}\n")
+    return wrapper
+
+
+class GraphGUI:
     # Using an instance-counter will determine how many GraphGUI objects are wanted
     instance = 0
 
-    def __new__(cls, graph):
+    def __new__(cls, graph: Any):
         GraphGUI.instance += 1
         if GraphGUI.instance > 5:
             raise Exception("For safety reasons, only five instances of GraphGUI can be created")
@@ -74,10 +80,6 @@ class GraphGUI:
 
     class __GraphGUI:
         def __init__(self, graph, instance):
-            """
-            Creates a GraphGUI object, which will display the graph in an external window. Nodes can be moved with the mouse.
-            :param graph: The graph/tree to be displayed.
-            """
             # Begin time measurement
             start = time.time()
 
@@ -165,7 +167,8 @@ class GraphGUI:
 
             # End time measurement
             end = time.time()
-            print("Displayed in:", round(end-start, 4))
+            print("\nDisplayed in:", round(end-start, 4))
+            print()
 
             # Main display protocol
             self.root.mainloop()
@@ -183,6 +186,7 @@ class GraphGUI:
                 raise ValueError("The theme must be one of the following: " + str(list(THEMES.keys())))
 
         def __menu_display(self) -> None:
+            """It creates the menu bar and its options"""
             self.__main_menu = tk.Menu(self.root)
             self.root.config(menu=self.__main_menu)
 
@@ -342,6 +346,11 @@ class GraphGUI:
                             self.nodes[vertex] = node
                     i += 1
                     angle += arch_angle
+                    # We will store each canvas TAGorID with each associated node object in order
+                    # to reduce movement complexity to O(1) so that every time we want to look for a node
+                    # having its canvas TAGorID, we can do it in O(1) time.
+                    self.__canvas_node_relation[node.circle] = node
+                    self.__canvas_node_relation[node.text] = node
 
                 # Create the edges
                 i = 0
@@ -365,7 +374,7 @@ class GraphGUI:
                         edge_start_node = edge.start_node
                         edge_end_node = edge.end_node
                         found = False
-                        for i in edge_start_node.asociated_edges_IN:
+                        for i in edge_start_node.associated_edges_IN:
                             if i.start_node == edge_end_node:
                                 found = True
                                 edge.overlapped = True
@@ -378,8 +387,7 @@ class GraphGUI:
                         edge.show()
 
             elif self._is_tree:
-                # The tree display is slightly more complicated (it was a complete nightmare for a one man job
-                # to be honest). For information on how it works, please consider visiting: #TODO
+                # The tree display is slightly more complicated  For information, please consider visiting: #TODO
                 self.nodes = {}
                 self.edges = []
                 root_position = ((actual_scr_width - self.__node_radius*2) // 2, self.__YMARGIN + 3)
@@ -390,6 +398,11 @@ class GraphGUI:
                                        text=self._graph._root.elem,
                                        bg=self._VERTEX_COLOR)
                 self.nodes[self._graph._root.elem] = root_node
+                # We will store each canvas TAGorID with each associated node object in order
+                # to reduce movement complexity to O(1) so that every time we want to look for a node
+                # having its canvas TAGorID, we can do it in O(1) time.
+                self.__canvas_node_relation[root_node.circle] = root_node
+                self.__canvas_node_relation[root_node.text] = root_node
 
                 # We display the rest of the nodes in a tree-like structure by
                 # dividing the screen in levels and displaying the nodes in each level
@@ -419,13 +432,16 @@ class GraphGUI:
                     for node in last_nodes:
                         # We look for the position x of the father
                         position_x = self.nodes[node].pos_x
-                        father_node = self.nodes[node]
+                        father_node: Node = self.nodes[node]
 
+                        # We look for the children of the current node
                         children_left, children_right = self.__get_children(node)
+
                         if children_left or children_left == 0:
                             final_position_x = position_x - x_axis // 2
                             if final_position_x <= self.__XMARGIN + 5:
                                 final_position_x = self.__XMARGIN + 5
+
                             new_node = Node(self.canvas,
                                             self.__node_radius,
                                             final_position_x,
@@ -433,6 +449,8 @@ class GraphGUI:
                                             text=children_left,
                                             bg=self._VERTEX_COLOR)
                             self.nodes[children_left] = new_node
+                            self.__canvas_node_relation[new_node.circle] = new_node
+                            self.__canvas_node_relation[new_node.text] = new_node
                             new_edge = Edge(self.canvas,
                                             father_node,
                                             new_node,
@@ -454,6 +472,8 @@ class GraphGUI:
                                             text=children_right,
                                             bg=self._VERTEX_COLOR)
                             self.nodes[children_right] = new_node
+                            self.__canvas_node_relation[new_node.circle] = new_node
+                            self.__canvas_node_relation[new_node.text] = new_node
                             new_edge = Edge(self.canvas,
                                             father_node,
                                             new_node,
@@ -462,13 +482,6 @@ class GraphGUI:
                                             text_color=self._AUTHOR_NAME_COLOR)
                             new_edge.show()
                             self.edges.append(new_edge)
-
-            # We will store each canvas TAGorID with each associated node object in order
-            # to reduce movement complexity to O(1)
-            self.__canvas_node_relation = {}
-            for node in self.nodes:
-                self.__canvas_node_relation[self.nodes[node].circle] = self.nodes[node]
-                self.__canvas_node_relation[self.nodes[node].text] = self.nodes[node]
 
         def __get_children(self, elem) -> tuple:
             """returns a tuple with the children of node with element = elem"""
@@ -479,7 +492,7 @@ class GraphGUI:
             """returns the node with the given element"""
             return self.__search_node_aux(self._graph._root, elem)
 
-        def __search_node_aux(self, node: BinaryNode, elem) -> BinaryNode | None:
+        def __search_node_aux(self, node: BinaryNode, elem) -> BinaryNode:
             """returns the node with the given element"""
             if node == None:
                 return None
@@ -554,9 +567,9 @@ class GraphGUI:
             self.canvas.move(node_obj.text, x - x0, y - y0)
             node_obj.pos_x += x - x0
             node_obj.pos_y += y - y0
-            for edge in node_obj.asociated_edges_IN:
+            for edge in node_obj.associated_edges_IN:
                 edge.update_position()
-            for edge in node_obj.asociated_edges_OUT:
+            for edge in node_obj.associated_edges_OUT:
                 edge.update_position()
             self.selected_node = (node, x, y)
 
@@ -566,14 +579,36 @@ class GraphGUI:
             self.__node_radius = value
 
 class Node:
+    """
+    Node class representing a vertex in the graph or tree GUI. It stores the canvas object of the node, the radius,
+    the position, the text and all the edges associated to it (dividing them into two list so that it can be determined
+    which of those vertices are pointing IN or OUT of the vertex).
+
+    :param canvas: tkinter canvas object
+    :param radius: radius of the node
+    :param posx: x position of the node
+    :param posy: y position of the node
+    :param text: text shown in the node
+    :param bg: background color of the node
+    """
     def __init__(self, canvas: tk.Canvas,
                  radius: int,
                  posx: int,
                  posy: int,
                  text: str,
                  bg: str = "white"):
-        self.asociated_edges_IN = []
-        self.asociated_edges_OUT = []
+
+        if type(canvas) != tk.Canvas:
+            raise TypeError("canvas must be a tkinter canvas object")
+        if type(radius) != int or radius < 0:
+            raise TypeError("radius must be a positive integer")
+        if type(posx) != int:
+            raise TypeError("posx must be a positive integer")
+        if type(posy) != int:
+            raise TypeError("posy must be a positive integer")
+
+        self.associated_edges_IN = []
+        self.associated_edges_OUT = []
         self.__canvas = canvas
         self.__id = text
         self.__radius = radius
@@ -583,13 +618,16 @@ class Node:
         self.__text = self.__canvas.create_text(self.__pos_x + self.__radius, self.__pos_y + self.__radius, text=self.__id)
         self.__canvas.addtag_enclosed("movil", self.__pos_x - 3, self.__pos_y - 3, self.__pos_x + self.__radius * 2 + 3, self.__pos_y + self.__radius * 2 + 3)
 
-    def terminate(self):
+    def terminate(self) -> None:
         for edge in self.asociated_edges_IN:
             edge.terminate()
         for edge in self.asociated_edges_OUT:
             edge.terminate()
         self.__canvas.delete(self.__circle)
         self.__canvas.delete(self.__text)
+
+    def __str__(self):
+        return 'Node: ' + str(self.__id)
 
     @property
     def id(self):
@@ -624,6 +662,20 @@ class Node:
         return self.__radius
 
 class Edge:
+    """
+    Class representing an edge between two nodes that have been already created in the canvas of the GraphGUI.
+    The weight of the edge will be shown in the middle of the edge. The overlapped parameter is used to
+    determine if the edge will be overlapped by the nodes or not, if it is, the weight will be shown in the rightmost
+    side of the edge. The window_color parameter is used to determine the background color of the weight canvas label.
+
+    :param canvas: tkinter canvas object
+    :param start: Node object
+    :param end: Node object
+    :param weight: weight of the edge. If it is None, it will be shown as an empty edge
+    :param overlapped: boolean value to determine if the edge will be overlapped by the nodes or not
+    :param window_color: background color of the weight canvas label
+    :param text_color: text color of the weight canvas label
+    """
     def __init__(self, canvas: tk.Canvas,
                  start: Node,
                  end: Node,
@@ -631,6 +683,12 @@ class Edge:
                  overlapped: bool = False,
                  window_color: str = "white",
                  text_color: str = "black"):
+
+        if type(canvas) != tk.Canvas:
+            raise TypeError("canvas must be a tkinter canvas object")
+        if type(start) != Node or type(end) != Node:
+            raise TypeError("start and end must be Node objects")
+
         self.__canvas = canvas
         self.overlapped = overlapped
         self.__start_node = start
@@ -641,12 +699,16 @@ class Edge:
         self.__start = self.__calculate_start(start, end)
         self.__end = self.__calculate_end(start, end)
 
-        if self not in self.__end_node.asociated_edges_IN:
-            self.__end_node.asociated_edges_IN.append(self)
-        if self not in self.__start_node.asociated_edges_OUT:
-            self.__start_node.asociated_edges_OUT.append(self)
+        if self not in self.__end_node.associated_edges_IN:
+            self.__end_node.associated_edges_IN.append(self)
+        if self not in self.__start_node.associated_edges_OUT:
+            self.__start_node.associated_edges_OUT.append(self)
 
-    def update_position(self):
+    def __str__(self):
+        return 'Edge: ' + str(self.__start_node.id) + ' -> ' + str(self.__end_node.id)
+
+    def update_position(self) -> None:
+        """Updates the position of the edge by recalculating the start and end node position"""
         self.__recalculate()
         self.__canvas.coords(self.line, self.__start[0], self.__start[1], self.__end[0], self.__end[1])
         if self.__weight:
@@ -655,12 +717,19 @@ class Edge:
             else:
                 self.__canvas.coords(self.window, self.__start[0] * 0.2 + self.__end[0] * 0.8, self.__start[1] * 0.2 + self.__end[1] * 0.8)
 
-    def terminate(self):
+    def terminate(self) -> None:
+        """Deletes the edge from the canvas and removes it from the asociated edges of the start and end nodes"""
         self.__canvas.delete(self.line)
         if self.__weight:
             self.__canvas.delete(self.window)
 
-    def show(self):
+        if self in self.__end_node.associated_edges_IN:
+            self.__end_node.associated_edges_IN.remove(self)
+        if self in self.__start_node.associated_edges_OUT:
+            self.__start_node.associated_edges_OUT.remove(self)
+
+    def show(self) -> None:
+        """Displays the edge in the canvas"""
         self.line = self.__canvas.create_line(self.__start[0],
                                             self.__start[1],
                                             self.__end[0],
@@ -685,7 +754,8 @@ class Edge:
                                                                         font=("Arial", 13),
                                                                         fg=self.__text_color))
 
-    def __recalculate(self):
+    def __recalculate(self) -> None:
+        """Recalculates the start and end position of the edge"""
         self.__start = self.__calculate_start(self.__start_node, self.__end_node)
         self.__end = self.__calculate_end(self.__start_node, self.__end_node)
 
