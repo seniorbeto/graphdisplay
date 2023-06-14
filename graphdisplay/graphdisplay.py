@@ -689,7 +689,7 @@ class Edge:
         if type(start) != Node or type(end) != Node:
             raise TypeError("start and end must be Node objects")
 
-        self.__canvas = canvas
+        self.__canvas: tk.Canvas = canvas
         self.overlapped = overlapped
         self.__start_node = start
         self.__end_node = end
@@ -710,7 +710,15 @@ class Edge:
     def update_position(self) -> None:
         """Updates the position of the edge by recalculating the start and end node position"""
         self.__recalculate()
-        self.__canvas.coords(self.line, self.__start[0], self.__start[1], self.__end[0], self.__end[1])
+        if not self.overlapped:
+            self.__canvas.coords(self.line, self.__start[0], self.__start[1], self.__end[0], self.__end[1])
+        else:
+            self.__canvas.coords(self.line, self.__start[0],
+                                 self.__start[1],
+                                 (self.__start[0] * 0.5 + self.__end[0] * 0.5) + 50,
+                                 (self.__start[1] * 0.5 + self.__end[1] * 0.5) + 50,
+                                 self.__end[0],
+                                 self.__end[1])
         if self.__weight:
             if not self.overlapped:
                 self.__canvas.coords(self.window, (self.__start[0] + self.__end[0]) // 2, (self.__start[1] + self.__end[1]) // 2)
@@ -730,14 +738,14 @@ class Edge:
 
     def show(self) -> None:
         """Displays the edge in the canvas"""
-        self.line = self.__canvas.create_line(self.__start[0],
-                                            self.__start[1],
-                                            self.__end[0],
-                                            self.__end[1],
-                                            arrow=tk.LAST,
-                                            width=1.5)
         if self.__weight:
             if not self.overlapped:
+                self.line = self.__canvas.create_line(self.__start[0],
+                                                      self.__start[1],
+                                                      self.__end[0],
+                                                      self.__end[1],
+                                                      arrow=tk.LAST,
+                                                      width=1.5)
                 self.window = self.__canvas.create_window((self.__start[0] + self.__end[0]) // 2,
                                                         (self.__start[1] + self.__end[1]) // 2,
                                                         window=tk.Label(self.__canvas,
@@ -746,6 +754,18 @@ class Edge:
                                                                         font=("Arial", 13),
                                                                         fg=self.__text_color))
             else:
+                self.line = self.__canvas.create_line(self.__start[0],
+                                                        self.__start[1],
+
+                                                        (self.__start[0] * 0.5 + self.__end[0] * 0.5)+50,
+                                                        (self.__start[1] * 0.5 + self.__end[1] * 0.5)+50,
+
+                                                        self.__end[0],
+                                                        self.__end[1],
+                                                        arrow=tk.LAST,
+                                                        width=1.5,
+                                                        smooth=False,
+                                                        splinesteps=100)
                 self.window = self.__canvas.create_window((self.__start[0] * 0.2 + self.__end[0] * 0.8),
                                                         (self.__start[1] * 0.2 + self.__end[1] * 0.8),
                                                         window=tk.Label(self.__canvas,
