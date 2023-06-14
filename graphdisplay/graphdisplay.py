@@ -713,17 +713,18 @@ class Edge:
         if not self.overlapped:
             self.__canvas.coords(self.line, self.__start[0], self.__start[1], self.__end[0], self.__end[1])
         else:
+            new_displacement = self.__get_displacement()
             self.__canvas.coords(self.line, self.__start[0],
                                  self.__start[1],
-                                 (self.__start[0] * 0.5 + self.__end[0] * 0.5) + 50,
-                                 (self.__start[1] * 0.5 + self.__end[1] * 0.5) + 50,
+                                 new_displacement[0],
+                                 new_displacement[1],
                                  self.__end[0],
                                  self.__end[1])
         if self.__weight:
             if not self.overlapped:
                 self.__canvas.coords(self.window, (self.__start[0] + self.__end[0]) // 2, (self.__start[1] + self.__end[1]) // 2)
             else:
-                self.__canvas.coords(self.window, self.__start[0] * 0.2 + self.__end[0] * 0.8, self.__start[1] * 0.2 + self.__end[1] * 0.8)
+                self.__canvas.coords(self.window, new_displacement[0], new_displacement[1])
 
     def terminate(self) -> None:
         """Deletes the edge from the canvas and removes it from the asociated edges of the start and end nodes"""
@@ -738,14 +739,33 @@ class Edge:
 
     def show(self) -> None:
         """Displays the edge in the canvas"""
+        # Line creation
+        if not self.overlapped:
+            self.line = self.__canvas.create_line(self.__start[0],
+                                                  self.__start[1],
+                                                  self.__end[0],
+                                                  self.__end[1],
+                                                  arrow=tk.LAST,
+                                                  arrowshape=(10, 12, 5),
+                                                  width=1.5)
+        else:
+            displacement = self.__get_displacement()
+            self.line = self.__canvas.create_line(self.__start[0],
+                                                  self.__start[1],
+
+                                                  displacement[0],
+                                                  displacement[1],
+
+                                                  self.__end[0],
+                                                  self.__end[1],
+                                                  arrow=tk.LAST,
+                                                  width=1.5,
+                                                  arrowshape=(10, 12, 5),
+                                                  smooth=True,
+                                                  splinesteps=100)
+
         if self.__weight:
             if not self.overlapped:
-                self.line = self.__canvas.create_line(self.__start[0],
-                                                      self.__start[1],
-                                                      self.__end[0],
-                                                      self.__end[1],
-                                                      arrow=tk.LAST,
-                                                      width=1.5)
                 self.window = self.__canvas.create_window((self.__start[0] + self.__end[0]) // 2,
                                                         (self.__start[1] + self.__end[1]) // 2,
                                                         window=tk.Label(self.__canvas,
@@ -754,20 +774,8 @@ class Edge:
                                                                         font=("Arial", 13),
                                                                         fg=self.__text_color))
             else:
-                self.line = self.__canvas.create_line(self.__start[0],
-                                                        self.__start[1],
-
-                                                        (self.__start[0] * 0.5 + self.__end[0] * 0.5)+50,
-                                                        (self.__start[1] * 0.5 + self.__end[1] * 0.5)+50,
-
-                                                        self.__end[0],
-                                                        self.__end[1],
-                                                        arrow=tk.LAST,
-                                                        width=1.5,
-                                                        smooth=False,
-                                                        splinesteps=100)
-                self.window = self.__canvas.create_window((self.__start[0] * 0.2 + self.__end[0] * 0.8),
-                                                        (self.__start[1] * 0.2 + self.__end[1] * 0.8),
+                self.window = self.__canvas.create_window(displacement[0],
+                                                        displacement[1],
                                                         window=tk.Label(self.__canvas,
                                                                         bg=self.__window_color,
                                                                         text=str(self.__weight),
@@ -778,6 +786,34 @@ class Edge:
         """Recalculates the start and end position of the edge"""
         self.__start = self.__calculate_start(self.__start_node, self.__end_node)
         self.__end = self.__calculate_end(self.__start_node, self.__end_node)
+
+    def __get_displacement(self) -> tuple:
+        """
+        When an edge is overlapped, it calculates de displacement of the arrow by calculating the middle
+        point between the start and end nodes and then, calculating the angle between the line that connects
+        the start and end nodes and the horizontal line.
+        """
+        center_start = (self.__start_node.pos_x + self.__start_node.radius, self.__start_node.pos_y + self.__start_node.radius)
+        center_end = (self.__end_node.pos_x + self.__end_node.radius, self.__end_node.pos_y + self.__end_node.radius)
+
+        x1 = center_start[0]
+        y1 = center_start[1]
+        x2 = center_end[0]
+        y2 = center_end[1]
+
+        distance = max(math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 2, 80)
+
+        x = x2 - x1
+        y = y2 - y1
+        edge_angle = math.atan2(y, x)
+
+        mid_point_x = (x1 + x2) // 2
+        mid_point_y = (y1 + y2) // 2
+        displacement_x = mid_point_x + math.sin(edge_angle) * 5500/distance
+        displacement_y = mid_point_y - math.cos(edge_angle) * 5500/distance
+
+        return displacement_x, displacement_y
+
 
     def __calculate_start(self, start: Node, end: Node) -> tuple:
         """
