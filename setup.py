@@ -21,20 +21,6 @@ INSTALL_REQUIRES = [
       'tk==0.1.1'
       ]
 
-path = os.getcwd()
-try:
-    if os.path.exists(os.path.join(path, "permanent.json")):
-        os.remove(os.path.join(path, "permanent.json"))
-except FileNotFoundError:
-    pass
-
-store_path = os.path.join(path, "graphdisplay/store/")
-
-for file in os.listdir(store_path):
-    if file.endswith(".json"):
-        removing = os.path.join(store_path, file)
-        os.remove(removing)
-
 setup(
     name=PACKAGE_NAME,
     version=VERSION,

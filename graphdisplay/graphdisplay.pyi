@@ -1,6 +1,7 @@
 # Coding: utf-8
 """
 DESCRIPTION:
+------------
 graphdisplay is a Python package for easy visualization of graphs and trees. It is built on top of the tkinter module,
 and is designed to be easy to use and integrate into your own projects. It also includes graph and tree data structures
 implementation based on the official Data Structures and Algorithms course at Carlos III University of Madrid.
@@ -8,7 +9,7 @@ implementation based on the official Data Structures and Algorithms course at Ca
 It is an open source project fully developed by Alberto Penas Díaz, used under a MIT license at: https://github.com/seniorbeto/graphdisplay
 
 USE EXAMPLES:
-
+-------------
 1.->
     from graphdisplay import GraphGUI, Graph
 
@@ -301,6 +302,6 @@ class Edge:
     def terminate(self) -> None: ...
     def show(self) -> None: ...
     def __recalculate(self) -> None: ...
-    def __get_displacement(self) -> tuple[int, int]: ...
+    def __get_displacement(self) -> tuple[int, int, int, int]: ...
     def __calculate_start(self, start: Node, end: Node) -> tuple[int, int]: ...
     def __calculate_end(self, start: Node, end: Node) -> tuple[int, int]: ...

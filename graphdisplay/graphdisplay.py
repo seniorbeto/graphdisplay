@@ -724,10 +724,10 @@ class Edge:
             if not self.overlapped:
                 self.__canvas.coords(self.window, (self.__start[0] + self.__end[0]) // 2, (self.__start[1] + self.__end[1]) // 2)
             else:
-                self.__canvas.coords(self.window, new_displacement[0], new_displacement[1])
+                self.__canvas.coords(self.window, new_displacement[2], new_displacement[3])
 
     def terminate(self) -> None:
-        """Deletes the edge from the canvas and removes it from the asociated edges of the start and end nodes"""
+        """Deletes the edge from the canvas and removes it from the associated edges of the start and end nodes"""
         self.__canvas.delete(self.line)
         if self.__weight:
             self.__canvas.delete(self.window)
@@ -774,8 +774,8 @@ class Edge:
                                                                         font=("Arial", 13),
                                                                         fg=self.__text_color))
             else:
-                self.window = self.__canvas.create_window(displacement[0],
-                                                        displacement[1],
+                self.window = self.__canvas.create_window(displacement[2],
+                                                        displacement[3],
                                                         window=tk.Label(self.__canvas,
                                                                         bg=self.__window_color,
                                                                         text=str(self.__weight),
@@ -801,7 +801,7 @@ class Edge:
         x2 = center_end[0]
         y2 = center_end[1]
 
-        distance = max(math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 2, 80)
+        distance = min(max(math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 2, MIN_EDGE_SEPARATION), MAX_EDGE_SEPARATION)
 
         x = x2 - x1
         y = y2 - y1
@@ -809,10 +809,13 @@ class Edge:
 
         mid_point_x = (x1 + x2) // 2
         mid_point_y = (y1 + y2) // 2
-        displacement_x = mid_point_x + math.sin(edge_angle) * 5500/distance
-        displacement_y = mid_point_y - math.cos(edge_angle) * 5500/distance
+        displacement_x = mid_point_x + math.sin(edge_angle) * SEPARATION_RATIO/distance
+        displacement_y = mid_point_y - math.cos(edge_angle) * SEPARATION_RATIO/distance
 
-        return displacement_x, displacement_y
+        label_position_x = mid_point_x + math.sin(edge_angle) * SEPARATION_LABEL_RATIO/distance
+        label_position_y = mid_point_y - math.cos(edge_angle) * SEPARATION_LABEL_RATIO/distance
+
+        return displacement_x, displacement_y, label_position_x, label_position_y
 
 
     def __calculate_start(self, start: Node, end: Node) -> tuple:
@@ -835,7 +838,7 @@ class Edge:
         edge_angle = math.atan2(y, x) * (180.0 / math.pi)
         x = math.cos(math.radians(edge_angle)) * start.radius
         y = math.sin(math.radians(edge_angle)) * start.radius
-        return (center_start[0] + int(x), center_start[1] + int(y))
+        return center_start[0] + int(x), center_start[1] + int(y)
 
     def __calculate_end(self, start: Node, end: Node) -> tuple:
         """
@@ -857,7 +860,7 @@ class Edge:
         edge_angle = math.atan2(y, x) * (180.0 / math.pi)
         x = math.cos(math.radians(edge_angle)) * end.radius
         y = math.sin(math.radians(edge_angle)) * end.radius
-        return  (center_end[0] - int(x), center_end[1] - int(y))
+        return  center_end[0] - int(x), center_end[1] - int(y)
 
     @property
     def start_node(self):
