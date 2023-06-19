@@ -256,8 +256,16 @@ class GraphGUI:
             in the position stored in new_data.
             """
             if new_data:
-                actual_scr_width = new_data['Screen_dimensions'][0]
-                actual_scr_height = new_data['Screen_dimensions'][1]
+                try:
+                    actual_scr_width = new_data['Screen_dimensions'][0]
+                    actual_scr_height = new_data['Screen_dimensions'][1]
+                except KeyError:
+                    actual_scr_width = DEFAULT_SCR_WIDTH
+                    actual_scr_height = DEFAULT_SCR_HEIGHT
+                    new_data['Screen_dimensions'] = (actual_scr_width, actual_scr_height)
+                    print('\n'+'\033[93m'+"WARNING: "+'\033[0m'+"Screen dimensions not found in data, this is probably because\n"
+                          "the permanent save was created in an old graphdisplay version.\n"
+                          "It is recommended to delete de save. Using default dimensions.\n")
                 self.root.geometry(f'{actual_scr_width}x{actual_scr_height}')
             self.canvas.delete("all")
             self.root.config(bg=self._FRAME_COLOR)
@@ -276,8 +284,15 @@ class GraphGUI:
             """
             # First, we store the actual dimensions of the screen
             if data:
-                actual_scr_width = data['Screen_dimensions'][0]
-                actual_scr_height = data['Screen_dimensions'][1]
+                # We need to check if the screen dimensions are stored in the data, as it was
+                # not done in previous versions
+                try:
+                    actual_scr_width = data['Screen_dimensions'][0]
+                    actual_scr_height = data['Screen_dimensions'][1]
+                except KeyError:
+                    actual_scr_width = DEFAULT_SCR_WIDTH
+                    actual_scr_height = DEFAULT_SCR_HEIGHT
+                    data['Screen_dimensions'] = (actual_scr_width, actual_scr_height)
             else:
                 actual_scr_width = self.root.winfo_width()
                 actual_scr_height = self.root.winfo_height()
@@ -329,20 +344,20 @@ class GraphGUI:
                                 data[str(vertex)][0] + self.__node_radius*2 > 0 and \
                                 data[str(vertex)][1] + self.__node_radius*2 > 0:
                             node = Node(self.canvas,
-                                     self.__node_radius,
-                                     data[str(vertex)][0],
-                                     data[str(vertex)][1],
-                                     text=vertex,
-                                     bg=self._VERTEX_COLOR)
+                                        self.__node_radius,
+                                        data[str(vertex)][0],
+                                        data[str(vertex)][1],
+                                        text=vertex,
+                                        bg=self._VERTEX_COLOR)
                             self.nodes[vertex] = node
                         else:
                             node = Node(self.canvas,
-                                                   self.__node_radius,
-                                                   int(scr_center[0] - self.__node_radius - display_radius * math.sin(
-                                                       math.radians(angle))),
-                                                   int(scr_center[1] - self.__node_radius - display_radius * math.cos(
-                                                       math.radians(angle))),
-                                                   text=vertex, bg=self._VERTEX_COLOR)
+                                        self.__node_radius,
+                                        int(scr_center[0] - self.__node_radius - display_radius * math.sin(
+                                           math.radians(angle))),
+                                        int(scr_center[1] - self.__node_radius - display_radius * math.cos(
+                                           math.radians(angle))),
+                                        text=vertex, bg=self._VERTEX_COLOR)
                             self.nodes[vertex] = node
                     i += 1
                     angle += arch_angle
