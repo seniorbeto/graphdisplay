@@ -123,7 +123,7 @@ class GraphGUI:
                 self._is_tree = False
 
                 vertices = list(graph._vertices.keys())
-                self._graph = Graph(vertices)
+                self._graph = Graph(vertices, graph._directed)
 
                 for vertex in graph._vertices:
                     for adj in graph._vertices[vertex]:
