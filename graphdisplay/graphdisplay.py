@@ -111,10 +111,7 @@ class GraphGUI:
                 self._is_tree = True
 
                 vertices = list(self.__levelorder(self.__tree_root).keys())
-                if type(graph) == AVLTree:
-                    self._graph = AVLTree()
-                else:
-                    self._graph = BinarySearchTree()
+                self._graph = BinarySearchTree()
 
                 for i in vertices:
                     self._graph.insert(i)
