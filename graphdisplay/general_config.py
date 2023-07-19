@@ -1,4 +1,4 @@
-VERSION = '0.4.9'
+VERSION = '0.4.10'
 # Every 'int' value is in pixels
 DEFAULT_SCR_WIDTH = 600
 DEFAULT_SCR_HEIGHT = 600
