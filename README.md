@@ -6,7 +6,7 @@
 
 ## 💡Resumen
 
-graphdisplay es un paquete de python elaborado e ideado por Alberto Penas Díaz, cuya finalidad es facilitar la visualización de grafos y árboles a los alumnos de Estructuras de Datos y Algoritmos. 
+graphdisplay es un paquete de python elaborado e ideado por Alberto Penas Díaz, disponible en el indexador de paquetes de python https://pypi.org/project/graphdisplay/, cuya finalidad es facilitar la visualización de grafos y árboles a los alumnos de Estructuras de Datos y Algoritmos. 
 
 ## ⚡️¿Quieres contribuir?
 
