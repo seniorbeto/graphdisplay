@@ -56,7 +56,7 @@ def measure_time(func: Callable) -> Callable:
     Any
         The decorated function.
     """
-    ...
+    pass
 
 class GraphGUI:
     """
@@ -162,6 +162,7 @@ class GraphGUI:
             in which case will correct.
             """
             pass
+
         def __get_children(self, elem: Any) -> Tuple[Any, Any]: ...
         def __search_node(self, elem: Any) -> BinaryNode: ...
         def __search_node_aux(self, node: BinaryNode, elem: Any) -> BinaryNode: ...
@@ -174,7 +175,7 @@ class GraphGUI:
             It moves a node if it has been selected on the right mouse click protocol. After moving it, it updates
             automatically the coordenates of all edges attached to the node. Returns the node that has been moved.
             """
-            ...
+            pass
         def set_node_radius(self, value: int) -> None: ...
 
 class Node:
@@ -297,11 +298,81 @@ class Edge:
                  window_color: str = "white",
                  text_color: str = "black") -> None:
         ...
+
     def __str__(self)-> str: ...
-    def update_position(self) -> None: ...
-    def terminate(self) -> None: ...
-    def show(self) -> None: ...
-    def __recalculate(self) -> None: ...
-    def __get_displacement(self) -> tuple[int, int, int, int]: ...
-    def __calculate_start(self, start: Node, end: Node) -> tuple[int, int]: ...
-    def __calculate_end(self, start: Node, end: Node) -> tuple[int, int]: ...
+
+    def update_position(self) -> None:
+        """
+        It updates the position of the edge in the canvas by checking the new position of the start and end nodes.
+        With the line itself, the weight label is also moved accordingly.
+        """
+        pass
+
+    def terminate(self) -> None:
+        """
+        It removes the edge and its weight label from the canvas, by doing so, it also removes the edge from the
+        lists of associated edges of the start and end nodes.
+        """
+        pass
+
+    def show(self) -> None:
+        """
+        It shows the edge and its weight label in the canvas.
+        """
+        pass
+
+    def __recalculate(self) -> None:
+        """
+        It checks the position of the start and end nodes. In case it has changed, it updates the position of the
+        stored coordinates of the edge and the weight label.
+        """
+        pass
+
+    def __get_displacement(self) -> tuple[int, int, int, int]:
+        """
+        Summary
+        -------
+        In case the edge is overlapped (this is, start and end nodes both have an edge pointing to one another),
+        it returns a tuple with the coordinates of the middle point the line connecting the nodes has to go through.
+        (the first two values) as well as the middle point of the weight label (the last two values).
+
+        Tkinter use
+        -----------
+        Lines in tkinter can be drawn by just providing the coordinates of the start and end points, but it also offers
+        the possibility of drawing a line by providing the coordinates of more points the line has to go through and, if
+        the 'smooth' option is set to True, it will draw a smooth line through those points. This is the method used
+        to draw the overlapped edges in the canvas; the line will start in the start node, make a parabola focused on
+        a provided middle point and end in the end node. The weight label will be placed in the middle of the line,
+        following the parabola's shape.
+
+        Calculation
+        -----------
+        This middle point is calculated by getting the intersection of the mediatrix of the nodes and an imaginary circle
+        whose center is situated on the middle-point of the nodes and whose radius is variable depending on the distance
+        between the nodes. This value is limited by the constants MIN_EDGE_SEPARATION and MAX_EDGE_SEPARATION, since,
+        if the nodes are too close to each other, the parabola made by the edge whill tend to infinity and if they are
+        too far away, the parabola will tend to a straight line.
+        """
+        pass
+
+    def __calculate_start(self, start: Node, end: Node) -> tuple[int, int]:
+        """
+        It calculates the coordinates of the start point of the edge, taking into account the radius and position
+        of the start node. It does this by calculating the angle of the line that connects the start and end nodes
+        with the horizontal axis (alpha), witch can be used for getting the x and y coordinates of the start point:
+            x = cos(alpha) * radius.
+
+            y = sin(alpha) * radius.
+        """
+        pass
+
+    def __calculate_end(self, start: Node, end: Node) -> tuple[int, int]:
+        """
+        It calculates the coordinates of the end point of the edge, taking into account the radius and position
+        of the end node. It does this by calculating the angle of the line that connects the start and end nodes
+        with the horizontal axis (alpha), witch can be used for getting the x and y coordinates of the end point:
+            x = cos(alpha) * radius.
+
+            y = sin(alpha) * radius.
+        """
+        pass
